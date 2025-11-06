@@ -7,10 +7,6 @@ use App\Http\Controllers\EmpleadoController;
 use App\Http\Controllers\UsuarioController;
 use App\Http\Controllers\TecnicoDashboardController; 
 use App\Http\Controllers\ReclamoResolucionController;
-// use App\Http\Controllers\ReclamoResolucionController;
-// use App\Http\Controllers\Admin\SlaPoliticaController;
-// use App\Http\Controllers\Admin\CatTipoIncidenteController;
-// use App\Http\Controllers\Admin\CatCausaRaizController;
 
 // Página principal
 Route::get('/', function () {
@@ -63,7 +59,6 @@ Route::middleware('auth')->group(function () {
     Route::view('/formulario', 'formulario')->name('formulario');
     Route::view('/seguimiento', 'seguimiento')->name('seguimiento');
 });
-
 
 // === RUTAS DE ADMINISTRACIÓN ===
 // (Aquí pondremos todo lo del panel de Admin y Gerente)
