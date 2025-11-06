@@ -1,0 +1,15 @@
+/* resources/css/app.css */
+
+/* === TAILWIND V4: Preflight (reset) === */
+@import "tailwindcss/preflight";
+
+/* === TUS ESTILOS GLOBALES (opcional) === */
+/* Puedes agregar fuentes, variables, etc. */
+@layer base {
+  :root {
+    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  }
+}
+
+/* === UTILITIES DE TAILWIND (siempre al final) === */
+@import "tailwindcss/utilities";

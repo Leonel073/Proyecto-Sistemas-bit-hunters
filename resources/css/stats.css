@@ -1,0 +1,106 @@
+
+
+    body {
+      background: linear-gradient(to bottom right, #ebf4ff, #f5f3ff);
+      color: #111827;
+    }
+
+    h2 {
+      font-size: 2rem;
+      font-weight: 700;
+      background: linear-gradient(to right, #2563eb, #7c3aed);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    p {
+      color: #6b7280;
+      line-height: 1.6;
+    }
+
+    /* ====== SECCIÓN PRINCIPAL ====== */
+    .stats-section {
+      padding: 4rem 1rem;
+      max-width: 1200px;
+      margin: auto;
+      text-align: center;
+    }
+
+    .stats-header {
+      margin-bottom: 3rem;
+    }
+
+    .stats-header p {
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    /* ====== TARJETAS ====== */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .card {
+      background: rgba(255, 255, 255, 0.8);
+      border-radius: 1rem;
+      padding: 2rem 1rem;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+      transition: transform 0.3s, box-shadow 0.3s;
+      backdrop-filter: blur(8px);
+    }
+
+    .card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.12);
+    }
+
+    .icon-circle {
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      background: linear-gradient(to bottom right, #2563eb, #7c3aed);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 1rem;
+    }
+
+    .icon-circle svg {
+      color: white;
+      width: 28px;
+      height: 28px;
+    }
+
+    .stat-value {
+      font-size: 2rem;
+      font-weight: 700;
+      background: linear-gradient(to right, #2563eb, #7c3aed);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .stat-label {
+      font-weight: 600;
+      margin-bottom: 0.25rem;
+    }
+
+    /* ====== TARJETA FINAL ====== */
+    .info-card {
+      background: rgba(255, 255, 255, 0.8);
+      border: 1px solid #bfdbfe;
+      border-radius: 1rem;
+      padding: 1.5rem;
+      margin-top: 3rem;
+    }
+
+    .info-card strong {
+      color: #2563eb;
+    }
+
+    @media (max-width: 600px) {
+      h2 {
+        font-size: 1.6rem;
+      }
+    }

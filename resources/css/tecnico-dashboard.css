@@ -1,0 +1,50 @@
+/*
+ * Archivo: resources/css/tecnico-dashboard.css
+ * Estilos específicos para el panel del técnico
+ */
+
+/* Estilos para los mensajes de alerta (éxito o información) */
+.alert-success, .alert-info {
+    padding: 1rem;
+    margin-top: 1.5rem;
+    border-radius: 8px;
+    font-size: 0.95rem;
+}
+
+.alert-success {
+    background-color: #e6f7ec;
+    border: 1px solid #b7e1cd;
+    color: #0f5132;
+}
+
+.alert-info {
+    background-color: #e6f7ff;
+    border: 1px solid #b8e2f6;
+    color: #0a588a;
+}
+
+/* Estilo para las "etiquetas" de estado (ej. "Asignado") */
+.badge-warning {
+    display: inline-block;
+    padding: 0.3em 0.6em;
+    font-size: 0.8rem;
+    font-weight: bold;
+    color: #664d03;
+    background-color: #fff3cd;
+    border-radius: 0.25rem;
+    text-transform: uppercase;
+}
+
+/* Un poco de espacio entre los reclamos */
+.reclamo-card + .reclamo-card {
+    margin-top: 1.5rem;
+}
+
+/* Estilo para el pie de página de la tarjeta de reclamo */
+.card-footer {
+    padding: 1rem 1.5rem;
+    background-color: #f9fafb; /* Un gris muy claro */
+    color: #6b7280; /* Texto gris */
+    font-size: 0.85rem;
+    border-top: 1px solid #e5e7eb; /* Borde superior */
+}

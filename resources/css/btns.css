@@ -1,0 +1,42 @@
+.fixed-buttons {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  text-decoration: none;
+  z-index: 1000;
+}
+
+.btn-floating {
+   background: linear-gradient(to right, #1565c0, #6a1b9a);
+  color: white;
+  padding: 10px 20px;
+  border-radius: 999px;
+  opacity: 0.79;
+  font-weight: bold;
+  text-decoration: none;
+  text-align: center;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+  transition: all 0.2s ease;
+}
+.btn-top-left {
+  position: fixed;
+  top: 40px;
+  left: 20px;
+  background: linear-gradient(to right, #1565c0, #6a1b9a); /* azul */
+  color: white;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-weight: bold;
+  text-decoration: none;
+    text-align: center;
+  z-index: 1000;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+  transition: all 0.2s ease;
+}
+
+.btn-top-left:hover {
+  background-color: #1d4ed8; /* azul más oscuro */
+}
