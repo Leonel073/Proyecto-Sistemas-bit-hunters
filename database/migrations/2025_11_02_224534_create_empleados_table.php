@@ -17,7 +17,7 @@ return new class extends Migration {
             $table->string('emailCorporativo', 255)->unique();
             $table->string('passwordHash', 255);
             $table->enum('rol', ['Gerente', 'SupervisorOperador', 'SupervisorTecnico', 'Operador', 'Tecnico']);
-            $table->enum('estado', ['Activo', 'Inactivo', 'De Vacaciones'])->default('Activo');
+            $table->enum('estado', ['Activo', 'Bloqueado', 'Eliminado'])->default('Activo');
             $table->date('fechaIngreso');
             $table->timestamps();
             $table->timestamp('fechaEliminacion')->nullable();

@@ -8,14 +8,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
 
-// (Importa tus modelos de roles, ej: GerenteSoporte, Tecnico, etc.)
-use App\Models\GerenteSoporte;
-use App\Models\SupervisorOperador;
-use App\Models\SupervisorTecnico;
-use App\Models\Operador;
-use App\Models\Tecnico;
-
-
 class EmpleadoController extends Controller
 {
     /**
@@ -23,10 +15,15 @@ class EmpleadoController extends Controller
      */
     public function index()
     {
-        // NOTA: Esta vista se llama 'usuarios.blade.php' pero la ruta es 'admin.empleados.index'
-        // ¡Esto funciona, pero es un poco confuso! Solo para que lo sepas.
-        $empleados = Empleado::where('estado', '!=', 'Eliminado')->get();
-        $usuarios  = Usuario::where('estado', '!=', 'Eliminado')->get();
+        // Solo empleados activos (no eliminados lógicamente)
+        $empleados = Empleado::where('estado', '!=', 'Eliminado')
+            ->whereNull('fechaEliminacion')
+            ->get();
+
+        // Solo usuarios activos (no eliminados lógicamente)
+        $usuarios = Usuario::where('estado', '!=', 'Eliminado')
+            ->whereNull('fechaEliminacion')
+            ->get();
 
         return view('usuarios', compact('empleados', 'usuarios'));
     }
@@ -37,7 +34,7 @@ class EmpleadoController extends Controller
     public function create()
     {
         // Verificar si ya existe un gerente de soporte
-        $gerenteExiste = Empleado::where('rol', 'Gerente')->exists(); // Corregido 'gerente_soporte' a 'Gerente'
+        $gerenteExiste = Empleado::where('rol', 'gerente_soporte')->exists();
         return view('admin.empleados_create', compact('gerenteExiste'));
     }
 
@@ -56,7 +53,6 @@ class EmpleadoController extends Controller
             'emailCorporativo' => 'required|email|max:150|unique:empleados,emailCorporativo',
             'password' => 'required|string|min:8',
             'rol' => 'required|in:Gerente,SupervisorOperador,SupervisorTecnico,Operador,Tecnico',
-            'fechaIngreso' => 'required|date', // <-- Faltaba esta validación en tu original
         ]);
 
 
@@ -67,105 +63,93 @@ class EmpleadoController extends Controller
 
 
         $empleado = Empleado::create([
-            'primerNombre' => $request->primerNombre,
-            'segundoNombre' => $request->segundoNombre,
-            'apellidoPaterno' => $request->apellidoPaterno,
-            'apellidoMaterno' => $request->apellidoMaterno,
-            'ci' => $request->ci,
-            'numeroCelular' => $request->numeroCelular,
-            'emailCorporativo' => $request->emailCorporativo,
-            'passwordHash' => Hash::make($request->password),
-            'rol' => $request->rol,
-            'estado' => 'Activo',
-            'fechaIngreso' => $request->fechaIngreso, // <-- Usar la fecha del request
-        ]);
+        'primerNombre' => $request->primerNombre,
+        'segundoNombre' => $request->segundoNombre,
+        'apellidoPaterno' => $request->apellidoPaterno,
+        'apellidoMaterno' => $request->apellidoMaterno,
+        'ci' => $request->ci,
+        'numeroCelular' => $request->numeroCelular,
+        'emailCorporativo' => $request->emailCorporativo,
+        'passwordHash' => Hash::make($request->password),
+        'rol' => $request->rol,
+        'estado' => 'Activo',
+        'fechaIngreso' => now(),
+    ]);
 
-        // 👇 Insertar en tabla específica según el rol
-        switch ($empleado->rol) {
-            case 'Gerente':
-                GerenteSoporte::create(['idEmpleado' => $empleado->idEmpleado]);
-                break;
-            case 'SupervisorOperador':
-                SupervisorOperador::create(['idEmpleado' => $empleado->idEmpleado]);
-                break;
-            case 'SupervisorTecnico':
-                SupervisorTecnico::create(['idEmpleado' => $empleado->idEmpleado]);
-                break;
-            case 'Operador':
-                Operador::create(['idEmpleado' => $empleado->idEmpleado, 'turno' => 'Mañana']); // Valor por defecto
-                break;
-            case 'Tecnico':
-                Tecnico::create(['idEmpleado' => $empleado->idEmpleado, 'especialidad' => 'General']); // Valor por defecto
-                break;
-        }
+    // 👇 Insertar en tabla específica según el rol
+    switch ($empleado->rol) {
+        case 'Gerente':
+            \App\Models\GerenteSoporte::create(['idEmpleado' => $empleado->idEmpleado]);
+            break;
+        case 'SupervisorOperador':
+            \App\Models\SupervisorOperador::create(['idEmpleado' => $empleado->idEmpleado]);
+            break;
+        case 'SupervisorTecnico':
+            \App\Models\SupervisorTecnico::create(['idEmpleado' => $empleado->idEmpleado]);
+            break;
+        case 'Operador':
+            \App\Models\Operador::create(['idEmpleado' => $empleado->idEmpleado, 'turno' => 'Mañana']);
+            break;
+        case 'Tecnico':
+            \App\Models\Tecnico::create(['idEmpleado' => $empleado->idEmpleado, 'especialidad' => 'General']);
+            break;
+    }
 
-        // =================================================================
-        // ¡¡AQUÍ ESTÁ EL PRIMER CAMBIO!! (Línea 99 en tu archivo)
-        // =================================================================
-        return redirect()->route('admin.empleados.index')->with('success', 'Empleado registrado correctamente.');
+        return redirect()->route('usuarios')->with('success', 'Empleado registrado correctamente.');
     }
 
     /**
      * Mostrar el formulario de edición de un empleado
      */
-    public function edit(Empleado $empleado)
+    public function edit($id)
     {
-        
-        return view('admin.empleados_edit', [
-            'empleado' => $empleado,
-            // (Esta variable es por si no permitimos crear más de 1 gerente)
-            'gerenteExiste' => Empleado::where('rol', 'Gerente')->exists()
-        ]);
+        $empleado = Empleado::findOrFail($id);
+        return view('admin.empleados_edit', compact('empleado'));
     }
 
     /**
      * Actualizar los datos de un empleado
      */
-    public function update(Request $request, Empleado $empleado) // <-- Usar Route Model Binding
+    public function update(Request $request, $id)
     {
+        $empleado = Empleado::findOrFail($id);
+
         $request->validate([
             'primerNombre' => 'required|string|max:100',
             'apellidoPaterno' => 'required|string|max:100',
+            'emailCorporativo' => [
+                'required', 'email', 'max:150',
+                Rule::unique('empleados')->ignore($empleado->idEmpleado, 'idEmpleado')
+            ],
             'rol' => 'required|in:Gerente,SupervisorOperador,SupervisorTecnico,Operador,Tecnico',
-            'fechaIngreso' => 'required|date', // <-- Añadido
-            // (El email está deshabilitado en el form de edit, no hace falta validarlo)
+            'estado' => 'required|string|in:Activo,Bloqueado,Eliminado',
         ]);
 
-        // Separar los datos
-        $datosEmpleado = $request->only([
-            'primerNombre', 'segundoNombre', 'apellidoPaterno', 'apellidoMaterno',
-            'ci', 'numeroCelular', 'rol', 'fechaIngreso'
+        $empleado->update([
+            'primerNombre' => $request->primerNombre,
+            'segundoNombre' => $request->segundoNombre,
+            'apellidoPaterno' => $request->apellidoPaterno,
+            'apellidoMaterno' => $request->apellidoMaterno,
+            'emailCorporativo' => $request->emailCorporativo,
+            'rol' => $request->rol,
+            'estado' => $request->estado,
         ]);
 
-        // Solo actualizar contraseña SI se escribió una nueva
-        if ($request->filled('password')) {
-            $request->validate(['password' => 'string|min:8']);
-            $datosEmpleado['passwordHash'] = Hash::make($request->password);
-        }
-
-        $empleado->update($datosEmpleado);
-
-        // =================================================================
-        // ¡¡AQUÍ ESTÁ EL SEGUNDO CAMBIO!! (Línea 139 en tu archivo)
-        // =================================================================
-        return redirect()->route('admin.empleados.index')->with('success', 'Empleado actualizado correctamente.');
+        return redirect()->route('usuarios')->with('success', 'Empleado actualizado correctamente.');
     }
 
     /**
      * Eliminar (soft delete) un empleado
      */
-    public function destroy(Empleado $empleado) // <-- Usar Route Model Binding
+    public function destroy($id)
     {
-        // No usamos 'Eliminado', usamos 'De Baja' como en tu BD de USUARIO
+        $empleado = Empleado::findOrFail($id);
         $empleado->update([
-            'estado' => 'Inactivo', // O 'De Baja' si lo prefieres
+            'estado' => 'Eliminado',
             'fechaEliminacion' => now(),
         ]);
 
-        // =================================================================
-        // ¡¡AQUÍ ESTÁ EL TERCER CAMBIO!! (Línea 153 en tu archivo)
-        // =================================================================
-        return redirect()->route('admin.empleados.index')->with('success', 'Empleado dado de baja correctamente.');
+        return redirect()->route('usuarios')->with('success', 'Empleado eliminado correctamente.');
     }
 
     /**
@@ -173,8 +157,22 @@ class EmpleadoController extends Controller
      */
     public function deleted()
     {
-        // Buscamos los que no estén 'Activos'
-        $empleados = Empleado::where('estado', '!=', 'Activo')->get();
-        return view('admin.usuarios_deleted', compact('empleados'));
+        $empleados = Empleado::where('estado', 'Eliminado')->get();
+        $usuarios  = \App\Models\Usuario::where('estado', 'Eliminado')->get();
+
+        return view('admin.usuarios_deleted', compact('empleados', 'usuarios'));
     }
+
+
+    public function restore($id)
+    {
+        $empleado = Empleado::findOrFail($id);
+        $empleado->update([
+            'estado' => 'Activo',
+            'fechaEliminacion' => null,
+        ]);
+
+        return redirect()->route('usuarios.deleted')->with('success', 'Empleado reactivado correctamente.');
+    }
+
 }

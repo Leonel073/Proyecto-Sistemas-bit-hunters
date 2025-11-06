@@ -18,7 +18,7 @@ return new class extends Migration {
             $table->string('passwordHash', 255);
             $table->text('direccionTexto')->nullable();
             $table->timestamp('fechaRegistro')->useCurrent();
-            $table->enum('estado', ['Activo', 'Suspendido', 'De Baja'])->default('Activo');
+            $table->enum('estado', ['Activo', 'Bloqueado', 'Eliminado'])->default('Activo');
             $table->timestamps(); // crea fechaCreacion y fechaActualizacion
             $table->timestamp('fechaEliminacion')->nullable();
             $table->index('estado', 'idx_usuario_estado');

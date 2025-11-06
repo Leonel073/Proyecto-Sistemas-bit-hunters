@@ -54,7 +54,11 @@ Route::delete('/usuarios/{id}', [UsuarioController::class, 'destroy'])->name('us
 Route::put('empleados/{id}/restore', [EmpleadoController::class, 'restore'])->name('empleados.restore');
 Route::put('usuarios/{id}/restore', [UsuarioController::class, 'restore'])->name('usuarios.restore');
 
-
+// === RUTAS DE CLIENTE AUTENTICADO ===
+Route::middleware('auth')->group(function () {
+    Route::view('/formulario', 'formulario')->name('formulario');
+    Route::view('/seguimiento', 'seguimiento')->name('seguimiento');
+});
 
 // === RUTAS DE ADMINISTRACIÓN ===
 // (Aquí pondremos todo lo del panel de Admin y Gerente)

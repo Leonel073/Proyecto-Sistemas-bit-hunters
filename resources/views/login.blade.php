@@ -9,8 +9,7 @@
   @vite([
       'resources/css/app.css',
       'resources/css/login.css',
-      'resources/css/btns.css',
-      'resources/js/login.js'
+      'resources/css/btns.css'
   ])
 
   <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
