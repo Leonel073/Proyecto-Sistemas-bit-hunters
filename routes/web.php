@@ -4,35 +4,56 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\EmpleadoController;
-// Importa los nuevos controladores que crearemos después
+use App\Http\Controllers\UsuarioController;
 use App\Http\Controllers\TecnicoDashboardController; 
-// use App\Http\Controllers\ReclamoResolucionController;
-// use App\Http\Controllers\Admin\SlaPoliticaController;
-// use App\Http\Controllers\Admin\CatTipoIncidenteController;
-// use App\Http\Controllers\Admin\CatCausaRaizController;
+use App\Http\Controllers\ReclamoResolucionController;
 
-// === PÁGINAS PÚBLICAS ===
+// Página principal
 Route::get('/', function () {
     return view('index');
 })->name('home');
 
+// === PÁGINAS PÚBLICAS ===
 Route::get('/recursos', fn() => view('recursos'))->name('recursos');
 
-// === AUTENTICACIÓN (Login / Registro) ===
-// (Es mejor agruparlas)
-Route::get('/login', [LoginController::class, 'show'])->name('login');
-Route::post('/login', [LoginController::class, 'login'])->name('login.post');
-Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
-
-Route::get('/sign_up', [RegisterController::class, 'show'])->name('register');
-Route::post('/sign_up', [RegisterController::class, 'store'])->name('register.store');
-
-
-// === RUTAS DE CLIENTE AUTENTICADO ===
+// === RUTAS PROTEGIDAS ===
 Route::middleware('auth')->group(function () {
     Route::view('/formulario', 'formulario')->name('formulario');
     Route::view('/seguimiento', 'seguimiento')->name('seguimiento');
 });
+
+// === LOGIN ===
+Route::get('/login', [LoginController::class, 'show'])->name('login');
+Route::post('/login', [LoginController::class, 'login'])->name('login.post');
+Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
+
+// === REGISTRO ===
+Route::get('/sign_up', [RegisterController::class, 'show'])->name('register');
+Route::post('/sign_up', [RegisterController::class, 'store'])->name('register.store');
+
+
+Route::get('/usuarios', [EmpleadoController::class, 'index'])->name('usuarios');
+Route::get('/admin/users/create', [EmpleadoController::class, 'create'])->name('empleados.create');
+Route::post('/admin/users', [EmpleadoController::class, 'store'])->name('empleados.store');
+Route::get('/admin/users/deleted', [EmpleadoController::class, 'deleted'])->name('usuarios.deleted');
+Route::delete('/admin/users/{id}', [EmpleadoController::class, 'destroy'])->name('empleados.destroy');
+
+Route::get('empleados', [EmpleadoController::class, 'index'])->name('empleados.index');
+Route::get('empleados/create', [EmpleadoController::class, 'create'])->name('empleados.create');
+Route::post('empleados', [EmpleadoController::class, 'store'])->name('empleados.store');
+Route::get('empleados/{id}/edit', [EmpleadoController::class, 'edit'])->name('empleados.edit');
+Route::put('empleados/{id}', [EmpleadoController::class, 'update'])->name('empleados.update');
+Route::delete('empleados/{id}', [EmpleadoController::class, 'destroy'])->name('empleados.destroy');
+
+// === RUTAS DE USUARIOS (administración general) ===
+Route::get('/usuarios', [EmpleadoController::class, 'index'])->name('usuarios');
+Route::get('/usuarios/{id}/edit', [UsuarioController::class, 'edit'])->name('usuarios.edit');
+Route::put('/usuarios/{id}', [UsuarioController::class, 'update'])->name('usuarios.update');
+Route::delete('/usuarios/{id}', [UsuarioController::class, 'destroy'])->name('usuarios.destroy');
+
+Route::put('empleados/{id}/restore', [EmpleadoController::class, 'restore'])->name('empleados.restore');
+Route::put('usuarios/{id}/restore', [UsuarioController::class, 'restore'])->name('usuarios.restore');
+
 
 
 // === RUTAS DE ADMINISTRACIÓN ===
