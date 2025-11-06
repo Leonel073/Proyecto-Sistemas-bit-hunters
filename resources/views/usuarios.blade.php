@@ -48,8 +48,8 @@
       @endif
 
       <div class="action-buttons">
-        <a href="{{ route('admin.empleados.create') }}" class="btn-action">Registrar Nuevo Empleado</a>
-        <a href="{{ route('admin.empleados.deleted') }}" class="btn-action btn-deleted">Usuarios Eliminados</a>
+        <a href="{{ route('empleados.create') }}" class="btn-action">Registrar Nuevo Empleado</a>
+        <a href="{{ route('usuarios.deleted') }}" class="btn-action btn-deleted">Usuarios Eliminados</a>
       </div>
 
       <!-- BUSCADOR -->
@@ -79,8 +79,8 @@
             <td>{{ ucfirst(str_replace('_', ' ', $empleado->rol)) }}</td>
             <td>{{ $empleado->estado }}</td>
             <td class="actions">
-              <a href="{{ route('admin.empleados.edit', $empleado->idEmpleado) }}" class="btn-edit">Editar</a>
-              <form action="{{ route('admin.empleados.destroy', $empleado->idEmpleado) }}" method="POST" style="display:inline;">
+              <a href="{{ route('empleados.edit', $empleado->idEmpleado) }}" class="btn-edit">Editar</a>
+              <form action="{{ route('empleados.destroy', $empleado->idEmpleado) }}" method="POST" style="display:inline;">
                 @csrf
                 @method('DELETE')
                 <button type="submit" class="btn-delete" onclick="return confirm('¿Eliminar empleado?')">Eliminar</button>
@@ -91,15 +91,21 @@
 
         @foreach ($usuarios as $usuario)
           <tr>
-            <td>{{ $usuario->nombre }}</td>
+            <td>{{ $usuario->primerNombre }} {{ $usuario->apellidoPaterno }}</td>
             <td>{{ $usuario->email }}</td>
             <td>Usuario</td>
             <td>{{ $usuario->estado }}</td>
             <td class="actions">
-              <!-- Agregar botones si aplica -->
+              <a href="{{ route('usuarios.edit', $usuario->idUsuario) }}" class="btn-edit">Editar</a>
+              <form action="{{ route('usuarios.destroy', $usuario->idUsuario) }}" method="POST" style="display:inline;">
+                @csrf
+                @method('DELETE')
+                <button type="submit" class="btn-delete" onclick="return confirm('¿Eliminar usuario?')">Eliminar</button>
+              </form>
             </td>
           </tr>
         @endforeach
+
         </tbody>
       </table>
     </div>

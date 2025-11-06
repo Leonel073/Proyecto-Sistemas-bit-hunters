@@ -156,29 +156,31 @@
 
       <!-- BOTONES FLOTANTES -->
       <div class="fixed-buttons">
-        @guest
-          <a href="{{ route('login') }}" class="btn-floating">Iniciar Sesión</a>
-          <a href="{{ route('register') }}" class="btn-floating btn-register">Registrarse</a>
-        @endguest
-
-        @auth
-          <!-- PRUEBA VISUAL -->
-          <div class="bg-green-500 text-white px-4 py-2 rounded-full text-sm font-bold shadow-lg">
-            {{ Auth::user()->primerNombre }}
-          </div>
-          <form method="POST" action="{{ route('logout') }}" class="inline">
-            @csrf
-            <button type="submit" class="btn-floating btn-logout">Cerrar Sesión</button>
-          </form>
-        @endauth
-      </div>
-
-      <!-- Copyright -->
-      <div class="footer-bottom">
-        <p>© 2025 Nexora Bolivia. Todos los derechos reservados.</p>
-        <p>Servicio profesional de asesoría y apoyo para usuarios de internet en zonas rurales de Bolivia.</p>
-      </div>
+        @if(Auth::guard('web')->check())
+            <!-- Sesión de usuario -->
+            <div class="bg-green-500 text-white px-4 py-2 rounded-full text-sm font-bold shadow-lg">
+                {{ Auth::guard('web')->user()->primerNombre }}
+            </div>
+            <form method="POST" action="{{ route('logout') }}" class="inline">
+                @csrf
+                <button type="submit" class="btn-floating btn-logout">Cerrar Sesión</button>
+            </form>
+        @elseif(Auth::guard('empleado')->check())
+            <!-- Sesión de empleado -->
+            <div class="bg-blue-500 text-white px-4 py-2 rounded-full text-sm font-bold shadow-lg">
+                {{ Auth::guard('empleado')->user()->primerNombre }}
+            </div>
+            <form method="POST" action="{{ route('logout') }}" class="inline">
+                @csrf
+                <button type="submit" class="btn-floating btn-logout">Cerrar Sesión</button>
+            </form>
+        @else
+            <!-- No autenticado -->
+            <a href="{{ route('login') }}" class="btn-floating">Iniciar Sesión</a>
+            <a href="{{ route('register') }}" class="btn-floating btn-register">Registrarse</a>
+        @endif
     </div>
+
   </footer>
 
   <!-- MODAL -->

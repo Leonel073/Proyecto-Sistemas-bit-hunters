@@ -5,7 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Registrar Empleado - Nexora Bolivia</title>
 
-  @vite(['resources/css/app.css', 'resources/css/empleados-create.css'])
+  @vite(['resources/css/app.css', 
+          'resources/css/empleados-create.css'])
 </head>
 <body class="bg-gray-100">
   <div class="form-container">
@@ -21,8 +22,8 @@
       </div>
     @endif
 
-    <form action="{{ route('admin.empleados.store') }}" method="POST" class="form-card">
-    @csrf
+    <form action="{{ route('empleados.store') }}" method="POST" class="form-card">
+      @csrf
 
       <div class="form-group">
         <label>Primer Nombre</label>
@@ -82,7 +83,7 @@
 
       <div class="form-actions">
         <button type="submit" class="btn-primary">Registrar</button>
-        <a href="{{ route('admin.empleados.index') }}" class="btn-link">Volver</a>
+        <a href="{{ route('usuarios') }}" class="btn-link">Volver</a>
       </div>
     </form>
   </div>
