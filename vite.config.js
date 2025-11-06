@@ -33,7 +33,6 @@ export default defineConfig({
                 // JS POR PÁGINA
                 'resources/js/nav.js',
                 'resources/js/recursos.js',
-                'resources/js/login.js',
                 'resources/js/register.js',
             ],
             refresh: true,
