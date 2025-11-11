@@ -6,6 +6,7 @@ use Illuminate\Foundation\Configuration\Middleware;
 
 // ↓ ↓ ↓ AÑADE ESTA LÍNEA AQUÍ ↓ ↓ ↓
 use App\Http\Middleware\RoleMiddleware;
+use App\Http\Middleware\AuthEmpleado;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -17,7 +18,8 @@ return Application::configure(basePath: dirname(__DIR__))
         
         // ↓ ↓ ↓ Y AÑADE ESTA LÍNEA AQUÍ DENTRO ↓ ↓ ↓
         $middleware->alias([
-            'role' => RoleMiddleware::class
+            'role' => RoleMiddleware::class,
+            'auth_empleado' => AuthEmpleado::class
         ]);
 
         // (Es posible que tengas otras cosas aquí, déjalas)

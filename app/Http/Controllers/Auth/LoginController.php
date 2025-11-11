@@ -6,9 +6,11 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 use App\Models\Usuario;
 use App\Models\Empleado;
+use App\Models\RegistroAuditoria;
 
 class LoginController extends Controller
 {
@@ -85,9 +87,63 @@ class LoginController extends Controller
 
         $request->session()->regenerate();
 
+        // Guardar el rol en sesión para el middleware de roles
+        if ($tipo === 'empleado') {
+            session(['user_role' => $persona->rol]);
+        }
+
+        // Registrar auditoría para empleados (por ejemplo: Operador)
+        if ($tipo === 'empleado') {
+            try {
+                RegistroAuditoria::create([
+                    'idEmpleado' => $persona->idEmpleado,
+                    'accion' => 'login',
+                    'detalleAccion' => 'Inicio de sesión exitoso',
+                    'ipOrigen' => $request->ip(),
+                    // 'fechaHora' se deja al valor por defecto de la BD
+                ]);
+            } catch (\Exception $e) {
+                // No interrumpir el flujo de login por errores en el log de auditoría.
+                // Podríamos registrar en el log de la aplicación si se desea:
+                // \Log::error('Error al crear registro de auditoría: '.$e->getMessage());
+            }
+        }
         // Redirección según tipo y rol
-        if ($tipo === 'empleado' && $persona->rol === 'Gerente') {
-            return redirect()->route('usuarios')->with('success', 'Bienvenido, Gerente.');
+        if ($tipo === 'empleado') {
+            $mensajesBienvenida = [
+                'Gerente' => 'Bienvenido, Gerente.',
+                'Operador' => 'Bienvenido, Operador.',
+                'Tecnico' => 'Bienvenido, Técnico.',
+                'SupervisorOperador' => 'Bienvenido, Supervisor de Operadores.',
+                'SupervisorTecnico' => 'Bienvenido, Supervisor Técnico.',
+            ];
+
+            $mensaje = $mensajesBienvenida[$persona->rol] ?? 'Bienvenido al sistema.';
+            
+            // Debug: loguear el rol para identificar el problema
+            Log::info('Login de empleado', ['rol' => $persona->rol, 'email' => $persona->emailCorporativo, 'id' => $persona->idEmpleado]);
+
+            // Redirigir según el rol
+            if ($persona->rol === 'Operador') {
+                // Para Operador, mostrar la vista directamente en lugar de redirigir
+                $empleadoId = $persona->idEmpleado;
+                $nuevos = \App\Models\Reclamo::whereNull('idOperador')
+                    ->where('estado', 'Nuevo')
+                    ->orderBy('fechaCreacion', 'desc')
+                    ->get();
+                $misCasos = \App\Models\Reclamo::where('idOperador', $empleadoId)
+                    ->whereIn('estado', ['Asignado', 'En Proceso'])
+                    ->orderBy('fechaCreacion', 'desc')
+                    ->get();
+                
+                return view('operador.panel', compact('nuevos', 'misCasos'))->with('success', $mensaje);
+            } elseif ($persona->rol === 'Gerente') {
+                return redirect()->route('usuarios')->with('success', $mensaje);
+            } elseif ($persona->rol === 'Tecnico') {
+                return redirect('/tecnico/dashboard')->with('success', $mensaje);
+            } else {
+                return redirect()->route('home')->with('success', $mensaje);
+            }
         }
 
         return redirect()->route('home')->with('success', 'Bienvenido al sistema.');
