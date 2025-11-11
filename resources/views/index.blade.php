@@ -19,12 +19,13 @@
 
   <!-- NAV -->
   <nav>
-    <div class="container">
+    <div class="nav-container">
       <!-- LOGO -->
-      <div class="logo" onclick="navigateTo('inicio')">
+      <div class="logo" role="button" tabindex="0" onclick="navigateTo('inicio')" aria-label="Ir al inicio">
         <div class="logo-icon">
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M12 20h.01M2 8.82a15.91 15.91 0 0 1 20 0M5.17 12.25a10.91 10.91 0 0 1 13.66 0M8.31 15.68a5.91 5.91 0 0 1 7.38 0" />
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M12 20h.01M2 8.82a15.91 15.91 0 0 1 20 0M5.17 12.25a10.91 10.91 0 0 1 13.66 0M8.31 15.68a5.91 5.91 0 0 1 7.38 0" />
           </svg>
         </div>
         <div class="logo-text">
@@ -33,31 +34,30 @@
         </div>
       </div>
 
-      <!-- BOTONES DESKTOP -->
+      <!-- LINKS DESKTOP -->
       <div class="nav-links" id="navLinks">
-        <button class="active" onclick="navigateTo('inicio')">Inicio</button>
-        <button onclick="showAuthModal('formulario')">Presentar Reclamo</button>
-        <button onclick="showAuthModal('seguimiento')">Seguimiento</button>
-        <button onclick="navigateTo('recursos')">Recursos</button>
+        <button class="nav-link active" onclick="navigateTo('inicio')" aria-current="page">Inicio</button>
+        <!-- <button class="nav-link" onclick="navigateTo('formulario')">Presentar Reclamo</button>-->
+        <button class="nav-link" onclick="navigateTo('seguimiento')">Seguimiento</button>
+        <button class="nav-link" onclick="navigateTo('recursos')">Recursos</button>
       </div>
 
-      <!-- BOTÓN MENÚ MÓVIL -->
-      <button class="menu-button" id="menuToggle">
+      <!-- MENÚ MÓVIL -->
+      <button class="menu-button" id="menuToggle" aria-label="Menú de navegación">
         <svg id="menuIcon" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
         </svg>
       </button>
     </div>
 
-    <!-- MENÚ MÓVIL -->
     <div class="mobile-menu" id="mobileMenu">
-      <button class="active" onclick="navigateTo('inicio')">Inicio</button>
-      <button onclick="showAuthModal('formulario')">Presentar Reclamo</button>
-      <button onclick="showAuthModal('seguimiento')">Seguimiento</button>
-      <button onclick="navigateTo('recursos')">Recursos</button>
+      <button class="mobile-link active" onclick="navigateTo('inicio')">Inicio</button>
+       <!--<button class="mobile-link" onclick="navigateTo('formulario')">Presentar Reclamo</button>-->
+      <button class="mobile-link" onclick="navigateTo('seguimiento')">Seguimiento</button>
+      <button class="mobile-link" onclick="navigateTo('recursos')">Recursos</button>
     </div>
   </nav>
-
+  <!-- NAV END -->
   <!-- HERO -->
   <section class="hero">
     <div class="hero-overlay"></div>
@@ -156,29 +156,33 @@
 
       <!-- BOTONES FLOTANTES -->
       <div class="fixed-buttons">
-        @if(Auth::guard('web')->check())
-            <!-- Sesión de usuario -->
+        @auth('web')
+            <!-- Sesión de usuario regular -->
             <div class="bg-green-500 text-white px-4 py-2 rounded-full text-sm font-bold shadow-lg">
-                {{ Auth::guard('web')->user()->primerNombre }}
+                {{ auth('web')->user()->primerNombre }}
             </div>
             <form method="POST" action="{{ route('logout') }}" class="inline">
                 @csrf
                 <button type="submit" class="btn-floating btn-logout">Cerrar Sesión</button>
             </form>
-        @elseif(Auth::guard('empleado')->check())
+        @endauth
+        @auth('empleado')
             <!-- Sesión de empleado -->
             <div class="bg-blue-500 text-white px-4 py-2 rounded-full text-sm font-bold shadow-lg">
-                {{ Auth::guard('empleado')->user()->primerNombre }}
+                {{ auth('empleado')->user()->primerNombre }}
             </div>
             <form method="POST" action="{{ route('logout') }}" class="inline">
                 @csrf
                 <button type="submit" class="btn-floating btn-logout">Cerrar Sesión</button>
             </form>
-        @else
+        @endauth
+        @guest('web')
+        @guest('empleado')
             <!-- No autenticado -->
             <a href="{{ route('login') }}" class="btn-floating">Iniciar Sesión</a>
             <a href="{{ route('register') }}" class="btn-floating btn-register">Registrarse</a>
-        @endif
+        @endguest
+        @endguest
     </div>
 
   </footer>

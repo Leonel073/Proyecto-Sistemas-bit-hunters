@@ -7,6 +7,8 @@ use App\Http\Controllers\EmpleadoController;
 use App\Http\Controllers\UsuarioController;
 use App\Http\Controllers\TecnicoDashboardController; 
 use App\Http\Controllers\ReclamoResolucionController;
+use App\Http\Controllers\ReclamoController;
+use App\Http\Controllers\OperadorController;
 
 // Página principal
 Route::get('/', function () {
@@ -20,7 +22,10 @@ Route::get('/recursos', fn() => view('recursos'))->name('recursos');
 Route::middleware('auth')->group(function () {
     Route::view('/formulario', 'formulario')->name('formulario');
     Route::view('/seguimiento', 'seguimiento')->name('seguimiento');
+    // Ruta para procesar el formulario de reclamo enviado desde la UI
+    Route::post('/reclamo', [ReclamoController::class, 'storeFront'])->name('reclamo.store');
 });
+
 
 // === LOGIN ===
 Route::get('/login', [LoginController::class, 'show'])->name('login');
@@ -93,7 +98,7 @@ Route::middleware(['auth', 'role:Gerente'])->prefix('admin')->name('admin.')->gr
 // === RUTAS DE TÉCNICO ===
 // ¡BLOQUE ACTIVADO! (Le quitamos los //)
 // Usamos el rol 'Tecnico' (asegúrate que tu middleware se llame así)
-Route::middleware(['auth', 'role:Tecnico'])->prefix('tecnico')->name('tecnico.')->group(function () {
+Route::middleware('auth')->prefix('tecnico')->name('tecnico.')->group(function () {
     // Ver el panel
     Route::get('/dashboard', [TecnicoDashboardController::class, 'index'])->name('dashboard');
     
@@ -102,4 +107,17 @@ Route::middleware(['auth', 'role:Tecnico'])->prefix('tecnico')->name('tecnico.')
     
     // Resolver un RECLAMO (registrar solución y marcar como Resuelto)
     Route::post('/reclamo/{reclamo}/resolver', [ReclamoResolucionController::class, 'resolver'])->name('reclamo.resolver');
+});
+
+// === RUTAS DE OPERADOR ===
+// Primero, rutas sin el middleware de rol (para poder acceder inmediatamente después del login)
+Route::middleware('auth_empleado')->prefix('operador')->name('operador.')->group(function () {
+    // Panel principal del operador: lista reclamos asignados y pendientes
+    Route::get('/panel', [OperadorController::class, 'panel'])->name('panel');
+    // JSON endpoints para AJAX desde el panel de operador
+    Route::get('/reclamos/nuevos', [OperadorController::class, 'nuevos'])->name('reclamos.nuevos');
+    Route::get('/reclamos/mis', [OperadorController::class, 'mis'])->name('reclamos.mis');
+    Route::get('/tecnicos', [OperadorController::class, 'tecnicos'])->name('tecnicos');
+    Route::post('/reclamo/tomar/{reclamo}', [OperadorController::class, 'tomar'])->name('reclamo.tomar');
+    Route::post('/reclamo/asignar-tecnico/{reclamo}', [OperadorController::class, 'asignarTecnico'])->name('reclamo.asignarTecnico');
 });

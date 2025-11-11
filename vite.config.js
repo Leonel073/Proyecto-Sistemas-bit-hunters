@@ -28,6 +28,7 @@ export default defineConfig({
                 // ¡¡AQUÍ ESTÁN LOS QUE FALTABAN!!
                 'resources/css/empleados-create.css',
                 'resources/css/tecnico-dashboard.css',
+                'resources/css/operador.css',
 
 
                 // JS POR PÁGINA
