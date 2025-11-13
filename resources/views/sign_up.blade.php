@@ -6,13 +6,22 @@
   <title>Registro - Nexora Bolivia</title>
 
   @vite([
-      'resources/css/app.css',
-      'resources/css/register.css',
-      'resources/css/btns.css',
-      'resources/js/register.js'
+    'resources/css/app.css',
+    'resources/css/register.css',
+    'resources/css/btns.css',
+    'resources/js/register.js'
   ])
 
   <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+
+  <style>
+    .error-message {
+      color: #DC2626; /* Este es el color 'red-600' de Tailwind */
+      font-size: 0.75rem; /* text-xs */
+      margin-top: 0.25rem; /* mt-1 */
+      font-weight: 500; /* font-medium */
+    }
+  </style>
 </head>
 <body class="bg-gray-50">
 
@@ -31,125 +40,143 @@
         <p class="text-gray-600">Regístrate en Nexora Bolivia</p>
       </div>
 
-      <!-- ALERTAS -->
       @if (session('success'))
         <div class="alert alert-success">
           {{ session('success') }}
         </div>
       @endif
 
-      @if ($errors->any())
-        <div class="alert alert-error">
-          <ul class="list-disc pl-5 text-sm">
-            @foreach ($errors->all() as $error)
-              <li>{{ $error }}</li>
-            @endforeach
-          </ul>
-        </div>
-      @endif
-
-      <form id="registerForm" action="{{ route('register.store') }}" method="POST" class="space-y-5">
+      <form id="registerForm" action="{{ route('register.store') }}" method="POST" class="space-y-5" novalidate>
         @csrf
 
-        <!-- NOMBRE Y APELLIDO -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div class="input-group">
             <label for="primerNombre" class="block text-sm font-medium text-gray-700">Primer Nombre *</label>
-            <input type="text" id="primerNombre" name="primerNombre" value="{{ old('primerNombre') }}" placeholder="Juan" class="mt-1 w-full" required />
+            <input type="text" id="primerNombre" name="primerNombre" value="{{ old('primerNombre') }}" placeholder="Juan" class="mt-1 w-full" required 
+                   pattern="^[\pL\s\-]+$" title="Solo debe contener letras y espacios." />
+            <span id="primerNombre-error" class="error-message empty:hidden"></span>
+            @error('primerNombre')
+              <span class="error-message">{{ $message }}</span>
+            @enderror
           </div>
           <div class="input-group">
             <label for="apellidoPaterno" class="block text-sm font-medium text-gray-700">Apellido Paterno *</label>
-            <input type="text" id="apellidoPaterno" name="apellidoPaterno" value="{{ old('apellidoPaterno') }}" placeholder="Pérez" class="mt-1 w-full" required />
+            <input type="text" id="apellidoPaterno" name="apellidoPaterno" value="{{ old('apellidoPaterno') }}" placeholder="Pérez" class="mt-1 w-full" required 
+                   pattern="^[\pL\s\-]+$" title="Solo debe contener letras y espacios." />
+            <span id="apellidoPaterno-error" class="error-message empty:hidden"></span>
+            @error('apellidoPaterno')
+              <span class="error-message">{{ $message }}</span>
+            @enderror
           </div>
         </div>
 
-        <!-- SEGUNDO NOMBRE Y APELLIDO MATERNO -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div class="input-group">
-            <label for="segundoNombre" class="block text-sm font-medium text-gray-700">Segundo Nombre</label>
-            <input type="text" id="segundoNombre" name="segundoNombre" value="{{ old('segundoNombre') }}" placeholder="Carlos" class="mt-1 w-full" />
+            <label for="segundoNombre" class="block text-sm font-medium text-gray-700">Segundo Nombre *</label>
+            <input type="text" id="segundoNombre" name="segundoNombre" value="{{ old('segundoNombre') }}" placeholder="Carlos" class="mt-1 w-full" required
+                   pattern="^[\pL\s\-]+$" title="Solo debe contener letras y espacios." />
+            <span id="segundoNombre-error" class="error-message empty:hidden"></span>
+            @error('segundoNombre')
+              <span class="error-message">{{ $message }}</span>
+            @enderror
           </div>
           <div class="input-group">
-            <label for="apellidoMaterno" class="block text-sm font-medium text-gray-700">Apellido Materno</label>
-            <input type="text" id="apellidoMaterno" name="apellidoMaterno" value="{{ old('apellidoMaterno') }}" placeholder="Gómez" class="mt-1 w-full" />
+            <label for="apellidoMaterno" class="block text-sm font-medium text-gray-700">Apellido Materno *</label>
+            <input type="text" id="apellidoMaterno" name="apellidoMaterno" value="{{ old('apellidoMaterno') }}" placeholder="Gómez" class="mt-1 w-full" required
+                   pattern="^[\pL\s\-]+$" title="Solo debe contener letras y espacios." />
+            <span id="apellidoMaterno-error" class="error-message empty:hidden"></span>
+            @error('apellidoMaterno')
+              <span class="error-message">{{ $message }}</span>
+            @enderror
           </div>
         </div>
 
-        <!-- CI Y CELULAR -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div class="input-group">
             <label for="ci" class="block text-sm font-medium text-gray-700">Cédula (CI) *</label>
-            <input type="text" id="ci" name="ci" value="{{ old('ci') }}" placeholder="1234567 LP" class="mt-1 w-full" required />
+            <input type="tel" id="ci" name="ci" value="{{ old('ci') }}" placeholder="1234567" class="mt-1 w-full" required 
+                   pattern="\d{7,10}" title="Debe tener entre 7 y 10 números." maxlength="10" />
+            <span id="ci-error" class="error-message empty:hidden"></span>
+            @error('ci')
+              <span class="error-message">{{ $message }}</span>
+            @enderror
           </div>
           <div class="input-group">
             <label for="numeroCelular" class="block text-sm font-medium text-gray-700">Celular *</label>
-            <input type="text" id="numeroCelular" name="numeroCelular" value="{{ old('numeroCelular') }}" placeholder="70123456" class="mt-1 w-full" required />
+            <input type="tel" id="numeroCelular" name="numeroCelular" value="{{ old('numeroCelular') }}" placeholder="70123456" class="mt-1 w-full" required 
+                   pattern="\d{8,}" title="Debe ser un número válido (ej: 70123456)." maxlength="15" />
+            <span id="numeroCelular-error" class="error-message empty:hidden"></span>
+            @error('numeroCelular')
+              <span class="error-message">{{ $message }}</span>
+            @enderror
           </div>
         </div>
 
-        <!-- EMAIL -->
         <div class="input-group">
-          <label for="email" class="block text-sm font-medium text-gray-700">Correo Electrónico</label>
-          <input type="email" id="email" name="email" value="{{ old('email') }}" placeholder="tu@email.com" class="mt-1 w-full" />
+          <label for="email" class="block text-sm font-medium text-gray-700">Correo Electrónico *</label>
+          <input type="email" id="email" name="email" value="{{ old('email') }}" placeholder="tu@email.com" class="mt-1 w-full" required 
+                 title="Debe ser un correo electrónico válido." />
+          <span id="email-error" class="error-message empty:hidden"></span>
+          
+          @error('email')
+            <span class="error-message">{{ $message }}</span>
+          @enderror
         </div>
 
-        <!-- DIRECCIÓN -->
         <div class="input-group">
-          <label for="direccionTexto" class="block text-sm font-medium text-gray-700">Dirección (opcional)</label>
-          <input type="text" id="direccionTexto" name="direccionTexto" value="{{ old('direccionTexto') }}" placeholder="Calle, zona..." class="mt-1 w-full" />
+          <label for="direccionTexto" class="block text-sm font-medium text-gray-700">Dirección *</label>
+          <input type="text" id="direccionTexto" name="direccionTexto" value="{{ old('direccionTexto') }}" placeholder="Calle, zona..." class="mt-1 w-full" required />
+          <span id="direccionTexto-error" class="error-message empty:hidden"></span>
+          @error('direccionTexto')
+            <span class="error-message">{{ $message }}</span>
+          @enderror
         </div>
 
-        <!-- CONTRASEÑAS -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div class="input-group">
             <label for="password" class="block text-sm font-medium text-gray-700">Contraseña *</label>
-            <div class="password-wrapper relative">
-              <input 
-                type="password" 
-                id="password" 
-                name="password" 
-                placeholder="••••••••" 
-                class="mt-1 w-full pr-10" 
-                required 
-                minlength="8"
-                pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$"
-                title="Debe tener al menos 8 caracteres, incluir mayúsculas, minúsculas, números y un símbolo especial."
-              />
-              <button type="button" class="toggle-pass absolute right-3 top-3" onclick="togglePassword('password')">
-                <svg id="eye-password" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-5 h-5 text-gray-500">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                </svg>
-              </button>
-            </div>
-            <p class="text-xs text-gray-500 mt-1">
-              La contraseña debe tener mínimo 8 caracteres, incluir mayúsculas, minúsculas, números y símbolos especiales.
-            </p>
+            <input 
+              type="password" 
+              id="password" 
+              name="password" 
+              placeholder="••••••••" 
+              class="mt-1 w-full" 
+              required 
+              minlength="8"
+              pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$"
+              title="Debe tener al menos 8 caracteres, incluir mayúsculas, minúsculas, números y un símbolo especial."
+            />
+            <p id="password-hint" class="text-xs text-gray-500 mt-1">
+              Mínimo 8 caracteres, con mayúsculas, minúsculas, números y símbolos.
+            </p> <span id="password-error" class="error-message empty:hidden"></span>
+            @error('password')
+              <span class="error-message">{{ $message }}</span>
+            @enderror
           </div>
 
           <div class="input-group">
             <label for="password_confirmation" class="block text-sm font-medium text-gray-700">Confirmar Contraseña *</label>
-            <div class="password-wrapper relative">
-              <input 
-                type="password" 
-                id="password_confirmation" 
-                name="password_confirmation" 
-                placeholder="••••••••" 
-                class="mt-1 w-full pr-10" 
-                required 
-                minlength="8"
-              />
-              <button type="button" class="toggle-pass absolute right-3 top-3" onclick="togglePassword('password_confirmation')">
-                <svg id="eye-password_confirmation" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-5 h-5 text-gray-500">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                </svg>
-              </button>
-            </div>
+            <input 
+              type="password" 
+              id="password_confirmation" 
+              name="password_confirmation" 
+              placeholder="••••••••" 
+              class="mt-1 w-full" 
+              required 
+              minlength="8"
+            />
+            <span id="password_confirmation-error" class="error-message empty:hidden"></span>
           </div>
         </div>
 
-        <!-- BOTÓN ENVIAR -->
+        <div class="flex items-center">
+            <input id="togglePasswordCheckbox" type="checkbox" class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded">
+            <label for="togglePasswordCheckbox" class="ml-2 block text-sm text-gray-900">
+              Mostrar contraseñas
+            </label>
+        </div>
+
+
         <button type="submit" class="submit-btn w-full bg-linear-to-r from-indigo-600 to-purple-700 text-white font-semibold py-3 rounded-lg hover:from-indigo-700 hover:to-purple-800 transition">
           Crear Cuenta
         </button>
