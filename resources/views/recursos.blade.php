@@ -21,12 +21,13 @@
 
   <!-- NAV -->
   <nav>
-    <div class="container">
+    <div class="nav-container">
       <!-- LOGO -->
-      <div class="logo" onclick="navigateTo('inicio')">
+      <div class="logo" role="button" tabindex="0" onclick="navigateTo('inicio')" aria-label="Ir al inicio">
         <div class="logo-icon">
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M12 20h.01M2 8.82a15.91 15.91 0 0 1 20 0M5.17 12.25a10.91 10.91 0 0 1 13.66 0M8.31 15.68a5.91 5.91 0 0 1 7.38 0" />
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M12 20h.01M2 8.82a15.91 15.91 0 0 1 20 0M5.17 12.25a10.91 10.91 0 0 1 13.66 0M8.31 15.68a5.91 5.91 0 0 1 7.38 0" />
           </svg>
         </div>
         <div class="logo-text">
@@ -35,28 +36,27 @@
         </div>
       </div>
 
-      <!-- BOTONES DESKTOP -->
+      <!-- LINKS DESKTOP -->
       <div class="nav-links" id="navLinks">
-        <button onclick="navigateTo('inicio')">Inicio</button>
-        <button onclick="navigateTo('formulario')">Presentar Reclamo</button>
-        <button onclick="navigateTo('seguimiento')">Seguimiento</button>
-        <button class="active" onclick="navigateTo('recursos')">Recursos</button>
+        <button class="nav-link" onclick="navigateTo('inicio')">Inicio</button>
+        <button class="nav-link" onclick="scrollToSection('beneficios')">Beneficios</button>
+        <button class="nav-link" onclick="navigateTo('seguimiento')">Seguimiento</button>
+        <button class="nav-link active" onclick="navigateTo('recursos')">Recursos</button>
       </div>
 
-      <!-- BOTÓN MENÚ MÓVIL -->
-      <button class="menu-button" id="menuToggle">
+      <!-- MENÚ MÓVIL -->
+      <button class="menu-button" id="menuToggle" aria-label="Menú de navegación">
         <svg id="menuIcon" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
         </svg>
       </button>
     </div>
 
-    <!-- MENÚ MÓVIL -->
     <div class="mobile-menu" id="mobileMenu">
-      <button onclick="navigateTo('inicio')">Inicio</button>
-      <button onclick="navigateTo('formulario')">Presentar Reclamo</button>
-      <button onclick="navigateTo('seguimiento')">Seguimiento</button>
-      <button class="active" onclick="navigateTo('recursos')">Recursos</button>
+      <button class="mobile-link" onclick="navigateTo('inicio')">Inicio</button>
+      <button class="mobile-link" onclick="scrollToSection('beneficios')">Beneficios</button>
+      <button class="mobile-link" onclick="navigateTo('seguimiento')">Seguimiento</button>
+      <button class="mobile-link active" onclick="navigateTo('recursos')">Recursos</button>
     </div>
   </nav>
 
@@ -204,5 +204,50 @@
     <a href="{{ route('login') }}" class="btn-floating">Iniciar Sesión</a>
     <a href="{{ route('register') }}" class="btn-floating btn-register">Registrarse</a>
   </div>
+
+  <!-- SCRIPTS -->
+  <script>
+    function navigateTo(page) {
+      const routes = {
+        inicio: '/',
+        recursos: '/recursos',
+        seguimiento: '/seguimiento',
+        formulario: '/formulario'
+      };
+      if (routes[page]) {
+        window.location.href = routes[page];
+      }
+    }
+
+    function scrollToSection(section) {
+      const element = document.getElementById(section);
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth' });
+        document.getElementById('mobileMenu')?.classList.remove('show');
+      }
+    }
+
+    // Menú móvil toggle
+    document.getElementById('menuToggle')?.addEventListener('click', () => {
+      document.getElementById('mobileMenu').classList.toggle('show');
+    });
+
+    // FAQ Accordion
+    document.querySelectorAll('.accordion-header').forEach(header => {
+      header.addEventListener('click', function() {
+        const item = this.parentElement;
+        const content = item.querySelector('.accordion-content');
+        const isOpen = content.style.display === 'block';
+        
+        // Cerrar todos los demás
+        document.querySelectorAll('.accordion-content').forEach(c => {
+          c.style.display = 'none';
+        });
+        
+        // Abrir o cerrar el actual
+        content.style.display = isOpen ? 'none' : 'block';
+      });
+    });
+  </script>
 </body>
 </html>
