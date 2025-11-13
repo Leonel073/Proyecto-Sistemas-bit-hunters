@@ -39,4 +39,9 @@ class Reclamo extends Model
     {
         return $this->belongsTo(Usuario::class, 'idUsuario');
     }
+
+    public function tecnico()
+    {
+        return $this->belongsTo(Empleado::class, 'idTecnicoAsignado', 'idEmpleado');
+    }
 }
