@@ -20,9 +20,10 @@ class TecnicoDashboardController extends Controller
         // 2. Buscamos sus reclamos asignados que están "pendientes"
         // (No queremos mostrar los que ya están Resueltos, Cerrados o Cancelados)
         $reclamosAsignados = Reclamo::where('idTecnicoAsignado', $idTecnicoLogueado)
-                                  ->whereNotIn('estado', ['Resuelto', 'Cerrado', 'Cancelado'])
-                                  ->orderBy('fechaCreacion', 'desc') // Mostrar los más nuevos primero
-                                  ->get();
+                                     ->whereNotIn('estado', ['Resuelto', 'Cerrado', 'Cancelado'])
+                                     ->with('usuario') // Esto es clave para ver datos del cliente
+                                     ->orderBy('fechaCreacion', 'desc') // Mostrar los más nuevos primero
+                                     ->get();
 
         // 3. Obtenemos el perfil de Técnico (para saber su estado de disponibilidad)
         // Usamos findOrFail para que falle si el Empleado no tiene un perfil de Técnico
@@ -55,5 +56,68 @@ class TecnicoDashboardController extends Controller
 
         // 4. Redireccionamos de vuelta al dashboard con un mensaje de éxito
         return back()->with('success', 'Tu estado ha sido actualizado a "' . $request->estadoDisponibilidad . '".');
+    }
+
+    /**
+     * Función que permite al técnico cambiar el estado de un reclamo a 'En Proceso' o 'Pausado'.
+     */
+    public function actualizarProgreso(Request $request, $idReclamo)
+    {
+        $request->validate([
+            'nuevoEstado' => 'required|in:En Proceso,Pausado',
+        ]);
+
+        $reclamo = Reclamo::findOrFail($idReclamo);
+        
+        // Seguridad: Verificar que el reclamo esté asignado al técnico logueado
+        $idTecnicoLogueado = Auth::id();
+
+        if ($reclamo->idTecnicoAsignado !== $idTecnicoLogueado) {
+             return back()->withErrors(['error' => 'No tienes permiso para modificar este reclamo.']);
+        }
+        
+        // El reclamo no puede ser actualizado si ya está cerrado o resuelto
+        if (in_array($reclamo->estado, ['Resuelto', 'Cerrado', 'Cancelado'])) {
+            return back()->withErrors(['error' => 'No se puede modificar el progreso de un reclamo finalizado.']);
+        }
+
+        // Actualizar el estado
+        $reclamo->update([
+            'estado' => $request->nuevoEstado,
+        ]);
+
+        return back()->with('success', "Progreso del Reclamo #R-$idReclamo actualizado a: {$request->nuevoEstado}");
+    }
+
+
+    /**
+     * Marca un reclamo como resuelto.
+     * Corresponde a la ruta POST tecnico.reclamo.resolver
+     */
+    public function resolverReclamo(Request $request, $idReclamo)
+    {
+        // 1. Validar la solución técnica
+        $request->validate([
+            'solucionTecnica' => 'required|string|min:10',
+        ]);
+
+        $reclamo = Reclamo::findOrFail($idReclamo);
+        
+        // 2. Seguridad: Verificar que el reclamo esté asignado al técnico logueado
+        $idTecnicoLogueado = Auth::id();
+
+        if ($reclamo->idTecnicoAsignado !== $idTecnicoLogueado) {
+             return back()->withErrors(['error' => 'No tienes permiso para resolver este reclamo.']);
+        }
+
+        // 3. Actualizar el estado del reclamo
+        $reclamo->update([
+            'estado' => 'Resuelto', // Cambia el estado final del reclamo
+            'solucionTecnica' => $request->solucionTecnica, // Registra la solución
+            'fechaSolucion' => now(), // Marca la fecha de solución
+        ]);
+        
+        // 4. Redireccionar con mensaje
+        return back()->with('success', "¡Reclamo #R-$idReclamo marcado como RESUELTO!");
     }
 }
