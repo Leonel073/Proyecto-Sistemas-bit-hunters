@@ -126,12 +126,6 @@ class OperadorController extends Controller
      */
     public function asignarTecnico(Request $request, Reclamo $reclamo)
     {
-<<<<<<< HEAD
-        $data = $request->validate([
-            'idTecnico' => 'required|integer',
-            'comentario' => 'required|string'
-        ]);
-=======
         /** @var Request $request */
         /** @var Reclamo $reclamo */
         try {
@@ -139,22 +133,24 @@ class OperadorController extends Controller
                 'idTecnico' => 'required|integer',
                 'comentario' => 'required|string'
             ]);
->>>>>>> 82ffb26 (arreglando el modulo del operador)
 
-        // Añadir comentario en campo JSON o tabla de seguimiento (aquí usamos campo 'comentarios' si existe)
-        $comentarios = $reclamo->comentarios ?? [];
-        $comentarios[] = [
-            'id' => now()->timestamp,
-            'texto' => $data['comentario'],
-            'autorId' => Auth::guard('empleado')->id(),
-            'fecha' => now()->toDateTimeString()
-        ];
-        $reclamo->comentarios = $comentarios;
-        $reclamo->idTecnicoAsignado = $data['idTecnico'];
-        $reclamo->estado = 'Asignado';
-        $reclamo->save();
+            // Verificar que el técnico existe
+            $tecnico = Tecnico::where('idEmpleado', $data['idTecnico'])->first();
+            if (!$tecnico) {
+                return response()->json(['message' => 'Técnico no encontrado'], 404);
+            }
 
-        return response()->json(['message' => 'Técnico asignado correctamente']);
+            // Asignar técnico y cambiar estado
+            // TODO: Implementar tabla de comentarios separada en el futuro
+            $reclamo->idTecnicoAsignado = $data['idTecnico'];
+            $reclamo->estado = 'Asignado';
+            $reclamo->save();
+
+            return response()->json(['message' => 'Técnico asignado correctamente']);
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Error en asignarTecnico:', ['error' => $e->getMessage()]);
+            return response()->json(['message' => 'Error al asignar técnico: ' . $e->getMessage()], 500);
+        }
     }
 
     // Obtener lista de técnicos disponibles
