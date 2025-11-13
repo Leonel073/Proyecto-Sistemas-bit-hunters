@@ -7,9 +7,9 @@
 
   <!-- VITE: Carga CSS + JS -->
   @vite([
-      'resources/css/app.css',
-      'resources/css/login.css',
-      'resources/css/btns.css'
+    'resources/css/app.css',
+    'resources/css/login.css',
+    'resources/css/btns.css'
   ])
 
   <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
@@ -71,42 +71,31 @@
 
         <div class="form-group">
           <label for="password" class="block text-sm font-medium text-gray-700">Contraseña</label>
-          <div class="password-wrapper relative">
-            <input 
-              type="password" 
-              id="password" 
-              name="password" 
-              placeholder="••••••••" 
-              class="mt-1 w-full pr-10" 
-              required 
-            />
-            <button 
-              type="button" 
-              class="toggle-password absolute right-3 top-3 text-gray-500 hover:text-gray-700 transition" 
-              id="togglePassword"
-              onclick="togglePassword('password', 'eyeIcon')"
-            >
-              <svg 
-                id="eyeIcon" 
-                xmlns="http://www.w3.org/2000/svg" 
-                fill="none" 
-                viewBox="0 0 24 24" 
-                stroke="currentColor" 
-                class="w-5 h-5"
-              >
-                <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-              </svg>
-            </button>
-          </div>
+          <!-- ⛔️ CAMBIO: Se eliminó el div.password-wrapper y el botón del "ojito" ⛔️ -->
+          <input 
+            type="password" 
+            id="password" 
+            name="password" 
+            placeholder="••••••••" 
+            class="mt-1 w-full" 
+            required 
+          />
         </div>
 
-        <div class="flex items-center justify-between">
+        <!-- ✅ CAMBIO: Checkbox para mostrar contraseña (como en sign_up) ✅ -->
+        <div class="flex items-center">
+            <input id="togglePasswordCheckbox" type="checkbox" class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded">
+            <label for="togglePasswordCheckbox" class="ml-2 block text-sm text-gray-900">
+              Mostrar contraseña
+            </label>
+        </div>
+
+        {{-- <div class="flex items-center justify-between">
           <label class="flex items-center">
             <input type="checkbox" name="remember" class="h-4 w-4 text-indigo-600 rounded">
             <span class="ml-2 text-sm text-gray-600">Recordarme</span>
           </label>
-        </div>
+        </div> --}}
 
         <button type="submit" class="btn w-full" id="submitBtn">
           Iniciar Sesión
@@ -122,19 +111,24 @@
     </div>
   </div>
 
-  <!-- Script para mostrar/ocultar contraseña -->
+  <!-- ✅ CAMBIO: Nuevo script para el checkbox ✅ -->
   <script>
-    function togglePassword(inputId, iconId) {
-      const input = document.getElementById(inputId);
-      const icon = document.getElementById(iconId);
-      if (input.type === "password") {
-        input.type = "text";
-        icon.setAttribute("stroke", "indigo");
-      } else {
-        input.type = "password";
-        icon.setAttribute("stroke", "currentColor");
+    document.addEventListener('DOMContentLoaded', () => {
+      const toggleCheckbox = document.getElementById('togglePasswordCheckbox');
+      const passwordInput = document.getElementById('password');
+      
+      if (toggleCheckbox && passwordInput) {
+        toggleCheckbox.addEventListener('change', () => {
+          // Si el checkbox está marcado, muestra el texto
+          if (toggleCheckbox.checked) {
+            passwordInput.type = 'text';
+          } else {
+            // Si no, lo oculta
+            passwordInput.type = 'password';
+          }
+        });
       }
-    }
+    });
   </script>
 </body>
 </html>
