@@ -18,4 +18,10 @@ class Tecnico extends Model
         'especialidad',
         'estadoDisponibilidad'
     ];
+
+    public function empleado()
+    {
+        // Un Operador (o Tecnico) pertenece a un Empleado
+        return $this->belongsTo(Empleado::class, 'idEmpleado', 'idEmpleado');
+    }
 }

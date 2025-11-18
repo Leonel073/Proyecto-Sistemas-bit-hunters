@@ -17,4 +17,10 @@ class Operador extends Model
         'idEmpleado',
         'turno'
     ];
+
+    public function empleado()
+    {
+        // Un Operador (o Tecnico) pertenece a un Empleado
+        return $this->belongsTo(Empleado::class, 'idEmpleado', 'idEmpleado');
+    }
 }
