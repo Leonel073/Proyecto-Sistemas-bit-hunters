@@ -1,108 +1,111 @@
-// resources/js/register.js
-
-function togglePassword(id) {
-  const input = document.getElementById(id);
-  if (!input) return;
-
-  const icon = document.getElementById(`eye-${id}`);
-  const type = input.type === 'password' ? 'text' : 'password';
-  input.type = type;
-
-  if (icon) {
-    icon.innerHTML = type === 'text'
-      ? `<path stroke-linecap="round" stroke-linejoin="round" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />`
-      : `<path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />`;
-  }
-}
-
+/**
+ * Se ejecuta cuando el contenido del DOM está completamente cargado.
+ * Añade los listeners para el toggle de contraseña y la validación en tiempo real.
+ */
 document.addEventListener('DOMContentLoaded', () => {
-  const form = document.getElementById('registerForm');
-  const alertBox = document.getElementById('alert');
 
-  if (!form || !alertBox) return;
+  // --- 1. LÓGICA PARA VER/OCULTAR CONTRASEÑA (CON CHECKBOX) ---
+  
+  const toggleCheckbox = document.getElementById('togglePasswordCheckbox');
+  const passwordInput = document.getElementById('password');
+  const passwordConfirmInput = document.getElementById('password_confirmation');
 
-  form.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    alertBox.classList.add('hidden');
-
-    // Usar querySelector con name (más confiable)
-    const getValue = (name) => {
-      const el = form.querySelector(`[name="${name}"]`);
-      return el ? el.value.trim() : '';
-    };
-
-    const data = {
-      primerNombre: getValue('primerNombre'),
-      segundoNombre: getValue('segundoNombre'),
-      apellidoPaterno: getValue('apellidoPaterno'),
-      apellidoMaterno: getValue('apellidoMaterno'),
-      ci: getValue('ci'),
-      numeroCelular: getValue('numeroCelular'),
-      email: getValue('email'),
-      direccionTexto: getValue('direccionTexto'),
-      password: getValue('password'),
-      password_confirmation: getValue('password_confirmation'),
-    };
-
-    // Validaciones rápidas
-    if (!data.primerNombre || !data.apellidoPaterno || !data.ci || !data.numeroCelular || !data.password) {
-      showError('Por favor completa todos los campos obligatorios');
-      return;
-    }
-
-    if (data.password.length < 8) {
-      showError('La contraseña debe tener al menos 8 caracteres');
-      return;
-    }
-
-    if (data.password !== data.password_confirmation) {
-      showError('Las contraseñas no coinciden');
-      return;
-    }
-
-    try {
-      const response = await fetch(form.action, {
-        method: 'POST',
-        body: new FormData(form),
-        headers: {
-          'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
-          'X-Requested-With': 'XMLHttpRequest',
-        },
-      });
-
-      if (response.ok) {
-        showSuccess('¡Registro exitoso! Redirigiendo...');
-        form.reset();
-        setTimeout(() => {
-          window.location.href = '/';
-        }, 1500);
+  if (toggleCheckbox && passwordInput && passwordConfirmInput) {
+    toggleCheckbox.addEventListener('change', () => {
+      // Comprueba si el checkbox está marcado
+      if (toggleCheckbox.checked) {
+        // Si está marcado, cambia el tipo a 'text'
+        passwordInput.type = 'text';
+        passwordConfirmInput.type = 'text';
       } else {
-        const text = await response.text();
-        const tempDiv = document.createElement('div');
-        tempDiv.innerHTML = text;
-        const errorList = tempDiv.querySelector('.alert-error ul');
-        if (errorList) {
-          const errors = Array.from(errorList.children).map(li => li.textContent).join('<br>');
-          showError(errors);
-        } else {
-          showError('Error al registrar. Intenta nuevamente.');
-        }
+        // Si no está marcado, vuelve a 'password'
+        passwordInput.type = 'password';
+        passwordConfirmInput.type = 'password';
       }
-    } catch (error) {
-      showError('Error de conexión. Revisa tu internet.');
+    });
+  }
+
+  // --- 2. LÓGICA DE VALIDACIÓN EN TIEMPO REAL ---
+
+  const fieldsToValidate = {
+    /* 'primerNombre': {
+      // Devuelve true si está vacío (empty string) O si solo tiene letras/espacios.
+      // Devuelve false solo si hay caracteres inválidos (ej: números, símbolos).
+      validate: (value) => /^[\pL\s\-]*$/.test(value),
+      message: 'Solo debe contener letras.',
+    },
+    'apellidoPaterno': {
+      validate: (value) => /^[\pL\s\-]*$/.test(value),
+      message: 'Solo debe contener letras.',
+    },
+    'segundoNombre': {
+      validate: (value) => /^[\pL\s\-]*$/.test(value),
+      message: 'Solo debe contener letras.',
+    },
+    'apellidoMaterno': {
+      validate: (value) => /^[\pL\s\-]*$/.test(value),
+      message: 'Solo debe contener letras.',
+    }, */
+    'ci': {
+      // Valida si está vacío O si cumple el formato.
+      validate: (value) => value === '' || /^\d{7,10}$/.test(value),
+      message: 'Debe tener entre 7 y 10 números.',
+    },
+    'numeroCelular': {
+      validate: (value) => value === '' || /^\d{8,}$/.test(value),
+      message: 'Debe ser un número de celular válido (ej: 70123456).',
+    },
+    'email': {
+      validate: (value) => value === '' || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value),
+      message: 'Debe ser un correo electrónico válido.',
+    },
+    'password': {
+      validate: (value) => value === '' || /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/.test(value),
+      message: 'Debe cumplir los requisitos (mayúscula, minúscula, número, símbolo).',
+    },
+    'password_confirmation': {
+      validate: (value) => {
+        const password = document.getElementById('password').value;
+        // Solo valida si hay algo en el campo de confirmación
+        return value === '' || value === password;
+      },
+      message: 'Las contraseñas no coinciden.',
+    }
+  };
+
+  // Añade un listener de 'input' a cada campo que necesita validación
+  Object.keys(fieldsToValidate).forEach(id => {
+    const input = document.getElementById(id);
+    const errorSpan = document.getElementById(`${id}-error`);
+    const config = fieldsToValidate[id];
+
+    if (input && errorSpan) {
+      input.addEventListener('input', () => {
+        const value = input.value;
+        
+        // Valida el campo
+        if (config.validate(value)) {
+          // Si es válido, borra el mensaje de error
+          errorSpan.textContent = '';
+          input.classList.remove('border-red-500'); 
+        } else {
+          // Si es inválido (y no está vacío), muestra el mensaje de error
+          errorSpan.textContent = config.message;
+          input.classList.add('border-red-500'); 
+        }
+
+        // Caso especial: si se está editando 'password', re-validar 'password_confirmation'
+        if (id === 'password') {
+          const confirmInput = document.getElementById('password_confirmation');
+          const confirmError = document.getElementById('password_confirmation-error');
+          if (confirmInput.value && confirmInput.value !== value) {
+            confirmError.textContent = fieldsToValidate['password_confirmation'].message;
+          } else {
+            confirmError.textContent = '';
+          }
+        }
+      });
     }
   });
 
-  function showError(msg) {
-    alertBox.innerHTML = msg;
-    alertBox.className = 'alert alert-error';
-    alertBox.classList.remove('hidden');
-  }
-
-  function showSuccess(msg) {
-    alertBox.textContent = msg;
-    alertBox.className = 'alert alert-success';
-    alertBox.classList.remove('hidden');
-    setTimeout(() => alertBox.classList.add('hidden'), 4000);
-  }
 });

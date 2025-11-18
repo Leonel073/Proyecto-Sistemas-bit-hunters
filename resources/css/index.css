@@ -1,0 +1,552 @@
+/* ==========================================
+   NEXORA BOLIVIA - PÁGINA INDEX MEJORADA
+   ========================================== */
+
+/* Contenedor base */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+/* ==========================================
+   SECCIÓN DE ESTADÍSTICAS
+   ========================================== */
+
+.stats-section {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 80px 20px;
+  margin: 60px 0;
+}
+
+.stats-section h2 {
+  text-align: center;
+  font-size: 2.5rem;
+  margin-bottom: 60px;
+  font-weight: 700;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 40px;
+}
+
+.stat-item {
+  text-align: center;
+  background: rgba(255, 255, 255, 0.1);
+  padding: 30px;
+  border-radius: 15px;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  transition: all 0.3s ease;
+}
+
+.stat-item:hover {
+  transform: translateY(-5px);
+  background: rgba(255, 255, 255, 0.15);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+
+.stat-number {
+  font-size: 2.8rem;
+  font-weight: 800;
+  margin-bottom: 10px;
+}
+
+.stat-label {
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.stat-item p {
+  font-size: 0.9rem;
+  opacity: 0.9;
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fade-in 0.6s ease-out forwards;
+  opacity: 0;
+}
+
+/* ==========================================
+   SECCIÓN DE BENEFICIOS
+   ========================================== */
+
+.benefits-section {
+  padding: 80px 20px;
+  background: #f8f9fa;
+}
+
+.benefits-section h2 {
+  text-align: center;
+  font-size: 2.5rem;
+  margin-bottom: 60px;
+  color: #1a1a1a;
+  font-weight: 700;
+}
+
+.benefits-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 30px;
+}
+
+.benefit-card {
+  background: white;
+  padding: 40px 30px;
+  border-radius: 12px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+  text-align: center;
+  transition: all 0.3s ease;
+  border-top: 4px solid #667eea;
+}
+
+.benefit-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 15px 35px rgba(102, 126, 234, 0.15);
+}
+
+.benefit-icon {
+  font-size: 3rem;
+  color: #667eea;
+  margin-bottom: 20px;
+  display: inline-block;
+  width: 70px;
+  height: 70px;
+  background: rgba(102, 126, 234, 0.1);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.benefit-card h3 {
+  font-size: 1.3rem;
+  margin-bottom: 15px;
+  color: #1a1a1a;
+  font-weight: 600;
+}
+
+.benefit-card p {
+  color: #666;
+  line-height: 1.6;
+  font-size: 0.95rem;
+}
+
+/* ==========================================
+   SECCIÓN DE PROCESO
+   ========================================== */
+
+.process-section {
+  padding: 80px 20px;
+  background: white;
+}
+
+.process-section h2 {
+  text-align: center;
+  font-size: 2.5rem;
+  margin-bottom: 60px;
+  color: #1a1a1a;
+  font-weight: 700;
+}
+
+.process-timeline {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.process-step {
+  flex: 1;
+  min-width: 200px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 40px 25px;
+  border-radius: 12px;
+  text-align: center;
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+.process-step:hover {
+  transform: translateY(-10px);
+  box-shadow: 0 15px 40px rgba(102, 126, 234, 0.3);
+}
+
+.step-number {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 50px;
+  height: 50px;
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  font-size: 1.8rem;
+  font-weight: 700;
+  margin-bottom: 15px;
+}
+
+.process-step h3 {
+  font-size: 1.3rem;
+  margin-bottom: 12px;
+  font-weight: 600;
+}
+
+.process-step p {
+  font-size: 0.9rem;
+  line-height: 1.5;
+  opacity: 0.95;
+}
+
+.step-icon {
+  font-size: 2.5rem;
+  margin-top: 15px;
+  opacity: 0.8;
+}
+
+.process-arrow {
+  font-size: 2rem;
+  color: #667eea;
+  flex: 0.5;
+  text-align: center;
+  min-width: 40px;
+}
+
+@media (max-width: 768px) {
+  .process-timeline {
+    flex-direction: column;
+  }
+  
+  .process-arrow {
+    transform: rotate(90deg);
+    margin: 10px 0;
+  }
+}
+
+/* ==========================================
+   SECCIÓN CTA (CALL TO ACTION)
+   ========================================== */
+
+.cta-section {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 80px 20px;
+  text-align: center;
+  color: white;
+}
+
+.cta-content h2 {
+  font-size: 2.5rem;
+  margin-bottom: 20px;
+  font-weight: 700;
+}
+
+.cta-content p {
+  font-size: 1.2rem;
+  margin-bottom: 40px;
+  opacity: 0.95;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.btn-large {
+  padding: 15px 50px !important;
+  font-size: 1.1rem;
+  background: white !important;
+  color: #667eea !important;
+  border: none;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.btn-large:hover {
+  transform: scale(1.05);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+
+/* ==========================================
+   SECCIÓN FAQ
+   ========================================== */
+
+.faq-section {
+  padding: 80px 20px;
+  background: #f8f9fa;
+}
+
+.faq-section h2 {
+  text-align: center;
+  font-size: 2.5rem;
+  margin-bottom: 60px;
+  color: #1a1a1a;
+  font-weight: 700;
+}
+
+.faq-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: 20px;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.faq-item {
+  background: white;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+}
+
+.faq-question {
+  padding: 25px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  user-select: none;
+  transition: all 0.3s ease;
+}
+
+.faq-question:hover {
+  background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+}
+
+.faq-question h4 {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.faq-question i {
+  font-size: 1.2rem;
+  transition: transform 0.3s ease;
+}
+
+.faq-answer {
+  padding: 0;
+  background: white;
+  max-height: 0;
+  overflow: hidden;
+  transition: all 0.3s ease;
+  color: #666;
+  line-height: 1.6;
+}
+
+.faq-item.active .faq-answer {
+  padding: 25px;
+  max-height: 500px;
+}
+
+.faq-item.active .faq-question i {
+  transform: rotate(180deg);
+}
+
+/* ==========================================
+   RESPONSIVE
+   ========================================== */
+
+@media (max-width: 768px) {
+  .stats-section h2,
+  .benefits-section h2,
+  .process-section h2,
+  .cta-section h2,
+  .faq-section h2 {
+    font-size: 2rem;
+  }
+
+  .stats-grid {
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 20px;
+  }
+
+  .stat-number {
+    font-size: 2rem;
+  }
+
+  .stat-label {
+    font-size: 1rem;
+  }
+
+  .benefits-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .benefit-card {
+    padding: 30px 20px;
+  }
+
+  .process-step {
+    min-width: unset;
+  }
+
+  .cta-content p {
+    font-size: 1rem;
+  }
+
+  .btn-large {
+    padding: 12px 30px !important;
+    font-size: 1rem;
+  }
+
+  .faq-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .faq-question {
+    padding: 20px;
+  }
+
+  .faq-question h4 {
+    font-size: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .stats-section,
+  .benefits-section,
+  .process-section,
+  .cta-section,
+  .faq-section {
+    padding: 40px 15px;
+  }
+
+  .stats-section h2,
+  .benefits-section h2,
+  .process-section h2,
+  .cta-section h2,
+  .faq-section h2 {
+    font-size: 1.5rem;
+  }
+
+  .stat-item {
+    padding: 20px;
+  }
+
+  .benefit-card {
+    padding: 20px 15px;
+  }
+
+  .process-step {
+    padding: 30px 20px;
+  }
+
+  .step-number {
+    width: 40px;
+    height: 40px;
+    font-size: 1.5rem;
+  }
+
+  .process-step h3 {
+    font-size: 1.1rem;
+  }
+
+  .process-step p {
+    font-size: 0.85rem;
+  }
+
+  .cta-content h2 {
+    font-size: 1.5rem;
+  }
+
+  .cta-content p {
+    font-size: 0.95rem;
+  }
+
+  .faq-question {
+    padding: 15px;
+  }
+
+  .faq-answer {
+    line-height: 1.5;
+  }
+
+  .faq-item.active .faq-answer {
+    padding: 15px;
+  }
+}
+
+/* ==========================================
+   ANIMACIONES
+   ========================================== */
+
+@keyframes slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.benefit-card {
+  animation: slide-up 0.6s ease-out;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+/* Scroll smooth */
+html {
+  scroll-behavior: smooth;
+}
+
+/* ==========================================
+   MEJORAS VISUALES
+   ========================================== */
+
+/* Gradientes de fondo */
+.benefits-section {
+  background: linear-gradient(180deg, #ffffff 0%, #f8f9fa 100%);
+}
+
+.faq-section {
+  background: linear-gradient(180deg, #f8f9fa 0%, #ffffff 100%);
+}
+
+/* Sombras mejoradas */
+.benefit-card,
+.faq-item {
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+}
+
+.benefit-card:hover,
+.faq-item:hover {
+  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.12);
+}
+
+/* Bordes redondeados consistentes */
+* {
+  border-radius: 8px;
+}
+
+button,
+.btn,
+input {
+  border-radius: 8px;
+}

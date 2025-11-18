@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Operador;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use App\Models\Reclamo;
 use App\Models\Tecnico;
 use Illuminate\Support\Facades\Validator;
@@ -72,6 +73,7 @@ class OperadorController extends Controller
     {
         $nuevos = Reclamo::whereNull('idOperador')
             ->where('estado', 'Nuevo')
+            ->with('usuario')
             ->orderBy('fechaCreacion', 'desc')
             ->get();
         return response()->json($nuevos);
@@ -83,14 +85,28 @@ class OperadorController extends Controller
         $empleadoId = Auth::guard('empleado')->id();
         $misCasos = Reclamo::where('idOperador', $empleadoId)
             ->whereIn('estado', ['Asignado', 'En Proceso', 'Abierto'])
+            ->with(['usuario', 'tecnico'])
             ->orderBy('fechaCreacion', 'desc')
-            ->get();
+            ->get()
+            ->map(function($r) {
+                $r->tecnicoNombre = $r->tecnico 
+                    ? $r->tecnico->primerNombre . ' ' . $r->tecnico->apellidoPaterno 
+                    : 'Sin asignar';
+                return $r;
+            });
         return response()->json($misCasos);
     }
 
-    // El operador toma un caso (se asigna a sí mismo)
+    /**
+     * El operador toma un caso (se asigna a sí mismo)
+     * @param Request $request
+     * @param Reclamo $reclamo
+     * @return \Illuminate\Http\JsonResponse
+     * @noinspection PhpUndefinedVariableInspection
+     */
     public function tomar(Request $request, Reclamo $reclamo)
     {
+        /** @var Reclamo $reclamo */
         $empleadoId = Auth::guard('empleado')->id();
         if ($reclamo->idOperador) {
             return response()->json(['message' => 'El reclamo ya fue asignado'], 422);
@@ -101,13 +117,29 @@ class OperadorController extends Controller
         return response()->json(['message' => 'Reclamo asignado al operador']);
     }
 
-    // Asignar técnico y agregar comentario (desde modal)
+    /**
+     * Asignar técnico y agregar comentario (desde modal)
+     * @param Request $request
+     * @param Reclamo $reclamo
+     * @return \Illuminate\Http\JsonResponse
+     * @noinspection PhpUndefinedVariableInspection
+     */
     public function asignarTecnico(Request $request, Reclamo $reclamo)
     {
+<<<<<<< HEAD
         $data = $request->validate([
             'idTecnico' => 'required|integer',
             'comentario' => 'required|string'
         ]);
+=======
+        /** @var Request $request */
+        /** @var Reclamo $reclamo */
+        try {
+            $data = $request->validate([
+                'idTecnico' => 'required|integer',
+                'comentario' => 'required|string'
+            ]);
+>>>>>>> 82ffb26 (arreglando el modulo del operador)
 
         // Añadir comentario en campo JSON o tabla de seguimiento (aquí usamos campo 'comentarios' si existe)
         $comentarios = $reclamo->comentarios ?? [];

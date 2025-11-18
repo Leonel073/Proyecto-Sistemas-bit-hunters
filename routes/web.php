@@ -12,12 +12,6 @@ use App\Http\Controllers\OperadorController;
 use App\Http\Controllers\SupervisorOperadorController;
 use App\Http\Controllers\SupervisorTecnicoController;
 
-/*
-|--------------------------------------------------------------------------
-| Rutas Web
-|--------------------------------------------------------------------------
-*/
-
 // === PÁGINAS PÚBLICAS ===
 Route::get('/', function () { return view('index'); })->name('home');
 Route::get('/recursos', fn() => view('recursos'))->name('recursos');
@@ -25,6 +19,16 @@ Route::get('/recursos', fn() => view('recursos'))->name('recursos');
 // === AUTENTICACIÓN (PÚBLICO) ===
 Route::get('/login', [LoginController::class, 'show'])->name('login');
 Route::post('/login', [LoginController::class, 'login'])->name('login.post');
+
+// Recursos públicos
+Route::get('/recursos', fn() => view('recursos'))->name('recursos');
+
+// --- LOGIN (Para Clientes y Empleados) ---
+Route::get('/login', [LoginController::class, 'show'])->name('login');
+Route::post('/login', [LoginController::class, 'login'])->name('login.post');
+Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
+
+// --- REGISTRO (Solo Clientes) ---
 Route::get('/sign_up', [RegisterController::class, 'show'])->name('register');
 Route::post('/sign_up', [RegisterController::class, 'store'])->name('register.store');
 
@@ -32,8 +36,13 @@ Route::post('/sign_up', [RegisterController::class, 'store'])->name('register.st
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout')->middleware('auth:web,empleado');
 
 
-// === RUTAS DE CLIENTE (USUARIO) AUTENTICADO ===
-Route::middleware('auth')->group(function () { // 'auth' por defecto es 'auth:web'
+/*
+|--------------------------------------------------------------------------
+| RUTAS DE CLIENTES (USUARIO)
+|--------------------------------------------------------------------------
+| Requieren el guard 'web' (el default 'auth')
+*/
+Route::middleware('auth')->group(function () {
     Route::view('/formulario', 'formulario')->name('formulario');
     Route::view('/seguimiento', 'seguimiento')->name('seguimiento');
     Route::post('/reclamo', [ReclamoController::class, 'storeFront'])->name('reclamo.store');
@@ -59,7 +68,7 @@ Route::middleware(['auth:empleado', 'role:Gerente'])->prefix('admin')->group(fun
     Route::get('/usuarios/{id}/edit', [UsuarioController::class, 'edit'])->name('usuarios.edit');
     Route::put('/usuarios/{id}', [UsuarioController::class, 'update'])->name('usuarios.update');
     Route::delete('/usuarios/{id}', [UsuarioController::class, 'destroy'])->name('usuarios.destroy');
-    Route::put('/usuarios/{id}/restore', [UsuarioController::class, 'restore'])->name('usuarios.restore'); // Nota: 'restore' está en UsuarioController
+    Route::put('/usuarios/{id}/restore', [UsuarioController::class, 'restore'])->name('usuarios.restore'); 
     
     // Ver todos los eliminados
     Route::get('/usuarios-eliminados', [EmpleadoController::class, 'deleted'])->name('usuarios.deleted');
@@ -112,4 +121,61 @@ Route::middleware(['auth:empleado', 'role:Operador'])->prefix('operador')->name(
     Route::get('/tecnicos', [OperadorController::class, 'tecnicos'])->name('tecnicos');
     Route::post('/reclamo/tomar/{reclamo}', [OperadorController::class, 'tomar'])->name('reclamo.tomar');
     Route::post('/reclamo/asignar-tecnico/{reclamo}', [OperadorController::class, 'asignarTecnico'])->name('reclamo.asignarTecnico');
+});
+
+/*
+|--------------------------------------------------------------------------
+| RUTAS DE EMPLEADOS (Panel de Administración)
+|--------------------------------------------------------------------------
+| Requieren 'auth_empleado' y un ROL específico
+*/
+Route::middleware(['auth_empleado'])->group(function () {
+
+    // === RUTAS DE GERENTE ===
+    // (CORREGIDO: Usamos 'auth_empleado' y 'role:Gerente')
+    Route::middleware(['role:Gerente'])->prefix('admin')->name('admin.')->group(function () {
+        
+        // CRUD DE EMPLEADOS
+        Route::resource('empleados', EmpleadoController::class);
+        Route::get('empleados-eliminados', [EmpleadoController::class, 'deleted'])->name('empleados.deleted');
+        Route::put('empleados/{id}/restore', [EmpleadoController::class, 'restore'])->name('empleados.restore');
+
+        // CRUD DE CLIENTES (USUARIO)
+        Route::get('/usuarios', [UsuarioController::class, 'index'])->name('usuarios.index');
+        Route::get('/usuarios/{id}/edit', [UsuarioController::class, 'edit'])->name('usuarios.edit');
+        Route::put('/usuarios/{id}', [UsuarioController::class, 'update'])->name('usuarios.update');
+        Route::delete('/usuarios/{id}', [UsuarioController::class, 'destroy'])->name('usuarios.destroy');
+        Route::put('usuarios/{id}/restore', [UsuarioController::class, 'restore'])->name('usuarios.restore');
+
+        // (Aquí irían los otros CRUDS de catálogos: SLA, CausaRaiz, etc.)
+    });
+
+    // === RUTAS DE SUPERVISOR DE OPERADORES ===
+    // (Este es tu bloque, está PERFECTO)
+    Route::middleware(['role:SupervisorOperador'])->group(function () {
+        Route::get('/supervisor/operadores/panel', [SupervisorOperadorController::class, 'dashboard'])
+             ->name('supervisor.operadores.dashboard');
+
+        Route::put('/supervisor/reclamos/{reclamo}/reasignar-operador', [SupervisorOperadorController::class, 'reasignarOperador'])
+             ->name('supervisor.reclamos.reasignar');
+    });
+
+    // === RUTAS DE OPERADOR ===
+    // (CORREGIDO: Añadimos 'role:Operador')
+    Route::middleware(['role:Operador'])->prefix('operador')->name('operador.')->group(function () {
+        Route::get('/panel', [OperadorController::class, 'panel'])->name('panel');
+        Route::get('/reclamos/nuevos', [OperadorController::class, 'nuevos'])->name('reclamos.nuevos');
+        Route::get('/reclamos/mis', [OperadorController::class, 'mis'])->name('reclamos.mis');
+        Route::get('/tecnicos', [OperadorController::class, 'tecnicos'])->name('tecnicos');
+        Route::post('/reclamo/tomar/{reclamo}', [OperadorController::class, 'tomar'])->name('reclamo.tomar');
+        Route::post('/reclamo/asignar-tecnico/{reclamo}', [OperadorController::class, 'asignarTecnico'])->name('reclamo.asignarTecnico');
+    });
+
+    // === RUTAS DE TÉCNICO ===
+    // (CORREGIDO: Usamos 'auth_empleado' y 'role:Tecnico')
+    Route::middleware(['role:Tecnico'])->prefix('tecnico')->name('tecnico.')->group(function () {
+        Route::get('/dashboard', [TecnicoDashboardController::class, 'index'])->name('tecnico.dashboard');
+        Route::post('/estado/actualizar', [TecnicoDashboardController::class, 'actualizarEstadoDisponibilidad'])->name('tecnico.estado.update');
+        Route::post('/reclamo/{reclamo}/resolver', [ReclamoResolucionController::class, 'resolver'])->name('tecnico.reclamo.resolver');
+    });
 });

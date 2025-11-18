@@ -28,16 +28,22 @@ class Empleado extends Authenticatable
     {
         return $this->passwordHash;
     }
-
+    /**
+     * Obtiene el perfil específico de Supervisor de Operadores.
+     */
+    public function supervisorOperador()
+    {
+        // Un Empleado TIENE UN perfil de SupervisorOperador
+        return $this->hasOne(SupervisorOperador::class, 'idEmpleado', 'idEmpleado');
+    }
+  
     public function operador()
     {
-        // Un Empleado tiene un (perfil de) Operador
         return $this->hasOne(Operador::class, 'idEmpleado', 'idEmpleado');
     }
-
+    
     public function tecnico()
     {
-        // Un Empleado tiene un (perfil de) Tecnico
         return $this->hasOne(Tecnico::class, 'idEmpleado', 'idEmpleado');
     }
 }

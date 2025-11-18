@@ -17,4 +17,13 @@ class SupervisorOperador extends Model
         'idEmpleado',
         'areaEnfoque'
     ];
+
+    /**
+     * Obtiene los datos base del empleado (nombre, CI, email, etc.)
+     */
+    public function empleadoBase()
+    {
+        // Un SupervisorOperador PERTENECE A un Empleado
+        return $this->belongsTo(Empleado::class, 'idEmpleado', 'idEmpleado');
+    }
 }
