@@ -140,7 +140,8 @@ class LoginController extends Controller
                 return redirect()->route('usuarios')->with('success', $mensaje);
             
             } elseif ($persona->rol === 'Tecnico') {
-                return redirect('/tecnico/dashboard')->with('success', $mensaje);
+                // CORRECCIÓN: Usar el helper de ruta con el nombre definido en web.php
+                return redirect()->route('tecnico.dashboard')->with('success', $mensaje);
             
             // --- ✅ LÓGICA AÑADIDA AQUÍ ✅ ---
             } elseif ($persona->rol === 'SupervisorOperador') {

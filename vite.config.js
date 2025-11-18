@@ -1,4 +1,3 @@
-// vite.config.js
 import { defineConfig } from 'vite';
 import laravel from 'laravel-vite-plugin';
 
@@ -21,11 +20,13 @@ export default defineConfig({
                 'resources/css/recursos.css',
                 'resources/css/login.css',
                 'resources/css/register.css',
+                
+                // ===> ¡LÍNEA FALTANTE AÑADIDA! <===
+                'resources/css/index.css', 
 
                 // ESTILOS PARA GESTIÓN DE USUARIOS
                 'resources/css/users-management.css',
                 
-                // ¡¡AQUÍ ESTÁN LOS QUE FALTABAN!!
                 'resources/css/empleados-create.css',
                 'resources/css/tecnico-dashboard.css',
                 'resources/css/operador.css',

@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth; // Para saber qué usuario está logueado
 use App\Models\Reclamo; // Para buscar en la tabla RECLAMO
 use App\Models\Tecnico; // Para buscar en la tabla TECNICO
+use App\Models\Empleado; // Importar el modelo Empleado para obtener los datos del usuario
 
 class TecnicoDashboardController extends Controller
 {
@@ -17,27 +18,29 @@ class TecnicoDashboardController extends Controller
         // 1. Obtenemos el ID del empleado (técnico) que está autenticado
         $idTecnicoLogueado = Auth::id();
 
-        // 2. Buscamos sus reclamos asignados que están "pendientes"
-        // (No queremos mostrar los que ya están Resueltos, Cerrados o Cancelados)
+        // 2. Buscamos el objeto Empleado completo para mostrar el nombre
+        $empleado = Empleado::findOrFail($idTecnicoLogueado);
+
+        // 3. Buscamos sus reclamos asignados que están "pendientes"
         $reclamosAsignados = Reclamo::where('idTecnicoAsignado', $idTecnicoLogueado)
-                                  ->whereNotIn('estado', ['Resuelto', 'Cerrado', 'Cancelado'])
-                                  ->orderBy('fechaCreacion', 'desc') // Mostrar los más nuevos primero
-                                  ->get();
+                                    ->whereNotIn('estado', ['Resuelto', 'Cerrado', 'Cancelado'])
+                                    ->with('usuario') // Cargar el nombre del cliente
+                                    ->orderBy('fechaCreacion', 'desc') 
+                                    ->get();
 
-        // 3. Obtenemos el perfil de Técnico (para saber su estado de disponibilidad)
-        // Usamos findOrFail para que falle si el Empleado no tiene un perfil de Técnico
-        $tecnico = Tecnico::findOrFail($idTecnicoLogueado);
+        // 4. Obtenemos el perfil de Técnico (para saber su estado de disponibilidad)
+        $tecnicoPerfil = Tecnico::findOrFail($idTecnicoLogueado);
 
-        // 4. Cargamos la vista (que crearemos en el siguiente paso) y le pasamos los datos
+        // 5. Cargamos la vista con los datos
         return view('tecnico.dashboard', [
             'reclamos' => $reclamosAsignados,
-            'estadoActual' => $tecnico->estadoDisponibilidad
+            'estadoActual' => $tecnicoPerfil->estadoDisponibilidad, // El estado que usará el botón
+            'tecnico' => $empleado // El objeto Empleado completo para el título
         ]);
     }
 
     /**
-     * Actualiza el estado de DISPONIBILIDAD del técnico (En Ruta, Ocupado, etc.)
-     * Esto viene de la tabla TECNICO, no de RECLAMO.
+     * Actualiza el estado de DISPONIBILIDAD del técnico (Disponible, En Ruta, Ocupado)
      */
     public function actualizarEstadoDisponibilidad(Request $request)
     {
@@ -55,5 +58,36 @@ class TecnicoDashboardController extends Controller
 
         // 4. Redireccionamos de vuelta al dashboard con un mensaje de éxito
         return back()->with('success', 'Tu estado ha sido actualizado a "' . $request->estadoDisponibilidad . '".');
+    }
+    
+    /**
+     * Marca un reclamo como resuelto.
+     */
+    public function resolverReclamo(Request $request, $idReclamo)
+    {
+        $request->validate([
+            'solucionTecnica' => 'required|string|min:10',
+        ]);
+
+        try {
+            $reclamo = Reclamo::findOrFail($idReclamo);
+
+            // Asegurar que el técnico que resuelve es el asignado
+            if ($reclamo->idTecnicoAsignado != Auth::id()) {
+                return back()->with('error', 'No tienes permiso para resolver este reclamo. No te fue asignado.');
+            }
+
+            $reclamo->estado = 'Resuelto';
+            $reclamo->fechaResolucion = now();
+            $reclamo->solucionTecnica = $request->solucionTecnica;
+            $reclamo->save();
+
+            // Opcional: Crear un log de la acción si tienes una tabla de logs
+            // Log::info("Reclamo $idReclamo resuelto por técnico $reclamo->idTecnicoAsignado");
+
+            return back()->with('success', '¡Reclamo #'.$idReclamo.' marcado como Resuelto con éxito!');
+        } catch (\Exception $e) {
+            return back()->with('error', 'Error al intentar resolver el reclamo: ' . $e->getMessage());
+        }
     }
 }

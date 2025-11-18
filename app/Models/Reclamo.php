@@ -35,13 +35,27 @@ class Reclamo extends Model
     ];
 
     // Relaciones opcionales (ejemplo)
-    public function usuario()
+   public function usuario()
     {
-        return $this->belongsTo(Usuario::class, 'idUsuario');
+        // Un Reclamo pertenece a un Usuario (Cliente)
+        return $this->belongsTo(Usuario::class, 'idUsuario', 'idUsuario');
     }
 
+    /**
+     * Obtiene el Operador (Empleado) que tomó el reclamo.
+     */
+    public function operador()
+    {
+        // Un Reclamo pertenece a un Empleado (Operador)
+        return $this->belongsTo(Empleado::class, 'idOperadorAsignado', 'idEmpleado');
+    }
+
+    /**
+     * Obtiene el Técnico (Empleado) al que se le asignó el reclamo.
+     */
     public function tecnico()
     {
+        // Un Reclamo pertenece a un Empleado (Técnico)
         return $this->belongsTo(Empleado::class, 'idTecnicoAsignado', 'idEmpleado');
     }
 }

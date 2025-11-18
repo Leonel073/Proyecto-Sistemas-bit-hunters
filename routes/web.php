@@ -26,7 +26,8 @@ Route::get('/recursos', fn() => view('recursos'))->name('recursos');
 // --- LOGIN (Para Clientes y Empleados) ---
 Route::get('/login', [LoginController::class, 'show'])->name('login');
 Route::post('/login', [LoginController::class, 'login'])->name('login.post');
-Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
+// El logout se maneja al final con el middleware
+Route::post('/logout', [LoginController::class, 'logout'])->name('logout'); 
 
 // --- REGISTRO (Solo Clientes) ---
 Route::get('/sign_up', [RegisterController::class, 'show'])->name('register');
@@ -62,7 +63,7 @@ Route::middleware(['auth:empleado', 'role:Gerente'])->prefix('admin')->group(fun
     Route::get('/empleados/{id}/edit', [EmpleadoController::class, 'edit'])->name('empleados.edit');
     Route::put('/empleados/{id}', [EmpleadoController::class, 'update'])->name('empleados.update');
     Route::delete('/empleados/{id}', [EmpleadoController::class, 'destroy'])->name('empleados.destroy');
-    Route::put('/empleados/{id}/restore', [EmpleadoController::class, 'restore'])->name('empleados.restore'); // Nota: 'restore' está en EmpleadoController
+    Route::put('/empleados/{id}/restore', [EmpleadoController::class, 'restore'])->name('empleados.restore');
     
     // Gestión de Usuarios (Clientes)
     Route::get('/usuarios/{id}/edit', [UsuarioController::class, 'edit'])->name('usuarios.edit');
@@ -106,9 +107,10 @@ Route::middleware(['auth:empleado', 'role:SupervisorTecnico'])
     Route::delete('/{id}', [SupervisorTecnicoController::class, 'destroy'])->name('destroy');
 });
 
-// --- TÉCNICO ---
+// --- TÉCNICO (GRUPO OFICIAL) ---
+// La ruta que debe resolver el controlador de login es tecnico.dashboard
 Route::middleware(['auth:empleado', 'role:Tecnico'])->prefix('tecnico')->name('tecnico.')->group(function () {
-    Route::get('/dashboard', [TecnicoDashboardController::class, 'index'])->name('dashboard');
+    Route::get('/dashboard', [TecnicoDashboardController::class, 'index'])->name('dashboard'); // Name: tecnico.dashboard
     Route::post('/estado/actualizar', [TecnicoDashboardController::class, 'actualizarEstadoDisponibilidad'])->name('estado.update');
     Route::post('/reclamo/{reclamo}/resolver', [ReclamoResolucionController::class, 'resolver'])->name('reclamo.resolver');
 });
@@ -127,31 +129,37 @@ Route::middleware(['auth:empleado', 'role:Operador'])->prefix('operador')->name(
 |--------------------------------------------------------------------------
 | RUTAS DE EMPLEADOS (Panel de Administración)
 |--------------------------------------------------------------------------
-| Requieren 'auth_empleado' y un ROL específico
+| Este grupo anidado usa el middleware 'auth_empleado' y luego 'role'.
+| Lo limpiamos para que solo contenga rutas no duplicadas.
 */
 Route::middleware(['auth_empleado'])->group(function () {
 
     // === RUTAS DE GERENTE ===
-    // (CORREGIDO: Usamos 'auth_empleado' y 'role:Gerente')
-    Route::middleware(['role:Gerente'])->prefix('admin')->name('admin.')->group(function () {
+    // (CORREGIDO: Eliminado el prefijo /admin duplicado)
+    Route::middleware(['role:Gerente'])->group(function () {
         
         // CRUD DE EMPLEADOS
+        // Estas rutas están duplicadas arriba, las puedes dejar o eliminar si están bien definidas arriba.
+        // Las dejo comentadas para evitar conflicto de nombres.
+        /*
         Route::resource('empleados', EmpleadoController::class);
         Route::get('empleados-eliminados', [EmpleadoController::class, 'deleted'])->name('empleados.deleted');
         Route::put('empleados/{id}/restore', [EmpleadoController::class, 'restore'])->name('empleados.restore');
+        */
 
         // CRUD DE CLIENTES (USUARIO)
+        // Estas rutas también están duplicadas en el grupo 'admin' superior.
+        /*
         Route::get('/usuarios', [UsuarioController::class, 'index'])->name('usuarios.index');
         Route::get('/usuarios/{id}/edit', [UsuarioController::class, 'edit'])->name('usuarios.edit');
         Route::put('/usuarios/{id}', [UsuarioController::class, 'update'])->name('usuarios.update');
         Route::delete('/usuarios/{id}', [UsuarioController::class, 'destroy'])->name('usuarios.destroy');
         Route::put('usuarios/{id}/restore', [UsuarioController::class, 'restore'])->name('usuarios.restore');
-
-        // (Aquí irían los otros CRUDS de catálogos: SLA, CausaRaiz, etc.)
+        */
     });
 
     // === RUTAS DE SUPERVISOR DE OPERADORES ===
-    // (Este es tu bloque, está PERFECTO)
+    // Este bloque está bien, no hay duplicación con el bloque superior.
     Route::middleware(['role:SupervisorOperador'])->group(function () {
         Route::get('/supervisor/operadores/panel', [SupervisorOperadorController::class, 'dashboard'])
              ->name('supervisor.operadores.dashboard');
@@ -161,21 +169,21 @@ Route::middleware(['auth_empleado'])->group(function () {
     });
 
     // === RUTAS DE OPERADOR ===
-    // (CORREGIDO: Añadimos 'role:Operador')
+    // (Este grupo está duplicado y puede eliminarse)
+    /*
     Route::middleware(['role:Operador'])->prefix('operador')->name('operador.')->group(function () {
         Route::get('/panel', [OperadorController::class, 'panel'])->name('panel');
         Route::get('/reclamos/nuevos', [OperadorController::class, 'nuevos'])->name('reclamos.nuevos');
-        Route::get('/reclamos/mis', [OperadorController::class, 'mis'])->name('reclamos.mis');
-        Route::get('/tecnicos', [OperadorController::class, 'tecnicos'])->name('tecnicos');
-        Route::post('/reclamo/tomar/{reclamo}', [OperadorController::class, 'tomar'])->name('reclamo.tomar');
-        Route::post('/reclamo/asignar-tecnico/{reclamo}', [OperadorController::class, 'asignarTecnico'])->name('reclamo.asignarTecnico');
+        // ... (resto de rutas del operador)
     });
+    */
 
-    // === RUTAS DE TÉCNICO ===
-    // (CORREGIDO: Usamos 'auth_empleado' y 'role:Tecnico')
-    Route::middleware(['role:Tecnico'])->prefix('tecnico')->name('tecnico.')->group(function () {
+    // === RUTAS DE TÉCNICO (BLOQUE ELIMINADO POR DUPLICACIÓN) ===
+    // Este bloque CERRADO fue el que causó el conflicto.
+    /* Route::middleware(['role:Tecnico'])->prefix('tecnico')->name('tecnico.')->group(function () {
         Route::get('/dashboard', [TecnicoDashboardController::class, 'index'])->name('tecnico.dashboard');
         Route::post('/estado/actualizar', [TecnicoDashboardController::class, 'actualizarEstadoDisponibilidad'])->name('tecnico.estado.update');
         Route::post('/reclamo/{reclamo}/resolver', [ReclamoResolucionController::class, 'resolver'])->name('tecnico.reclamo.resolver');
     });
+    */
 });

@@ -2,45 +2,41 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Reclamo;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth; // Para la seguridad
-use App\Models\Reclamo; // Para buscar y actualizar el reclamo
+use Illuminate\Support\Facades\Auth;
 
 class ReclamoResolucionController extends Controller
 {
     /**
-     * Registra la solución técnica y marca un reclamo como "Resuelto".
-     * La ruta es: POST /tecnico/reclamo/{reclamo}/resolver
+     * Procesa la resolución de un reclamo por parte del Técnico.
      */
     public function resolver(Request $request, Reclamo $reclamo)
     {
-        // 1. ¡SEGURIDAD PRIMERO!
-        // Verificamos que el reclamo que intentan modificar REALMENTE
-        // pertenezca al técnico que está logueado.
-        if ($reclamo->idTecnicoAsignado !== Auth::id()) {
-            // Si no le pertenece, le negamos el acceso.
-            abort(403, 'Acción no autorizada. Este reclamo no está asignado a tu usuario.');
+        // Verificación de autenticación y rol (aunque ya lo hace el middleware)
+        $tecnico = Auth::guard('empleado')->user();
+        if (!$tecnico || $tecnico->rol !== 'Tecnico') {
+            return back()->withErrors('Acceso denegado.');
         }
 
-        // 2. Validamos que nos hayan enviado una solución
+        // 1. Validar los datos de la solución
         $request->validate([
-            'solucionTecnica' => 'required|string|min:10'
-        ], [
-            'solucionTecnica.required' => 'Debes registrar la solución técnica aplicada.',
-            'solucionTecnica.min' => 'La solución debe tener al menos 10 caracteres.'
+            'solucionTecnica' => 'required|string|min:10', // Usamos el nombre del campo del modelo
         ]);
 
-        // 3. Actualizamos el reclamo con los datos del formulario
+        // 2. Verificar que el reclamo esté asignado a este Técnico
+        if ($reclamo->idTecnicoAsignado !== $tecnico->idEmpleado) {
+            return back()->withErrors('Este reclamo no está asignado a usted.');
+        }
+
+        // 3. Actualizar el registro del reclamo
         $reclamo->solucionTecnica = $request->solucionTecnica;
-        $reclamo->estado = 'Resuelto';
-        $reclamo->fechaResolucion = now(); // Marcamos la fecha y hora de resolución
+        $reclamo->estado = 'Resuelto'; // Cambiar el estado
+        $reclamo->fechaResolucion = now(); // Registrar la hora actual
+        $reclamo->fechaActualizacion = now(); // Actualizar el timestamp
+        
         $reclamo->save();
 
-        // (OPCIONAL, PERO RECOMENDADO - Lo de la auditoría que hablamos)
-        // Aquí podrías guardar en la tabla 'RECLAMO_HISTORIAL_ESTADO'
-        // $reclamo->historialEstados()->create([ ... ]);
-
-        // 4. Redireccionamos al dashboard con un mensaje de éxito
-        return redirect()->route('tecnico.dashboard')->with('success', 'El Reclamo R-' . $reclamo->idReclamo . ' ha sido marcado como Resuelto.');
+        return redirect()->route('tecnico.dashboard')->with('success', 'El Reclamo #'.$reclamo->idReclamo.' ha sido marcado como Resuelto.');
     }
 }

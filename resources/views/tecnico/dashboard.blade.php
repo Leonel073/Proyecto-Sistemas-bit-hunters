@@ -1,137 +1,164 @@
-{{-- 
-  Este es el archivo: resources/views/tecnico/dashboard.blade.php
-  ¡ACTUALIZADO para usar tus estilos personalizados y Vite!
---}}
+@extends('layouts.app')
 
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Panel de Técnico - Nexora</title>
+@section('title', 'Panel de Técnico - Reclamos')
 
-    {{-- 
-      ¡IMPORTANTE!
-      Cargamos tu 'app.css' (para estilos globales/Tailwind).
-      Cargamos 'empleados-create.css' (para reusar estilos como .form-container, .form-card, .btn-primary).
-      Cargamos el NUEVO 'tecnico-dashboard.css' que acabamos de crear.
-    --}}
-    @vite(['resources/css/app.css', 'resources/css/empleados-create.css', 'resources/css/tecnico-dashboard.css'])
-</head>
-<body class="bg-gray-100">
+@section('content')
+    {{-- La variable $estadoActual viene directamente del controlador. --}}
+    @php
+        $estadoActual = $estadoActual ?? 'No Disponible'; // Asegurar que tenga un valor por defecto
+        
+        // Colores base para cada estado (usando clases de Tailwind, complementadas por CSS)
+        $color = [
+            'Disponible' => 'bg-green-500 text-white',
+            'En Ruta' => 'bg-yellow-500 text-gray-800',
+            'Ocupado' => 'bg-red-500 text-white',
+            'No Disponible' => 'bg-gray-500 text-white',
+        ];
 
-    {{-- Usamos tu clase .form-container para centrar el contenido --}}
-    <div class="form-container">
-        <h1 class="form-title">Panel del Técnico</h1>
-        <h2 class="form-subtitle">¡Bienvenido, {{ Auth::user()->primerNombre }}!</h2>
+        // Definimos los posibles estados que el técnico puede elegir
+        $opcionesEstado = ['Disponible', 'En Ruta', 'Ocupado'];
+    @endphp
 
-        {{-- 1. SALUDO Y ESTADO DE DISPONIBILIDAD --}}
-        {{-- Usamos tu clase .form-card para el diseño de tarjeta --}}
-        <div class="form-card">
+    <div class="container mx-auto px-4">
+
+        {{-- Mensajes de Sesión (Éxito/Error) --}}
+        @if (session('success'))
+            <div class="alert-success" role="alert">
+                <p class="font-bold">¡Éxito!</p>
+                <p class="text-sm">{{ session('success') }}</p>
+            </div>
+        @endif
+        @if (session('error'))
+            <div class="alert-error" role="alert">
+                <p class="font-bold">Error</p>
+                <p class="text-sm">{{ session('error') }}</p>
+            </div>
+        @endif
+        @if ($errors->any())
+            {{-- Mensaje genérico de error de validación --}}
+            <div class="alert-error mb-6 shadow-md" role="alert">
+                <p class="font-bold">Error de Validación</p>
+                <p class="text-sm">Por favor, revisa el formulario en la sección de Reclamos.</p>
+            </div>
+        @endif
+
+        <h2 class="text-3xl font-extrabold text-gray-900 mb-6 border-b pb-2">
+            Panel del Técnico: {{ $tecnico->primerNombre }} {{ $tecnico->apellidoPaterno }}
+        </h2>
+
+        {{-- 1. CONTROL DE ESTATUS DE DISPONIBILIDAD (Usando la clase 'status-control-card' del CSS) --}}
+        <div class="status-control-card">
+            <h3 class="text-xl font-semibold text-gray-700 mb-4 flex justify-between items-center">
+                Mi Estatus Actual
+                {{-- Muestra el estado actual y su color correspondiente --}}
+                <span class="text-sm font-medium px-3 py-1 rounded-full shadow-md {{ $color[$estadoActual] ?? 'bg-gray-500 text-white' }}">
+                    {{ $estadoActual }}
+                </span>
+            </h3>
             
-            <form action="{{ route('tecnico.estado.update') }}" method="POST">
+            <form action="{{ route('tecnico.estado.update') }}" method="POST" class="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
                 @csrf
-                <div class="form-group">
-                    <label for="estadoDisponibilidad">Mi estado actual:</label>
-                    
-                    {{-- Usamos la clase .select-input que imagino debes tener --}}
-                    <select name="estadoDisponibilidad" id="estadoDisponibilidad" class="select-input" required>
-                        {{-- Usamos la variable $estadoActual que pasamos desde el controlador --}}
-                        <option value="Disponible" {{ $estadoActual == 'Disponible' ? 'selected' : '' }}>Disponible</option>
-                        <option value="En Ruta" {{ $estadoActual == 'En Ruta' ? 'selected' : '' }}>En Ruta</option>
-                        <option value="Ocupado" {{ $estadoActual == 'Ocupado' ? 'selected' : '' }}>Ocupado</option>
-                    </select>
-                </div>
                 
-                {{-- Usamos tu clase .btn-primary --}}
-                <div class="form-actions">
-                    <button type="submit" class="btn-primary">Actualizar estado</button>
-                </div>
-            </form>
+                {{-- Dropdown para seleccionar el estado --}}
+                <select name="estadoDisponibilidad" id="estadoDisponibilidad" required class="w-full sm:w-auto p-2 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 transition">
+                    <option value="" disabled selected>Selecciona tu nuevo estado</option>
+                    @foreach ($opcionesEstado as $opcion)
+                        <option value="{{ $opcion }}" @if($opcion === $estadoActual) selected @endif>
+                            {{ $opcion }}
+                        </option>
+                    @endforeach
+                </select>
 
-            {{-- Mostrar mensajes de éxito (ej. "Estado actualizado") --}}
-            @if (session('success'))
-                {{-- Usamos la clase CSS que definimos en el paso 1 --}}
-                <div class="alert-success">
-                    {{ session('success') }}
+                <button type="submit" class="w-full sm:w-auto px-6 py-2 rounded-lg font-semibold text-white bg-indigo-600 hover:bg-indigo-700 transition duration-200">
+                    Cambiar Estado
+                </button>
+            </form>
+        </div>
+
+        {{-- 2. RECLAMOS ASIGNADOS (Usando la clase 'reclamo-card' del CSS) --}}
+        <div class="bg-white p-6 rounded-xl shadow-lg">
+            <h3 class="text-2xl font-bold text-gray-800 mb-6">Mis Reclamos Pendientes ({{ count($reclamos) }})</h3>
+            
+            @if ($reclamos->isEmpty())
+                <div class="text-center py-10 text-gray-500 border-2 border-dashed border-gray-300 rounded-lg">
+                    <p class="text-lg">¡Excelente! No tienes reclamos activos asignados.</p>
+                    <p class="text-sm mt-1">Recuerda poner tu estado en "Disponible" para recibir nuevas asignaciones.</p>
+                </div>
+            @else
+                <div class="space-y-6">
+                    @foreach ($reclamos as $reclamo)
+                        {{-- Tarjeta de Reclamo --}}
+                        <div class="reclamo-card border border-gray-200 bg-white">
+                            {{-- Encabezado de la Tarjeta (Usando la clase 'card-header' del CSS) --}}
+                            <div class="card-header">
+                                <div>
+                                    <p class="text-sm font-medium text-indigo-600">Reclamo #{{ $reclamo->idReclamo }}</p>
+                                    <h4 class="card-title">{{ $reclamo->titulo }}</h4>
+                                </div>
+                                <span class="badge-warning">
+                                    {{ $reclamo->estado }}
+                                </span>
+                            </div>
+
+                            {{-- Cuerpo de la Tarjeta (Usando la clase 'card-body' del CSS) --}}
+                            <div class="card-body">
+                                <p class="text-gray-600 mb-4">{{ $reclamo->descripcionDetallada }}</p>
+                                
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                                    <p class="card-text-light">
+                                        <strong>Cliente:</strong> {{ $reclamo->usuario->primerNombre }} {{ $reclamo->usuario->apellidoPaterno }}
+                                    </p>
+                                    <p class="card-text-light">
+                                        <strong>Teléfono:</strong> {{ $reclamo->usuario->numeroCelular }}
+                                    </p>
+                                    <p class="card-text-light">
+                                        <strong>Fecha Creación:</strong> {{ $reclamo->fechaCreacion->format('d/m/Y H:i') }}
+                                    </p>
+                                    <p class="card-text-light">
+                                        <strong>Prioridad:</strong> 
+                                        <span class="font-semibold @if($reclamo->prioridad == 'Alta') text-red-600 @elseif($reclamo->prioridad == 'Media') text-yellow-600 @else text-blue-600 @endif">
+                                            {{ $reclamo->prioridad }}
+                                        </span>
+                                    </p>
+                                    {{-- Nota: El campo de dirección no existe en el modelo Usuario, se quita para evitar error --}}
+                                </div>
+
+                                {{-- FORMULARIO DE RESOLUCIÓN (Usando la clase 'resolution-form' del CSS) --}}
+                                <form action="{{ route('tecnico.reclamo.resolver', $reclamo->idReclamo) }}" method="POST" class="resolution-form">
+                                    @csrf
+                                    
+                                    <div class="form-group mb-4">
+                                        <label for="solucionTecnica-{{ $reclamo->idReclamo }}"><strong>Registrar Solución Técnica:</strong></label>
+                                        {{-- El textarea usa el estilo definido en tecnico-dashboard.css --}}
+                                        <textarea name="solucionTecnica" id="solucionTecnica-{{ $reclamo->idReclamo }}" 
+                                                rows="4" placeholder="Describe detalladamente las acciones tomadas para resolver el problema (Mínimo 10 caracteres)." required
+                                                class="w-full mt-1 border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500">{{ old('solucionTecnica') }}</textarea>
+                                        
+                                        {{-- Mostrar error de validación ESPECÍFICO para este campo --}}
+                                        @error('solucionTecnica')
+                                            <div class="text-red-500 text-sm mt-1 p-2 bg-red-100 rounded-md" role="alert">
+                                                {{ $message }}
+                                            </div>
+                                        @enderror
+                                    </div>
+
+                                    <div class="flex justify-end">
+                                        <button type="submit">
+                                            Marcar como Resuelto
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                            
+                            {{-- Pie de página de la tarjeta (Usando la clase 'card-footer' del CSS) --}}
+                            <div class="card-footer">
+                                <strong>Asignado por:</strong> {{ $reclamo->operador->primerNombre ?? 'N/A' }} 
+                                | <strong>Fecha Asignación:</strong> {{ $reclamo->fechaAsignacion ?? 'Pendiente' }}
+                            </div>
+                        </div>
+                    @endforeach
                 </div>
             @endif
         </div>
-
-
-        {{-- 2. LISTA DE RECLAMOS ASIGNADOS --}}
-        <h2 class="form-title" style="margin-top: 2rem;">Mis Reclamos Asignados</h2>
-
-        @forelse ($reclamos as $reclamo)
-            {{-- Usamos .form-card para cada reclamo --}}
-            <div class="form-card reclamo-card">
-                <h3 class="form-title" style="font-size: 1.25rem;">Reclamo #R-{{ $reclamo->idReclamo }}: {{ $reclamo->titulo }}</h3>
-                
-                <div class="form-group">
-                    <strong>Estado Actual:</strong> 
-                    {{-- Usamos la clase .badge-warning que definimos --}}
-                    <span class="badge-warning">{{ $reclamo->estado }}</span>
-                </div>
-                
-                <div class="form-group">
-                    <strong>Descripción del Cliente:</strong>
-                    <p>{{ $reclamo->descripcionDetallada }}</p>
-                </div>
-
-                <div class="form-group">
-                    <strong>Cliente:</strong>
-                    <p>{{ $reclamo->usuario->primerNombre }} {{ $reclamo->usuario->apellidoPaterno }} (Cel: {{ $reclamo->usuario->numeroCelular }})</p>
-                </div>
-
-                <div class="form-group">
-                    <strong>Dirección:</strong>
-                    <p>{{ $reclamo->usuario->direccionTexto ?? 'No especificada' }}</p>
-                </div>
-
-                <hr style="margin: 1.5rem 0;">
-
-                {{-- Formulario para RESOLVER el reclamo --}}
-                <form action="{{ route('tecnico.reclamo.resolver', $reclamo->idReclamo) }}" method="POST">
-                    @csrf
-                    <div class="form-group">
-                        <label for="solucionTecnica-{{ $reclamo->idReclamo }}"><strong>Registrar Solución Técnica:</strong></label>
-                        {{-- Asumo que tienes una clase para textareas --}}
-                        <textarea name="solucionTecnica" id="solucionTecnica-{{ $reclamo->idReclamo }}" 
-                                  class="textarea-input" rows="3" required>{{ old('solucionTecnica') }}</textarea>
-                        
-                        {{-- Mostrar error de validación --}}
-                        @error('solucionTecnica')
-                            <div class="alert-errors" style="margin-top: 1rem;">
-                                {{ $message }}
-                            </div>
-                        @enderror
-                    </div>
-
-                    <div class="form-actions">
-                        <button type="submit" class="btn-primary" style="background-color: #28a745; border-color: #28a745;">Marcar como Resuelto</button>
-                    </div>
-                </form>
-            </div>
-            
-            <div class="card-footer">
-                Registrado el: {{ $reclamo->fechaCreacion->format('d/m/Y \a \l\a\s H:i') }}
-            </div>
-
-        @empty
-            {{-- Esto se muestra si $reclamos está vacío --}}
-            <div class="form-card">
-                <div class="alert-info">
-                    No tienes reclamos pendientes asignados en este momento.
-                </div>
-            </div>
-        @endforelse
-
-    </div> {{-- Fin de .form-container --}}
-
-    {{-- Consejo Pro: Mover a un layout --}}
-    <p style="text-align: center; color: #6b7280; margin-top: 2rem;">
-        Nota: Para un mejor rendimiento, considera mover el &lt;head&gt; y el &lt;body&gt; a un archivo 
-        <code>layouts/app.blade.php</code> y usar <code>@extends('layouts.app')</code>.
-    </p>
-</body>
-</html>
+    </div>
+@endsection
