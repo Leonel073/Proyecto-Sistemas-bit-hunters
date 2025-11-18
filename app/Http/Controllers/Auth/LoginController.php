@@ -11,6 +11,8 @@ use Illuminate\Validation\ValidationException;
 use App\Models\Usuario;
 use App\Models\Empleado;
 use App\Models\RegistroAuditoria;
+// Asegúrate de tener estos modelos si los usas en la redirección de Operador
+use App\Models\Reclamo; 
 
 class LoginController extends Controller
 {
@@ -92,7 +94,7 @@ class LoginController extends Controller
             session(['user_role' => $persona->rol]);
         }
 
-        // Registrar auditoría para empleados (por ejemplo: Operador)
+        // Registrar auditoría para empleados
         if ($tipo === 'empleado') {
             try {
                 RegistroAuditoria::create([
@@ -100,14 +102,12 @@ class LoginController extends Controller
                     'accion' => 'login',
                     'detalleAccion' => 'Inicio de sesión exitoso',
                     'ipOrigen' => $request->ip(),
-                    // 'fechaHora' se deja al valor por defecto de la BD
                 ]);
             } catch (\Exception $e) {
-                // No interrumpir el flujo de login por errores en el log de auditoría.
-                // Podríamos registrar en el log de la aplicación si se desea:
-                // \Log::error('Error al crear registro de auditoría: '.$e->getMessage());
+                Log::error('Error al crear registro de auditoría: '.$e->getMessage());
             }
         }
+        
         // Redirección según tipo y rol
         if ($tipo === 'empleado') {
             $mensajesBienvenida = [
@@ -120,27 +120,37 @@ class LoginController extends Controller
 
             $mensaje = $mensajesBienvenida[$persona->rol] ?? 'Bienvenido al sistema.';
             
-            // Debug: loguear el rol para identificar el problema
             Log::info('Login de empleado', ['rol' => $persona->rol, 'email' => $persona->emailCorporativo, 'id' => $persona->idEmpleado]);
 
-            // Redirigir según el rol
+            // --- ✅ BLOQUE DE REDIRECCIÓN ACTUALIZADO ✅ ---
             if ($persona->rol === 'Operador') {
-                // Para Operador, mostrar la vista directamente en lugar de redirigir
                 $empleadoId = $persona->idEmpleado;
-                $nuevos = \App\Models\Reclamo::whereNull('idOperador')
+                $nuevos = Reclamo::whereNull('idOperador')
                     ->where('estado', 'Nuevo')
                     ->orderBy('fechaCreacion', 'desc')
                     ->get();
-                $misCasos = \App\Models\Reclamo::where('idOperador', $empleadoId)
+                $misCasos = Reclamo::where('idOperador', $empleadoId)
                     ->whereIn('estado', ['Asignado', 'En Proceso'])
                     ->orderBy('fechaCreacion', 'desc')
                     ->get();
                 
                 return view('operador.panel', compact('nuevos', 'misCasos'))->with('success', $mensaje);
+            
             } elseif ($persona->rol === 'Gerente') {
                 return redirect()->route('usuarios')->with('success', $mensaje);
+            
             } elseif ($persona->rol === 'Tecnico') {
                 return redirect('/tecnico/dashboard')->with('success', $mensaje);
+            
+            // --- ✅ LÓGICA AÑADIDA AQUÍ ✅ ---
+            } elseif ($persona->rol === 'SupervisorOperador') {
+                // Redirige a la ruta del panel de operadores
+                return redirect()->route('supervisor.operadores.index')->with('success', $mensaje);
+                
+            } elseif ($persona->rol === 'SupervisorTecnico') {
+                // Redirige a la ruta del panel de técnicos
+                return redirect()->route('supervisor.tecnicos.index')->with('success', $mensaje);
+                
             } else {
                 return redirect()->route('home')->with('success', $mensaje);
             }

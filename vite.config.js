@@ -35,6 +35,7 @@ export default defineConfig({
                 'resources/js/nav.js',
                 'resources/js/recursos.js',
                 'resources/js/register.js',
+                'resources/js/empleado-create.js',
             ],
             refresh: true,
         }),

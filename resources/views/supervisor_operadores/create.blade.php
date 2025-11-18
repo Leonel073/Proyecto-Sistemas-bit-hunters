@@ -3,13 +3,13 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Registrar Empleado - Admin</title>
+  <title>Registrar Operador - Nexora Bolivia</title>
 
   @vite([
       'resources/css/app.css',
       'resources/css/register.css', // Reusamos el CSS de registro
       'resources/css/btns.css',
-      'resources/js/empleado-create.js' // Reusamos el JS de creación
+      'resources/js/empleado-create.js' // Usaremos un JS dedicado
   ])
   
   <style>
@@ -18,16 +18,16 @@
 </head>
 <body class="bg-gray-50">
 
-  <a href="{{ route('usuarios') }}" class="btn-top-left">
-    ← Volver a Gestión
+  <a href="{{ route('supervisor.operadores.index') }}" class="btn-top-left">
+    ← Volver al Panel
   </a>
 
   <div class="register-container min-h-screen flex items-center justify-center px-4 py-8">
     <div class="card max-w-2xl w-full bg-white rounded-xl shadow-lg p-6 md:p-8">
 
       <div class="card-header text-center mb-6">
-        <h2 class="text-2xl font-bold text-gray-900 mt-4">Registrar Nuevo Empleado (Admin)</h2>
-        <p class="text-gray-600">Complete todos los campos y asigne un rol.</p>
+        <h2 class="text-2xl font-bold text-gray-900 mt-4">Registrar Nuevo Operador</h2>
+        <p class="text-gray-600">El rol se asignará automáticamente como "Operador".</p>
       </div>
 
       @if ($errors->any())
@@ -40,7 +40,7 @@
         </div>
       @endif
 
-      <form id="createForm" action="{{ route('empleados.store') }}" method="POST" class="space-y-5" novalidate>
+      <form id="createForm" action="{{ route('supervisor.operadores.store') }}" method="POST" class="space-y-5" novalidate>
         @csrf
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -81,25 +81,11 @@
           </div>
         </div>
 
-        <div class="input-group">
-          <label for="emailCorporativo" class="block text-sm font-medium text-gray-700">Correo Corporativo *</label>
-          <input type="email" id="emailCorporativo" name="emailCorporativo" value="{{ old('emailCorporativo') }}" required>
-          <span id="emailCorporativo-error" class="error-message empty:hidden"></span>
-        </div>
-
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div class="input-group">
-            <label for="rol" class="block text-sm font-medium text-gray-700">Rol del Empleado *</label>
-            <select name="rol" id="rol" required class="mt-1 w-full">
-                @if(!$gerenteExiste)
-                    <option value="Gerente" {{ old('rol') == 'Gerente' ? 'selected' : '' }}>Gerente de Soporte</option>
-                @endif
-                <option value="SupervisorOperador" {{ old('rol') == 'SupervisorOperador' ? 'selected' : '' }}>Supervisor de Operadores</option>
-                <option value="SupervisorTecnico" {{ old('rol') == 'SupervisorTecnico' ? 'selected' : '' }}>Supervisor de Técnicos</option>
-                <option value="Operador" {{ old('rol') == 'Operador' ? 'selected' : '' }}>Operador</option>
-                <option value="Tecnico" {{ old('rol') == 'Tecnico' ? 'selected' : '' }}>Técnico</option>
-            </select>
-            <span id="rol-error" class="error-message empty:hidden"></span>
+            <label for="emailCorporativo" class="block text-sm font-medium text-gray-700">Correo Corporativo *</label>
+            <input type="email" id="emailCorporativo" name="emailCorporativo" value="{{ old('emailCorporativo') }}" required>
+            <span id="emailCorporativo-error" class="error-message empty:hidden"></span>
           </div>
           <div class="input-group">
             <label for="fechaIngreso" class="block text-sm font-medium text-gray-700">Fecha de Ingreso *</label>
@@ -126,7 +112,7 @@
             <label for="togglePasswordCheckbox" class="ml-2 block text-sm text-gray-900">Mostrar contraseñas</label>
         </div>
 
-        <button type="submit" class="submit-btn w-full">Registrar Empleado</button>
+        <button type="submit" class="submit-btn w-full">Registrar Operador</button>
       </form>
     </div>
   </div>

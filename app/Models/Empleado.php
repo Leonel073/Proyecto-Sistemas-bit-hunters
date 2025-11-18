@@ -28,4 +28,16 @@ class Empleado extends Authenticatable
     {
         return $this->passwordHash;
     }
+
+    public function operador()
+    {
+        // Un Empleado tiene un (perfil de) Operador
+        return $this->hasOne(Operador::class, 'idEmpleado', 'idEmpleado');
+    }
+
+    public function tecnico()
+    {
+        // Un Empleado tiene un (perfil de) Tecnico
+        return $this->hasOne(Tecnico::class, 'idEmpleado', 'idEmpleado');
+    }
 }
