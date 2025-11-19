@@ -16,7 +16,6 @@
 </head>
 <body>
 
-  <!-- NAV -->
   <nav>
     <div class="container">
       <div class="logo" onclick="window.location.href='{{ route('home') }}'">
@@ -34,11 +33,14 @@
       <div class="nav-links" id="navLinks">
         <button onclick="window.location.href='{{ route('home') }}'">Inicio</button>
         <button class="active">Gestión de Usuarios</button>
+        <form action="{{ route('logout') }}" method="POST" style="display: inline;">
+            @csrf
+            <button type="submit" style="background:none; border:none; color:white; cursor:pointer;">Salir</button>
+        </form>
       </div>
     </div>
   </nav>
 
-  <!-- SECCIÓN DE GESTIÓN -->
   <section class="users-management">
     <div class="users-container">
       <h1 class="users-title">Gestión de Usuarios</h1>
@@ -48,11 +50,10 @@
       @endif
 
       <div class="action-buttons">
-        <a href="{{ route('empleados.create') }}" class="btn-action">Registrar Nuevo Empleado</a>
-        <a href="{{ route('usuarios.deleted') }}" class="btn-action btn-deleted">Usuarios Eliminados</a>
+        <a href="{{ route('admin.empleados.create') }}" class="btn-action">Registrar Nuevo Empleado</a>
+        <a href="{{ route('admin.empleados.deleted') }}" class="btn-action btn-deleted">Usuarios Eliminados</a>
       </div>
 
-      <!-- BUSCADOR -->
       <div class="search-filters">
         <div class="search-input">
           <input type="text" id="searchInput" placeholder="Buscar por nombre o correo...">
@@ -60,7 +61,6 @@
         </div>
       </div>
 
-      <!-- TABLA -->
       <table class="users-table" id="usersTable">
         <thead>
           <tr>
@@ -79,8 +79,9 @@
             <td>{{ ucfirst(str_replace('_', ' ', $empleado->rol)) }}</td>
             <td>{{ $empleado->estado }}</td>
             <td class="actions">
-              <a href="{{ route('empleados.edit', $empleado->idEmpleado) }}" class="btn-edit">Editar</a>
-              <form action="{{ route('empleados.destroy', $empleado->idEmpleado) }}" method="POST" style="display:inline;">
+              <a href="{{ route('admin.empleados.edit', $empleado->idEmpleado) }}" class="btn-edit">Editar</a>
+              
+              <form action="{{ route('admin.empleados.destroy', $empleado->idEmpleado) }}" method="POST" style="display:inline;">
                 @csrf
                 @method('DELETE')
                 <button type="submit" class="btn-delete" onclick="return confirm('¿Eliminar empleado?')">Eliminar</button>
@@ -96,8 +97,9 @@
             <td>Usuario</td>
             <td>{{ $usuario->estado }}</td>
             <td class="actions">
-              <a href="{{ route('usuarios.edit', $usuario->idUsuario) }}" class="btn-edit">Editar</a>
-              <form action="{{ route('usuarios.destroy', $usuario->idUsuario) }}" method="POST" style="display:inline;">
+              <a href="{{ route('admin.usuarios.edit', $usuario->idUsuario) }}" class="btn-edit">Editar</a>
+              
+              <form action="{{ route('admin.usuarios.destroy', $usuario->idUsuario) }}" method="POST" style="display:inline;">
                 @csrf
                 @method('DELETE')
                 <button type="submit" class="btn-delete" onclick="return confirm('¿Eliminar usuario?')">Eliminar</button>
@@ -111,7 +113,6 @@
     </div>
   </section>
 
-  <!-- BUSCADOR EN TIEMPO REAL -->
   <script>
     document.getElementById('searchInput').addEventListener('input', function() {
       const filter = this.value.toLowerCase();
