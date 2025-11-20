@@ -47,7 +47,7 @@ class Reclamo extends Model
     public function operador()
     {
         // Un Reclamo pertenece a un Empleado (Operador)
-        return $this->belongsTo(Empleado::class, 'idOperadorAsignado', 'idEmpleado');
+        return $this->belongsTo(Empleado::class, 'idOperador', 'idEmpleado');
     }
 
     /**

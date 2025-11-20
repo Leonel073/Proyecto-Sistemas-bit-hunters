@@ -199,11 +199,7 @@
     </section>
   </div>
 
-  <!-- Botones flotantes -->
-  <div class="fixed-buttons">
-    <a href="{{ route('login') }}" class="btn-floating">Iniciar Sesión</a>
-    <a href="{{ route('register') }}" class="btn-floating btn-register">Registrarse</a>
-  </div>
+  
 
   <!-- SCRIPTS -->
   <script>

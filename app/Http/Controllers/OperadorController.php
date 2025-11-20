@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\DB;
 use App\Models\Reclamo;
 use App\Models\Tecnico;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Log;
 
 class OperadorController extends Controller
 {
@@ -56,12 +57,14 @@ class OperadorController extends Controller
         // Reclamos nuevos sin operador (casos que requieren atención)
         $nuevos = Reclamo::whereNull('idOperador')
             ->where('estado', 'Nuevo')
+            ->with('usuario')
             ->orderBy('fechaCreacion', 'desc')
             ->get();
 
         // Obtener reclamos asignados a este operador y que están pendientes
         $misCasos = Reclamo::where('idOperador', $empleadoId)
-            ->whereIn('estado', ['Asignado', 'En Proceso'])
+            ->whereIn('estado', ['Asignado', 'En Proceso', 'Abierto'])
+            ->with(['usuario','tecnico'])
             ->orderBy('fechaCreacion', 'desc')
             ->get();
 
@@ -126,35 +129,29 @@ class OperadorController extends Controller
      */
     public function asignarTecnico(Request $request, Reclamo $reclamo)
     {
-<<<<<<< HEAD
-        $data = $request->validate([
-            'idTecnico' => 'required|integer',
-            'comentario' => 'required|string'
-        ]);
-=======
-        /** @var Request $request */
-        /** @var Reclamo $reclamo */
         try {
             $data = $request->validate([
                 'idTecnico' => 'required|integer',
-                'comentario' => 'required|string'
+                'comentario' => 'nullable|string'
             ]);
->>>>>>> 82ffb26 (arreglando el modulo del operador)
 
-        // Añadir comentario en campo JSON o tabla de seguimiento (aquí usamos campo 'comentarios' si existe)
-        $comentarios = $reclamo->comentarios ?? [];
-        $comentarios[] = [
-            'id' => now()->timestamp,
-            'texto' => $data['comentario'],
-            'autorId' => Auth::guard('empleado')->id(),
-            'fecha' => now()->toDateTimeString()
-        ];
-        $reclamo->comentarios = $comentarios;
-        $reclamo->idTecnicoAsignado = $data['idTecnico'];
-        $reclamo->estado = 'Asignado';
-        $reclamo->save();
+            // Verificar que el técnico existe
+            $tecnico = Tecnico::where('idEmpleado', $data['idTecnico'])->first();
+            if (!$tecnico) {
+                return response()->json(['message' => 'Técnico no encontrado'], 404);
+            }
 
-        return response()->json(['message' => 'Técnico asignado correctamente']);
+            // Asignar técnico y cambiar estado
+            // No guardamos comentarios en la columna `comentarios` porque no existe en el esquema.
+            $reclamo->idTecnicoAsignado = $data['idTecnico'];
+            $reclamo->estado = 'Asignado';
+            $reclamo->save();
+
+            return response()->json(['message' => 'Técnico asignado correctamente']);
+        } catch (\Exception $e) {
+            Log::error('Error en asignarTecnico:', ['error' => $e->getMessage(), 'trace' => $e->getTraceAsString()]);
+            return response()->json(['message' => 'Error al asignar técnico: ' . $e->getMessage()], 500);
+        }
     }
 
     // Obtener lista de técnicos disponibles
