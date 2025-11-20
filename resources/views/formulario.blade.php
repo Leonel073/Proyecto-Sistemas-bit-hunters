@@ -62,6 +62,7 @@
   <!-- NAV END -->
 
   <div class="main-container" id="app">
+    @auth('web')
     <!-- Formulario de reclamo -->
     <div class="card" id="reclamoFormContainer">
       <div class="card-header">
@@ -79,17 +80,17 @@
 
             <div class="form-group">
               <label class="form-label" for="nombre">Nombre Completo *</label>
-              <input class="form-input" id="nombre" name="nombre" required placeholder="Juan Pérez" />
+              <input class="form-input" id="nombre" name="nombre" required placeholder="Juan Pérez" value="{{ auth('web')->user()->primerNombre ?? '' }} {{ auth('web')->user()->apellidoPaterno ?? '' }}" />
             </div>
 
             <div class="form-row">
               <div class="form-group">
                 <label class="form-label" for="email">Correo Electrónico *</label>
-                <input type="email" class="form-input" id="email" name="email" required placeholder="correo@ejemplo.com" />
+                <input type="email" class="form-input" id="email" name="email" required placeholder="correo@ejemplo.com" value="{{ auth('web')->user()->email ?? '' }}" />
               </div>
               <div class="form-group">
                 <label class="form-label" for="telefono">Teléfono *</label>
-                <input type="tel" class="form-input" id="telefono" name="telefono" required placeholder="+591 2 1234567" />
+                <input type="tel" class="form-input" id="telefono" name="telefono" required placeholder="+591 2 1234567" value="{{ auth('web')->user()->telefonoContacto ?? '' }}" />
               </div>
             </div>
 
@@ -184,20 +185,36 @@
         </form>
       </div>
     </div>
-  <!-- Mensaje de Éxito -->
-  @if(session('success'))
+    @endauth
+
+    @guest('web')
+    <!-- Mensaje para usuarios no autenticados -->
+    <div class="card" id="guestMessage" style="max-width: 600px; margin: 40px auto; text-align: center; padding: 40px;">
+      <div class="card-header">
+        <h2 class="card-title">Acceso Requerido</h2>
+      </div>
+      <div class="card-content">
+        <p style="font-size: 16px; margin-bottom: 20px; color: #666;">
+          Para presentar un reclamo, primero debes iniciar sesión con tu cuenta de usuario.
+        </p>
+        <p style="font-size: 14px; color: #999; margin-bottom: 30px;">
+          Si aún no tienes una cuenta, puedes crear una desde la página de login.
+        </p>
+        <a href="{{ route('login') }}" class="btn-submit" style="display: inline-block; text-decoration: none; padding: 10px 30px;">
+          Iniciar Sesión
+        </a>
+      </div>
+    </div>
+    @endguest
+
+    <!-- Mensaje de Éxito -->
+    @if(session('success'))
     <div class="success-message">
       <h2>¡Reclamo registrado exitosamente!</h2>
       <p>{{ session('success') }}</p>
     </div>
-  @endif
-
-  <!-- Botones flotantes -->
-  <div class="fixed-buttons">
-    <a href="{{ route('login') }}" class="btn-floating">Iniciar Sesión</a>
-    <a href="{{ route('register') }}" class="btn-floating btn-register">Registrarse</a>
+    @endif
   </div>
 
-  <!-- (El formulario ahora se envía al servidor; las validaciones y mensajes se manejan desde el backend) -->
 </body>
 </html>
