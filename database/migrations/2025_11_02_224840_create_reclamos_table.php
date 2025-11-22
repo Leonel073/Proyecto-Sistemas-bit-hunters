@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration {
     public function up(): void {
+        // SOLO UNA VEZ Schema::create
         Schema::create('reclamos', function (Blueprint $table) {
             $table->id('idReclamo');
             $table->unsignedBigInteger('idUsuario');
@@ -16,6 +17,10 @@ return new class extends Migration {
             $table->unsignedBigInteger('idCausaRaiz')->nullable();
             $table->string('titulo', 255);
             $table->text('descripcionDetallada');
+
+            // ✅ AQUÍ AGREGAMOS LA COLUMNA NUEVA (Dentro del mismo bloque)
+            $table->json('comentarios')->nullable(); 
+
             $table->text('solucionTecnica')->nullable();
             $table->enum('estado', ['Nuevo', 'Abierto', 'Asignado', 'En Proceso', 'Resuelto', 'Cerrado', 'Cancelado'])->default('Nuevo');
             $table->enum('prioridad', ['Baja', 'Media', 'Alta', 'Urgente']);
@@ -27,6 +32,7 @@ return new class extends Migration {
             $table->timestamp('fechaActualizacion')->useCurrent()->useCurrentOnUpdate();
             $table->timestamp('fechaEliminacion')->nullable();
 
+            // Relaciones (Foreign Keys)
             $table->foreign('idUsuario')->references('idUsuario')->on('usuarios')->restrictOnDelete()->cascadeOnUpdate();
             $table->foreign('idOperador')->references('idEmpleado')->on('empleados')->nullOnDelete()->cascadeOnUpdate();
             $table->foreign('idTecnicoAsignado')->references('idEmpleado')->on('empleados')->nullOnDelete()->cascadeOnUpdate();
@@ -38,6 +44,7 @@ return new class extends Migration {
             $table->index('prioridad', 'idx_reclamo_prioridad');
         });
     }
+
     public function down(): void {
         Schema::dropIfExists('reclamos');
     }
