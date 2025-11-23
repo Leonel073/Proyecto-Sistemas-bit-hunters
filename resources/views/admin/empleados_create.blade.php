@@ -7,9 +7,9 @@
 
   @vite([
       'resources/css/app.css',
-      'resources/css/register.css', // Reusamos el CSS de registro
+      'resources/css/register.css',
       'resources/css/btns.css',
-      'resources/js/empleado-create.js' // Reusamos el JS de creación
+      'resources/js/empleado-create.js'
   ])
   
   <style>
@@ -18,7 +18,8 @@
 </head>
 <body class="bg-gray-50">
 
-  <a href="{{ route('usuarios') }}" class="btn-top-left">
+  <!-- ✅ CORREGIDO: Ruta del botón volver -->
+  <a href="{{ route('admin.empleados.index') }}" class="btn-top-left">
     ← Volver a Gestión
   </a>
 
@@ -40,9 +41,11 @@
         </div>
       @endif
 
-      <form id="createForm" action="{{ route('empleados.store') }}" method="POST" class="space-y-5" novalidate>
+      <!-- ✅ CORREGIDO: Ruta del action del formulario -->
+      <form id="createForm" action="{{ route('admin.empleados.store') }}" method="POST" class="space-y-5" novalidate>
         @csrf
 
+        <!-- Nombres y Apellidos -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div class="input-group">
             <label for="primerNombre" class="block text-sm font-medium text-gray-700">Primer Nombre *</label>
@@ -68,6 +71,7 @@
           </div>
         </div>
 
+        <!-- CI y Celular -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div class="input-group">
             <label for="ci" class="block text-sm font-medium text-gray-700">Cédula (CI) *</label>
@@ -81,16 +85,18 @@
           </div>
         </div>
 
+        <!-- Email -->
         <div class="input-group">
           <label for="emailCorporativo" class="block text-sm font-medium text-gray-700">Correo Corporativo *</label>
           <input type="email" id="emailCorporativo" name="emailCorporativo" value="{{ old('emailCorporativo') }}" required>
           <span id="emailCorporativo-error" class="error-message empty:hidden"></span>
         </div>
 
+        <!-- Rol y Fecha Ingreso -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div class="input-group">
             <label for="rol" class="block text-sm font-medium text-gray-700">Rol del Empleado *</label>
-            <select name="rol" id="rol" required class="mt-1 w-full">
+            <select name="rol" id="rol" required class="mt-1 w-full border border-gray-300 rounded-md shadow-sm p-2">
                 @if(!$gerenteExiste)
                     <option value="Gerente" {{ old('rol') == 'Gerente' ? 'selected' : '' }}>Gerente de Soporte</option>
                 @endif
@@ -108,6 +114,7 @@
           </div>
         </div>
 
+        <!-- Contraseñas -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div class="input-group">
             <label for="password" class="block text-sm font-medium text-gray-700">Contraseña *</label>
