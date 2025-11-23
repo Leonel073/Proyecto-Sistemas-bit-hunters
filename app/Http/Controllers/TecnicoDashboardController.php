@@ -2,58 +2,83 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Reclamo;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth; // Para saber qué usuario está logueado
-use App\Models\Reclamo; // Para buscar en la tabla RECLAMO
-use App\Models\Tecnico; // Para buscar en la tabla TECNICO
+use Illuminate\Support\Facades\Auth;
+use App\Models\Tecnico; // Importar el modelo Técnico
 
 class TecnicoDashboardController extends Controller
 {
     /**
-     * Muestra el panel principal del técnico con sus reclamos asignados.
+     * Muestra la lista de reclamos asignados al técnico autenticado.
      */
     public function index()
     {
-        // 1. Obtenemos el ID del empleado (técnico) que está autenticado
-        $idTecnicoLogueado = Auth::id();
+        // 1. Obtener el objeto Empleado completo del técnico logueado. Este contiene 'primerNombre' y 'apellidoPaterno'.
+        $tecnico = Auth::user(); 
+        $tecnicoId = $tecnico->idEmpleado;
 
-        // 2. Buscamos sus reclamos asignados que están "pendientes"
-        // (No queremos mostrar los que ya están Resueltos, Cerrados o Cancelados)
-        $reclamosAsignados = Reclamo::where('idTecnicoAsignado', $idTecnicoLogueado)
-                                  ->whereNotIn('estado', ['Resuelto', 'Cerrado', 'Cancelado'])
-                                  ->orderBy('fechaCreacion', 'desc') // Mostrar los más nuevos primero
-                                  ->get();
+        // 2. Obtener el estado actual de disponibilidad del técnico a partir de su perfil 'Tecnico'.
+        // Este registro es necesario para obtener 'estadoDisponibilidad'.
+        $tecnicoProfile = Tecnico::where('idEmpleado', $tecnicoId)->first();
+        $estadoActual = $tecnicoProfile ? $tecnicoProfile->estadoDisponibilidad : 'Disponible';
+        
+        // 3. Filtrar los reclamos por el ID del técnico y por estados activos.
+        $reclamos = Reclamo::where('idTecnicoAsignado', $tecnicoId)
+            ->whereNotIn('estado', ['Cerrado', 'Resuelto', 'Completado']) // Añade los estados finales que uses
+            ->orderBy('prioridad', 'desc')
+            ->orderBy('fechaCreacion', 'asc')
+            ->get();
 
-        // 3. Obtenemos el perfil de Técnico (para saber su estado de disponibilidad)
-        // Usamos findOrFail para que falle si el Empleado no tiene un perfil de Técnico
-        $tecnico = Tecnico::findOrFail($idTecnicoLogueado);
-
-        // 4. Cargamos la vista (que crearemos en el siguiente paso) y le pasamos los datos
-        return view('tecnico.dashboard', [
-            'reclamos' => $reclamosAsignados,
-            'estadoActual' => $tecnico->estadoDisponibilidad
-        ]);
+        // 4. Pasar todas las variables necesarias a la vista, incluyendo el objeto $tecnico (Empleado).
+        return view('tecnico.dashboard', compact('reclamos', 'estadoActual', 'tecnico'));
     }
 
     /**
-     * Actualiza el estado de DISPONIBILIDAD del técnico (En Ruta, Ocupado, etc.)
-     * Esto viene de la tabla TECNICO, no de RECLAMO.
+     * Permite al técnico cambiar su estado de disponibilidad.
      */
     public function actualizarEstadoDisponibilidad(Request $request)
     {
-        // 1. Validamos que el estado que nos envían sea uno de los permitidos
         $request->validate([
-            'estadoDisponibilidad' => 'required|in:Disponible,En Ruta,Ocupado'
+            'estadoDisponibilidad' => 'required|in:Disponible,En Ruta,Ocupado',
         ]);
 
-        // 2. Buscamos el registro del técnico
-        $tecnico = Tecnico::findOrFail(Auth::id());
+        $tecnicoId = Auth::user()->idEmpleado;
+        // Aquí se busca el perfil Tecnico, lo cual es correcto para actualizar el estado.
+        $tecnicoProfile = Tecnico::where('idEmpleado', $tecnicoId)->first();
 
-        // 3. Actualizamos su estado y guardamos
-        $tecnico->estadoDisponibilidad = $request->estadoDisponibilidad;
-        $tecnico->save();
+        if ($tecnicoProfile) {
+            $tecnicoProfile->estadoDisponibilidad = $request->estadoDisponibilidad;
+            $tecnicoProfile->save();
+            return redirect()->route('tecnico.dashboard')->with('success', 'Estado de disponibilidad actualizado a ' . $tecnicoProfile->estadoDisponibilidad . '.');
+        }
 
-        // 4. Redireccionamos de vuelta al dashboard con un mensaje de éxito
-        return back()->with('success', 'Tu estado ha sido actualizado a "' . $request->estadoDisponibilidad . '".');
+        return redirect()->route('tecnico.dashboard')->with('error', 'Error: No se encontró el perfil de técnico asociado a su cuenta.');
+    }
+
+    /**
+     * Permite al técnico cambiar el estado de un reclamo a 'En Proceso'.
+     */
+    public function aceptarReclamo($idReclamo)
+    {
+        $tecnicoId = Auth::user()->idEmpleado;
+        $reclamo = Reclamo::where('idReclamo', $idReclamo)
+                          ->where('idTecnicoAsignado', $tecnicoId)
+                          ->first();
+
+        if (!$reclamo) {
+            return redirect()->route('tecnico.dashboard')->with('error', 'Reclamo no encontrado o no asignado a usted.');
+        }
+
+        // Lógica para aceptar: cambiar el estado y registrar la fecha de actualización
+        if ($reclamo->estado === 'Asignado' || $reclamo->estado === 'Pendiente') {
+            $reclamo->estado = 'En Proceso';
+            $reclamo->fechaActualizacion = now();
+            $reclamo->save();
+
+            return redirect()->route('tecnico.dashboard')->with('success', "Reclamo #{$idReclamo} aceptado y en proceso.");
+        }
+
+        return redirect()->route('tecnico.dashboard')->with('info', "El reclamo #{$idReclamo} ya se encuentra en proceso o resuelto.");
     }
 }

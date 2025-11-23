@@ -37,7 +37,7 @@ Route::post('/sign_up', [RegisterController::class, 'store'])->name('register.st
 Route::middleware('auth')->group(function () {
     Route::view('/formulario', 'formulario')->name('formulario');
     Route::view('/seguimiento', 'seguimiento')->name('seguimiento');
-    Route::post('/reclamo', [ReclamoController::class, 'storeFront'])->name('reclamo.store');
+    Route::post('/reclamo', [ReclamoController::class, 'store'])->name('reclamo.store');
 
     // Editar Perfil de Usuario
     Route::get('/perfil/editar', [UsuarioController::class, 'perfil'])->name('perfil.editar');
