@@ -12,83 +12,119 @@ use App\Http\Controllers\OperadorController;
 use App\Http\Controllers\SupervisorOperadorController;
 use App\Http\Controllers\SupervisorTecnicoController;
 
-// === PÚBLICO ===
+/*
+|--------------------------------------------------------------------------
+| RUTAS PÚBLICAS
+|--------------------------------------------------------------------------
+*/
 Route::get('/', function () { return view('index'); })->name('home');
 Route::get('/recursos', fn() => view('recursos'))->name('recursos');
 
 // === AUTENTICACIÓN ===
 Route::get('/login', [LoginController::class, 'show'])->name('login');
 Route::post('/login', [LoginController::class, 'login'])->name('login.post');
-// Logout maneja ambos guards
-Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
+Route::post('/logout', [LoginController::class, 'logout'])->name('logout'); // Logout general
 
 Route::get('/sign_up', [RegisterController::class, 'show'])->name('register');
 Route::post('/sign_up', [RegisterController::class, 'store'])->name('register.store');
 
-// === CLIENTES (USUARIOS) ===
+/*
+|--------------------------------------------------------------------------
+| RUTAS DE CLIENTES (USUARIOS)
+|--------------------------------------------------------------------------
+| Solo para usuarios normales (Guard: web)
+*/
 Route::middleware('auth')->group(function () {
     Route::view('/formulario', 'formulario')->name('formulario');
     Route::view('/seguimiento', 'seguimiento')->name('seguimiento');
-    
-    // ⚠️ CORRECCIÓN IMPORTANTE: Cambiamos 'storeFront' por 'store'
-    Route::post('/reclamo', [ReclamoController::class, 'store'])->name('reclamo.store');
+    Route::post('/reclamo', [ReclamoController::class, 'storeFront'])->name('reclamo.store');
+
+    // Editar Perfil de Usuario
+    Route::get('/perfil/editar', [UsuarioController::class, 'perfil'])->name('perfil.editar');
+    Route::put('/perfil/editar', [UsuarioController::class, 'actualizarPerfil'])->name('perfil.update');
 });
 
-// === EMPLEADOS (Panel de Administración) ===
+/*
+|--------------------------------------------------------------------------
+| RUTAS DE EMPLEADOS (JERARQUÍA)
+|--------------------------------------------------------------------------
+*/
 
-// 1. GERENTE (ADMIN)
-Route::middleware(['auth:empleado', 'role:Gerente'])->prefix('admin')->name('admin.')->group(function () {
-    // CRUD de Empleados
-    Route::resource('empleados', EmpleadoController::class); 
+// 1. ÁREA DE GERENCIA (ADMINISTRADOR)
+// Acceso exclusivo: Solo Gerente
+Route::middleware(['auth:empleado', 'role:Gerente'])
+    ->prefix('admin')->name('admin.')->group(function () {
+    
+    // CRUD Empleados
+    Route::resource('empleados', EmpleadoController::class);
     Route::get('empleados-eliminados', [EmpleadoController::class, 'deleted'])->name('empleados.deleted');
     Route::put('empleados/{id}/restore', [EmpleadoController::class, 'restore'])->name('empleados.restore');
 
-    // Gestión de Usuarios
+    // CRUD Usuarios
     Route::resource('usuarios', UsuarioController::class)->except(['create', 'store', 'show']);
     Route::put('usuarios/{id}/restore', [UsuarioController::class, 'restore'])->name('usuarios.restore');
 });
 
-// 2. SUPERVISOR DE OPERADORES
-Route::middleware(['auth:empleado', 'role:SupervisorOperador'])
+// 2. ÁREA DE SUPERVISIÓN OPERADORES
+// Acceso: SupervisorOperador y Gerente
+Route::middleware(['auth:empleado', 'role:SupervisorOperador,Gerente'])
     ->prefix('supervisor/operadores')->name('supervisor.operadores.')->group(function () {
     
-    // --- A. FUNCIONALIDAD DEL PANEL (Asignar Reclamos) ---
-    // Esta es la ruta que conecta con la vista dashboard.blade.php que creamos
-    Route::get('/panel', [SupervisorOperadorController::class, 'dashboard'])->name('dashboard');
-    Route::put('/reclamo/{reclamo}/reasignar', [SupervisorOperadorController::class, 'reasignarOperador'])->name('reasignar');
-
-    // --- B. FUNCIONALIDAD DE GESTIÓN (CRUD de sus operadores) ---
-    // (Mantengo tus rutas por si el supervisor también puede crear/editar operadores)
+    // Gestión de Operadores
     Route::get('/', [SupervisorOperadorController::class, 'index'])->name('index'); 
     Route::get('/create', [SupervisorOperadorController::class, 'create'])->name('create');
     Route::post('/', [SupervisorOperadorController::class, 'store'])->name('store');
-    // ... resto del CRUD ...
+    Route::get('/deleted', [SupervisorOperadorController::class, 'deleted'])->name('deleted');
+    Route::put('/{id}/restore', [SupervisorOperadorController::class, 'restore'])->name('restore');
+    Route::get('/{id}/edit', [SupervisorOperadorController::class, 'edit'])->name('edit');
+    Route::put('/{id}', [SupervisorOperadorController::class, 'update'])->name('update');
+    Route::delete('/{id}', [SupervisorOperadorController::class, 'destroy'])->name('destroy');
+
+    // Panel del Supervisor (Dashboard específico si existe)
+    Route::get('/panel', [SupervisorOperadorController::class, 'dashboard'])->name('dashboard');
+    Route::put('/reclamo/{reclamo}/reasignar', [SupervisorOperadorController::class, 'reasignarOperador'])->name('reasignar');
 });
 
-// 3. SUPERVISOR DE TÉCNICOS
-Route::middleware(['auth:empleado', 'role:SupervisorTecnico'])
+// 3. ÁREA DE SUPERVISIÓN TÉCNICOS
+// Acceso: SupervisorTecnico y Gerente
+Route::middleware(['auth:empleado', 'role:SupervisorTecnico,Gerente'])
     ->prefix('supervisor/tecnicos')->name('supervisor.tecnicos.')->group(function () {
     
-    // CRUD de gestión de técnicos
+    // Gestión de Técnicos
     Route::get('/', [SupervisorTecnicoController::class, 'index'])->name('index');
     Route::get('/create', [SupervisorTecnicoController::class, 'create'])->name('create');
     Route::post('/', [SupervisorTecnicoController::class, 'store'])->name('store');
-    // ... resto del CRUD ...
+    Route::get('/deleted', [SupervisorTecnicoController::class, 'deleted'])->name('deleted');
+    Route::put('/{id}/restore', [SupervisorTecnicoController::class, 'restore'])->name('restore');
+    Route::get('/{id}/edit', [SupervisorTecnicoController::class, 'edit'])->name('edit');
+    Route::put('/{id}', [SupervisorTecnicoController::class, 'update'])->name('update');
+    Route::delete('/{id}', [SupervisorTecnicoController::class, 'destroy'])->name('destroy');
 });
 
-// 4. TÉCNICO
-Route::middleware(['auth:empleado', 'role:Tecnico'])->prefix('tecnico')->name('tecnico.')->group(function () {
-    Route::get('/dashboard', [TecnicoDashboardController::class, 'index'])->name('dashboard');
-    Route::post('/estado/actualizar', [TecnicoDashboardController::class, 'actualizarEstadoDisponibilidad'])->name('estado.update');
-    Route::post('/reclamo/{reclamo}/resolver', [ReclamoResolucionController::class, 'resolver'])->name('reclamo.resolver');
-});
-
-// 5. OPERADOR
-Route::middleware(['auth:empleado', 'role:Operador'])->prefix('operador')->name('operador.')->group(function () {
+// 4. ÁREA OPERATIVA (PANEL DE OPERADOR)
+// Acceso: Operador, SupervisorOperador y Gerente
+// (El técnico NO puede entrar aquí, ni el SupervisorTecnico)
+Route::middleware(['auth:empleado', 'role:Operador,SupervisorOperador,Gerente'])
+    ->prefix('operador')->name('operador.')->group(function () {
+    
     Route::get('/panel', [OperadorController::class, 'panel'])->name('panel');
+    // API endpoints internos para el panel
     Route::get('/reclamos/nuevos', [OperadorController::class, 'nuevos'])->name('reclamos.nuevos');
     Route::get('/reclamos/mis', [OperadorController::class, 'mis'])->name('reclamos.mis');
     Route::get('/tecnicos', [OperadorController::class, 'tecnicos'])->name('tecnicos');
+    
+    // Solo el Operador debería ejecutar estas acciones (aunque el supervisor tenga acceso a ver)
     Route::post('/reclamo/tomar/{reclamo}', [OperadorController::class, 'tomar'])->name('reclamo.tomar');
     Route::post('/reclamo/asignar-tecnico/{reclamo}', [OperadorController::class, 'asignarTecnico'])->name('reclamo.asignarTecnico');
+});
+
+// 5. ÁREA TÉCNICA (DASHBOARD TÉCNICO)
+// Acceso: Tecnico, SupervisorTecnico y Gerente
+// (El operador NO puede entrar aquí, ni el SupervisorOperador)
+Route::middleware(['auth:empleado', 'role:Tecnico,SupervisorTecnico,Gerente'])
+    ->prefix('tecnico')->name('tecnico.')->group(function () {
+    
+    Route::get('/dashboard', [TecnicoDashboardController::class, 'index'])->name('dashboard');
+    Route::post('/estado/actualizar', [TecnicoDashboardController::class, 'actualizarEstadoDisponibilidad'])->name('estado.update');
+    Route::post('/reclamo/{reclamo}/resolver', [ReclamoResolucionController::class, 'resolver'])->name('reclamo.resolver');
 });

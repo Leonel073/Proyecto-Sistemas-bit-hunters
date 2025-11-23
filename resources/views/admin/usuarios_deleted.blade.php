@@ -13,7 +13,6 @@
       'resources/css/users-management.css',
       'resources/js/nav.js'
   ])
-
 </head>
 <body class="bg-gray-100">
 
@@ -34,7 +33,8 @@
 
       <div class="nav-links" id="navLinks">
         <button onclick="window.location.href='{{ route('home') }}'">Inicio</button>
-        <button class="active">Gestión de Usuarios</button>
+        <!-- ✅ CORREGIDO: admin.empleados.index -->
+        <button onclick="window.location.href='{{ route('admin.empleados.index') }}'">Gestión de Usuarios</button>
       </div>
     </div>
   </nav>
@@ -44,7 +44,8 @@
       <h1 class="users-title">Usuarios y Empleados Eliminados</h1>
 
       <div class="action-buttons">
-        <a href="{{ route('usuarios') }}" class="btn-action">← Volver a gestión</a>
+        <!-- ✅ CORREGIDO: admin.empleados.index -->
+        <a href="{{ route('admin.empleados.index') }}" class="btn-action">← Volver a gestión</a>
       </div>
 
       <!-- Barra de búsqueda -->
@@ -75,7 +76,8 @@
             <td>Empleado</td>
             <td>{{ $empleado->fechaEliminacion ?? 'Desconocida' }}</td>
             <td class="actions">
-              <form action="{{ route('empleados.restore', $empleado->idEmpleado) }}" method="POST">
+              <!-- ✅ CORREGIDO: admin.empleados.restore -->
+              <form action="{{ route('admin.empleados.restore', $empleado->idEmpleado) }}" method="POST">
                 @csrf
                 @method('PUT')
                 <button type="submit" class="btn-edit">Activar</button>
@@ -94,7 +96,8 @@
             <td>Usuario</td>
             <td>{{ $usuario->fechaEliminacion ?? 'Desconocida' }}</td>
             <td class="actions">
-              <form action="{{ route('usuarios.restore', ['id' => $usuario->idUsuario]) }}" method="POST">
+              <!-- ✅ CORREGIDO: admin.usuarios.restore -->
+              <form action="{{ route('admin.usuarios.restore', ['id' => $usuario->idUsuario]) }}" method="POST">
                 @csrf
                 @method('PUT')
                 <button type="submit" class="btn-edit">Activar</button>
