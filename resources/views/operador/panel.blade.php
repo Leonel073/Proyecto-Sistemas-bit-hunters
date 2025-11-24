@@ -27,15 +27,15 @@
       </div>
 
       <div class="nav-center">
-        <a href="#" class="nav-item active">
+        <a href="#" class="nav-item active" data-section="dashboard">
           <i class="fas fa-dashboard"></i>
           <span>Dashboard</span>
         </a>
-        <a href="#" class="nav-item">
+        <a href="#" class="nav-item" data-section="casos">
           <i class="fas fa-tasks"></i>
           <span>Casos</span>
         </a>
-        <a href="#" class="nav-item">
+        <a href="#" class="nav-item" data-section="reportes">
           <i class="fas fa-chart-line"></i>
           <span>Reportes</span>
         </a>
@@ -88,49 +88,87 @@
         </div>
       </div>
 
-      <!-- ESTADÍSTICAS -->
-      <div class="stats-grid" id="statsContainer"></div>
+      <!-- SECCIONES: Cada sección se muestra/oculta según el nav -->
+      <section id="dashboardSection">
+        <!-- ESTADÍSTICAS -->
+        <div class="stats-grid" id="statsContainer"></div>
 
-      <!-- CONTENEDOR DE SECCIONES -->
-      <div class="sections-container">
-        <!-- CASOS NUEVOS -->
-        <div class="card card-primary">
-          <div class="card-header">
-            <div class="header-info">
-              <div class="header-icon">
-                <i class="fas fa-bell"></i>
+        <!-- CONTENEDOR DE SECCIONES -->
+        <div class="sections-container">
+          <!-- CASOS NUEVOS -->
+          <div class="card card-primary">
+            <div class="card-header">
+              <div class="header-info">
+                <div class="header-icon">
+                  <i class="fas fa-bell"></i>
+                </div>
+                <div class="header-text">
+                  <h2>Casos Nuevos</h2>
+                  <p class="card-description">Reclamos recién ingresados que requieren revisión</p>
+                </div>
               </div>
-              <div class="header-text">
-                <h2>Casos Nuevos</h2>
-                <p class="card-description">Reclamos recién ingresados que requieren revisión</p>
-              </div>
+              <div class="header-badge" id="countNuevos">0</div>
             </div>
-            <div class="header-badge" id="countNuevos">0</div>
+            <div class="card-content">
+              <div id="nuevosReclamosTable"></div>
+            </div>
           </div>
-          <div class="card-content">
-            <div id="nuevosReclamosTable"></div>
+
+          <!-- MIS CASOS -->
+          <div class="card card-secondary">
+            <div class="card-header">
+              <div class="header-info">
+                <div class="header-icon">
+                  <i class="fas fa-tasks"></i>
+                </div>
+                <div class="header-text">
+                  <h2>Mis Casos en Asignación</h2>
+                  <p class="card-description">Casos bajo tu responsabilidad a asignar a técnicos</p>
+                </div>
+              </div>
+              <div class="header-badge" id="countMisCasos">0</div>
+            </div>
+            <div class="card-content">
+              <div id="misCasosTable"></div>
+            </div>
           </div>
         </div>
+      </section>
 
-        <!-- MIS CASOS -->
-        <div class="card card-secondary">
+      <section id="casosSection" class="hidden">
+        <div class="card">
           <div class="card-header">
-            <div class="header-info">
-              <div class="header-icon">
-                <i class="fas fa-tasks"></i>
-              </div>
-              <div class="header-text">
-                <h2>Mis Casos en Asignación</h2>
-                <p class="card-description">Casos bajo tu responsabilidad a asignar a técnicos</p>
-              </div>
-            </div>
-            <div class="header-badge" id="countMisCasos">0</div>
+            <h2>Vista: Casos</h2>
+            <p class="card-description">Lista completa de casos (nuevos y asignados). Usa acciones para tomar o asignar.</p>
           </div>
-          <div class="card-content">
-            <div id="misCasosTable"></div>
+          <div class="card-content grid-2">
+            <div>
+              <h3>Casos Nuevos</h3>
+              <div id="nuevosCasosContainer"></div>
+            </div>
+            <div>
+              <h3>Mis Casos</h3>
+              <div id="misCasosContainer"></div>
+            </div>
           </div>
         </div>
-      </div>
+      </section>
+
+      <section id="reportesSection" class="hidden">
+        <div class="card">
+          <div class="card-header">
+            <h2>Reportes</h2>
+            <p class="card-description">Reportes y métricas del servicio. Aquí puedes descargar o visualizar reportes rápidos.</p>
+          </div>
+          <div class="card-content">
+            <p>Próximamente: gráficas, export CSV y filtros avanzados.</p>
+            <div class="empty-state">
+              <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/></svg>
+              <p>No hay reportes configurados aún.</p>
+            </div>
+          </div>
+        </div>
+      </section>
     </main>
   </div>
 

@@ -86,7 +86,8 @@ class ReclamoController extends Controller
 
     // Crear reclamo nuevo
     public function store(Request $request)
-    {
+    { 
+        // Validamos los datos enviados desde el formulario web
         $request->validate([
             'idUsuario' => 'required|integer|exists:USUARIO,idUsuario',
             'idPoliticaSLA' => 'required|integer|exists:SLA_POLITICA,idPoliticaSLA',
@@ -98,11 +99,13 @@ class ReclamoController extends Controller
             'longitudIncidente' => 'required|numeric'
         ]);
 
+        // Creamos el reclamo con los datos del request
+        // y definimos el estado inicial como "Nuevo"
         $reclamo = Reclamo::create(array_merge(
             $request->all(),
-            ['estado' => 'Nuevo'] // 👈 estado inicial
+            ['estado' => 'Nuevo'] // estado inicial
         ));
-
+        // Respondemos con un JSON indicando éxito
         return response()->json([
             'message' => 'Reclamo registrado correctamente',
             'data' => $reclamo
@@ -112,6 +115,7 @@ class ReclamoController extends Controller
     // Mostrar reclamo por ID
     public function show($id)
     {
+        // Buscamos el reclamo y si no existe lanzará error 404
         $reclamo = Reclamo::findOrFail($id);
         return response()->json($reclamo);
     }
@@ -119,6 +123,7 @@ class ReclamoController extends Controller
     // Actualizar información del reclamo
     public function update(Request $request, $id)
     {
+        // Buscar el reclamo a actualizar
         $reclamo = Reclamo::findOrFail($id);
         $reclamo->update($request->all());
 
@@ -130,16 +135,19 @@ class ReclamoController extends Controller
 
     // Borrado lógico
     public function destroy($id)
-    {
+    { 
+        // Buscar el reclamo a eliminar (soft delete)
         $reclamo = Reclamo::findOrFail($id);
+        // No se elimina físicamente: solo se marca con fecha de eliminación
         $reclamo->update(['fechaEliminacion' => now()]);
-
+        // Respuesta indicando que fue eliminado (soft delete)
         return response()->json(['message' => 'Reclamo eliminado (soft delete)']);
     }
 
     // ✅ Panel de reclamos pendientes (para el operador)
     public function pendientes()
     {
+        // Obtener reclamos pendientes (estado Nuevo, Abierto o Asignado) y no eliminados
         $reclamos = Reclamo::whereNull('fechaEliminacion')
             ->whereIn('estado', ['Nuevo', 'Abierto', 'Asignado'])
             ->get();

@@ -15,6 +15,9 @@ function initializeDOM() {
   statsContainer = document.getElementById('statsContainer');
   nuevosReclamosTable = document.getElementById('nuevosReclamosTable');
   misCasosTable = document.getElementById('misCasosTable');
+  // nuevos/mis para la vista 'Casos'
+  window.nuevosCasosContainer = document.getElementById('nuevosCasosContainer');
+  window.misCasosContainer = document.getElementById('misCasosContainer');
   modal = document.getElementById('modal');
   modalTitle = document.getElementById('modalTitle');
   modalBody = document.getElementById('modalBody');
@@ -36,11 +39,91 @@ async function fetchJson(url, opts = {}) {
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', async () => {
     initializeDOM();
+    setupNavHandlers();
     await renderDashboard();
   });
 } else {
   initializeDOM();
+  setupNavHandlers();
   renderDashboard().catch(console.error);
+}
+
+function setupNavHandlers() {
+  // Detectar elementos de nav que usan .nav-item o .nav-link
+  const items = Array.from(document.querySelectorAll('.nav-item[data-section], .nav-link[data-section]'));
+  items.forEach(a => {
+    a.addEventListener('click', async (e) => {
+      e.preventDefault();
+      const section = a.getAttribute('data-section');
+      switchSection(section);
+    });
+  });
+}
+
+async function switchSection(name) {
+  // Toggle active class
+  document.querySelectorAll('.nav-item, .nav-link').forEach(n => n.classList.remove('active'));
+  const active = document.querySelector('[data-section="' + name + '"]');
+  if (active) active.classList.add('active');
+
+  // Sections
+  const sections = ['dashboard', 'casos', 'reportes'];
+  sections.forEach(s => {
+    const el = document.getElementById(s + 'Section');
+    if (!el) return;
+    if (s === name) el.classList.remove('hidden'); else el.classList.add('hidden');
+  });
+
+  // Cargar datos según la sección
+  if (name === 'dashboard') {
+    await renderDashboard();
+  } else if (name === 'casos') {
+    await loadCasosView();
+  } else if (name === 'reportes') {
+    // por ahora placeholder
+    console.log('Sección reportes');
+  }
+}
+
+async function loadCasosView() {
+  try {
+    const [nuevos, mis] = await Promise.all([
+      fetchJson('/operador/reclamos/nuevos'),
+      fetchJson('/operador/reclamos/mis')
+    ]);
+
+    // Render simple listas en los contenedores específicos
+    if (window.nuevosCasosContainer) {
+      if (!nuevos || nuevos.length === 0) {
+        window.nuevosCasosContainer.innerHTML = '<div class="empty-state"><p>No hay casos nuevos</p></div>';
+      } else {
+        window.nuevosCasosContainer.innerHTML = '';
+        nuevos.forEach(r => {
+          const div = document.createElement('div');
+          div.className = 'reclamo-row';
+          div.innerHTML = `<h4>R-${r.idReclamo} — ${r.titulo}</h4><p>${r.descripcionDetallada?.substring(0,150) ?? ''}</p><p>${getPrioridadBadge(r.prioridad)} ${getEstadoBadge(r.estado)}</p><div style="margin-top:.5rem"><button class="btn btn-primary" onclick="tomarCaso(${r.idReclamo})">Tomar</button></div>`;
+          window.nuevosCasosContainer.appendChild(div);
+        });
+      }
+    }
+
+    if (window.misCasosContainer) {
+      if (!mis || mis.length === 0) {
+        window.misCasosContainer.innerHTML = '<div class="empty-state"><p>No tienes casos asignados</p></div>';
+      } else {
+        window.misCasosContainer.innerHTML = '';
+        mis.forEach(r => {
+          const div = document.createElement('div');
+          div.className = 'reclamo-row';
+          div.innerHTML = `<h4>R-${r.idReclamo} — ${r.titulo}</h4><p>${r.descripcionDetallada?.substring(0,150) ?? ''}</p><p>${getPrioridadBadge(r.prioridad)} ${getEstadoBadge(r.estado)}</p><div style="margin-top:.5rem"><button class="btn btn-primary" onclick="abrirModal(${r.idReclamo})">Ver / Asignar</button></div>`;
+          window.misCasosContainer.appendChild(div);
+        });
+      }
+    }
+
+  } catch (e) {
+    console.error('Error loadCasosView:', e);
+  }
 }
 
 async function renderDashboard() {
