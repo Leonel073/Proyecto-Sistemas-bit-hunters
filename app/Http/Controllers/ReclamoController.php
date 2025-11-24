@@ -12,11 +12,9 @@ use Illuminate\Support\Facades\Auth;
 
 class ReclamoController extends Controller
 {
-    /*
-    |--------------------------------------------------------------------------
-    | storeFront - Registro desde el Front (Clientes)
-    |--------------------------------------------------------------------------
-    */
+    /**
+     * Procesa el formulario enviado desde la interfaz (web) y crea un Reclamo.
+     */
     public function storeFront(Request $request)
     {
         $request->validate([
@@ -31,35 +29,27 @@ class ReclamoController extends Controller
 
         $user = $request->user();
 
-        // Buscar o crear tipo de incidente
         $tipo = CatTipoIncidente::firstOrCreate([
-            'nombreIncidente' => $request->tipoIncidente
+            'nombreIncidente' => $request->input('tipoIncidente')
         ]);
 
-        // Política SLA por defecto
         $sla = SlaPolitica::first();
 
-        // Asignación automática de operador con menor carga
         $operadorAsignadoId = null;
         $operadores = Operador::all();
-
         if ($operadores->isNotEmpty()) {
             $min = null;
-
             foreach ($operadores as $op) {
                 $count = Reclamo::where('idOperador', $op->idEmpleado)
                     ->whereIn('estado', ['Nuevo', 'Asignado', 'En Proceso'])
                     ->count();
-
                 if ($min === null || $count < $min['count']) {
                     $min = ['id' => $op->idEmpleado, 'count' => $count];
                 }
             }
-
             $operadorAsignadoId = $min['id'] ?? null;
         }
 
-        // Crear el reclamo
         $reclamo = Reclamo::create([
             'idUsuario' => $user->idUsuario ?? $user->id ?? null,
             'idOperador' => $operadorAsignadoId,
@@ -67,27 +57,23 @@ class ReclamoController extends Controller
             'idPoliticaSLA' => $sla->idPoliticaSLA ?? 1,
             'idTipoIncidente' => $tipo->idTipoIncidente,
             'idCausaRaiz' => null,
-            'titulo' => $request->titulo,
-            'descripcionDetallada' => $request->descripcionDetallada,
+            'titulo' => $request->input('titulo'),
+            'descripcionDetallada' => $request->input('descripcionDetallada'),
             'solucionTecnica' => null,
             'estado' => $operadorAsignadoId ? 'Asignado' : 'Nuevo',
             'prioridad' => 'Media',
-            'latitudIncidente' => $request->latitud ?? 0.0,
-            'longitudIncidente' => $request->longitud ?? 0.0,
+            'latitudIncidente' => $request->input('latitud', 0.0),
+            'longitudIncidente' => $request->input('longitud', 0.0),
         ]);
 
-        return redirect()->route('formulario')
-            ->with('success', 'El reclamo R-' . $reclamo->idReclamo . ' se registró correctamente.');
+        return redirect()->route('formulario')->with('success', 'El reclamo R-' . $reclamo->idReclamo . ' se registró correctamente.');
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | index - Lista de reclamos (JSON)
-    |--------------------------------------------------------------------------
-    */
+    /**
+     * Listar reclamos activos (no eliminados)
+     */
     public function index()
     {
-        // Listar reclamos activos (no eliminados) ordenados por fecha de creación
         $reclamos = Reclamo::whereNull('fechaEliminacion')
             ->orderBy('fechaCreacion', 'desc')
             ->get();
@@ -95,11 +81,9 @@ class ReclamoController extends Controller
         return response()->json($reclamos);
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | store - Registro estándar desde Backend/Admin
-    |--------------------------------------------------------------------------
-    */
+    /**
+     * Crear reclamo nuevo (backend/admin)
+     */
     public function store(Request $request)
     {
         $request->validate([
@@ -124,22 +108,18 @@ class ReclamoController extends Controller
         ], 201);
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | show - Mostrar reclamo por ID
-    |--------------------------------------------------------------------------
-    */
+    /**
+     * Mostrar reclamo por ID
+     */
     public function show($id)
     {
         $reclamo = Reclamo::findOrFail($id);
         return response()->json($reclamo);
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | update - Actualizar un reclamo
-    |--------------------------------------------------------------------------
-    */
+    /**
+     * Actualizar información del reclamo
+     */
     public function update(Request $request, $id)
     {
         $reclamo = Reclamo::findOrFail($id);
@@ -151,11 +131,9 @@ class ReclamoController extends Controller
         ]);
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | destroy - Borrado lógico
-    |--------------------------------------------------------------------------
-    */
+    /**
+     * Borrado lógico
+     */
     public function destroy($id)
     {
         $reclamo = Reclamo::findOrFail($id);
@@ -164,11 +142,9 @@ class ReclamoController extends Controller
         return response()->json(['message' => 'Reclamo eliminado (soft delete)']);
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | pendientes - Vista del operador con reclamos pendientes
-    |--------------------------------------------------------------------------
-    */
+    /**
+     * Panel de reclamos pendientes (para el operador)
+     */
     public function pendientes()
     {
         $reclamos = Reclamo::whereNull('fechaEliminacion')
