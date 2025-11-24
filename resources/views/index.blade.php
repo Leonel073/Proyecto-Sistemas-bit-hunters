@@ -11,17 +11,19 @@
       'resources/css/nav.css',
       'resources/css/footer.css',
       'resources/css/index.css',
+      'resources/css/btns.css',
       'resources/js/nav.js'
   ])
 
   <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+
+
 </head>
 <body>
 
   <!-- NAV -->
   <nav>
     <div class="nav-container">
-      <!-- LOGO -->
       <div class="logo" role="button" tabindex="0" onclick="navigateTo('inicio')" aria-label="Ir al inicio">
         <div class="logo-icon">
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -35,7 +37,6 @@
         </div>
       </div>
 
-      <!-- LINKS DESKTOP -->
       <div class="nav-links" id="navLinks">
         <button class="nav-link active" onclick="navigateTo('inicio')" aria-current="page">Inicio</button>
         <button class="nav-link" onclick="scrollToSection('beneficios')">Beneficios</button>
@@ -43,7 +44,6 @@
         <button class="nav-link" onclick="navigateTo('recursos')">Recursos</button>
       </div>
 
-      <!-- MENÚ MÓVIL -->
       <button class="menu-button" id="menuToggle" aria-label="Menú de navegación">
         <svg id="menuIcon" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
@@ -58,7 +58,6 @@
       <button class="mobile-link" onclick="navigateTo('recursos')">Recursos</button>
     </div>
   </nav>
-  <!-- NAV END -->
 
   <!-- HERO -->
   <section class="hero">
@@ -283,7 +282,6 @@
   <footer class="footer">
     <div class="footer-container">
       <div class="footer-grid">
-        <!-- Sobre Nosotros -->
         <div class="footer-section">
           <h3 class="footer-title">Nexora Bolivia</h3>
           <p class="footer-text">
@@ -292,7 +290,6 @@
           </p>
         </div>
 
-        <!-- Enlaces Rápidos -->
         <div class="footer-section">
           <h4 class="footer-subtitle">Enlaces Rápidos</h4>
           <ul class="footer-links">
@@ -303,7 +300,6 @@
           </ul>
         </div>
 
-        <!-- Legal -->
         <div class="footer-section">
           <h4 class="footer-subtitle">Legal</h4>
           <ul class="footer-links">
@@ -313,7 +309,6 @@
           </ul>
         </div>
 
-        <!-- Contacto -->
         <div class="footer-section">
           <h4 class="footer-subtitle">Contacto</h4>
           <ul class="footer-contact">
@@ -330,40 +325,81 @@
         </div>
       </div>
 
-      <!-- BOTONES FLOTANTES -->
-      <div class="fixed-buttons">
+      <!-- ✅ BOTONES FLOTANTES PERSONALIZADOS ✅ -->
+      <div class="fixed-buttons" style="z-index: 2000;">
         @auth('web')
-            <!-- Sesión de usuario regular -->
-            <div class="bg-green-500 text-white px-4 py-2 rounded-full text-sm font-bold shadow-lg">
-                {{ auth('web')->user()->primerNombre }}
+            <!-- USUARIO LOGUEADO -->
+            <div class="floating-user-bar">
+                <!-- Nombre -->
+                <div class="user-name">
+                    {{ auth('web')->user()->primerNombre }}
+                </div>
+                
+                <!-- Botón Editar (Lápiz Azul) -->
+                <a href="{{ route('perfil.editar') }}" class="editBtn" title="Editar mi perfil">
+                    <svg height="1em" viewBox="0 0 512 512"><path d="M410.3 231l11.3-11.3-33.9-33.9-62.1-62.1L291.7 89.8l-11.3 11.3-22.6 22.6L58.6 322.9c-10.4 10.4-18 23.3-22.2 37.4L1 480.7c-2.5 8.4-.2 17.5 6.1 23.7s15.3 8.5 23.7 6.1l120.3-35.4c14.1-4.2 27-11.8 37.4-22.2L387.7 253.7 410.3 231zM160 399.4l-9.1 22.7c-4 3.1-8.5 5.4-13.3 6.9L59.4 452l23-78.1c1.4-4.9 3.8-9.4 6.9-13.3l22.7-9.1v32c0 8.8 7.2 16 16 16h32zM362.7 18.7L348.3 33.2 325.7 55.8 314.3 67.1l33.9 33.9 62.1 62.1 33.9 33.9 11.3-11.3 22.6-22.6 14.5-14.5c25-25 25-65.5 0-90.5L453.3 18.7c-25-25-65.5-25-90.5 0zm-47.4 168l-144 144c-6.2 6.2-16.4 6.2-22.6 0s-6.2-16.4 0-22.6l144-144c6.2-6.2 16.4-6.2 22.6 0s6.2 16.4 0 22.6z"></path></svg>
+                </a>
+
+                <!-- Botón Salir (Rojo Deslizante) -->
+                <form method="POST" action="{{ route('logout') }}" style="display: inline; margin: 0;">
+                    @csrf
+                    <button type="submit" class="BtnLogout" title="Cerrar Sesión">
+                        <div class="sign"><svg viewBox="0 0 512 512"><path d="M377.9 105.9L500.7 228.7c7.2 7.2 11.3 17.1 11.3 27.3s-4.1 20.1-11.3 27.3L377.9 406.1c-6.4 6.4-15 9.9-24 9.9c-18.7 0-33.9-15.2-33.9-33.9l0-62.1-128 0c-17.7 0-32-14.3-32-32l0-64c0-17.7 14.3-32 32-32l128 0 0-62.1c0-18.7 15.2-33.9 33.9-33.9c9 0 17.6 3.6 24 9.9zM160 96L96 96c-17.7 0-32 14.3-32 32l0 256c0 17.7 14.3 32 32 32l64 0c17.7 0 32 14.3 32 32s-14.3 32-32 32l-64 0c-53 0-96-43-96-96L0 128C0 75 43 32 96 32l64 0c17.7 0 32 14.3 32 32s-14.3 32-32 32z"></path></svg></div>
+                        <div class="text">Salir</div>
+                    </button>
+                </form>
             </div>
-            <form method="POST" action="{{ route('logout') }}" class="inline">
-                @csrf
-                <button type="submit" class="btn-floating btn-logout">Cerrar Sesión</button>
-            </form>
         @endauth
+
         @auth('empleado')
-            <!-- Sesión de empleado -->
-            <div class="bg-blue-500 text-white px-4 py-2 rounded-full text-sm font-bold shadow-lg">
-                {{ auth('empleado')->user()->primerNombre }}
+            <!-- EMPLEADO LOGUEADO -->
+            <div class="floating-user-bar">
+                <div class="user-name employee">
+                    {{ auth('empleado')->user()->primerNombre }}
+                </div>
+                <form method="POST" action="{{ route('logout') }}" style="display: inline; margin: 0;">
+                    @csrf
+                    <button type="submit" class="BtnLogout" title="Cerrar Sesión">
+                        <div class="sign"><svg viewBox="0 0 512 512"><path d="M377.9 105.9L500.7 228.7c7.2 7.2 11.3 17.1 11.3 27.3s-4.1 20.1-11.3 27.3L377.9 406.1c-6.4 6.4-15 9.9-24 9.9c-18.7 0-33.9-15.2-33.9-33.9l0-62.1-128 0c-17.7 0-32-14.3-32-32l0-64c0-17.7 14.3-32 32-32l128 0 0-62.1c0-18.7 15.2-33.9 33.9-33.9c9 0 17.6 3.6 24 9.9zM160 96L96 96c-17.7 0-32 14.3-32 32l0 256c0 17.7 14.3 32 32 32l64 0c17.7 0 32 14.3 32 32s-14.3 32-32 32l-64 0c-53 0-96-43-96-96L0 128C0 75 43 32 96 32l64 0c17.7 0 32 14.3 32 32s-14.3 32-32 32z"></path></svg></div>
+                        <div class="text">Salir</div>
+                    </button>
+                </form>
             </div>
-            <form method="POST" action="{{ route('logout') }}" class="inline">
-                @csrf
-                <button type="submit" class="btn-floating btn-logout">Cerrar Sesión</button>
-            </form>
         @endauth
+
         @guest('web')
         @guest('empleado')
-            <!-- No autenticado -->
-            <a href="{{ route('login') }}" class="btn-floating">Iniciar Sesión</a>
-            <a href="{{ route('register') }}" class="btn-floating btn-register">Registrarse</a>
+            <!-- NO AUTENTICADO (Botones de Estrellas) -->
+            <div class="floating-user-bar">
+                <!-- LOGIN (Morado) -->
+                <a href="{{ route('login') }}" class="star-btn star-btn-purple">
+                    Iniciar Sesión
+                    <div class="star-1"><svg viewBox="0 0 784.11 815.53"><path class="fil0" d="M392.05 0c-20.9,210.08 -184.06,378.41 -392.05,407.78 207.96,29.37 371.12,197.68 392.05,407.74 20.93,-210.06 184.09,-378.37 392.05,-407.74 -207.98,-29.38 -371.16,-197.69 -392.06,-407.78z"></path></svg></div>
+                    <div class="star-2"><svg viewBox="0 0 784.11 815.53"><path class="fil0" d="M392.05 0c-20.9,210.08 -184.06,378.41 -392.05,407.78 207.96,29.37 371.12,197.68 392.05,407.74 20.93,-210.06 184.09,-378.37 392.05,-407.74 -207.98,-29.38 -371.16,-197.69 -392.06,-407.78z"></path></svg></div>
+                    <div class="star-3"><svg viewBox="0 0 784.11 815.53"><path class="fil0" d="M392.05 0c-20.9,210.08 -184.06,378.41 -392.05,407.78 207.96,29.37 371.12,197.68 392.05,407.74 20.93,-210.06 184.09,-378.37 392.05,-407.74 -207.98,-29.38 -371.16,-197.69 -392.06,-407.78z"></path></svg></div>
+                    <div class="star-4"><svg viewBox="0 0 784.11 815.53"><path class="fil0" d="M392.05 0c-20.9,210.08 -184.06,378.41 -392.05,407.78 207.96,29.37 371.12,197.68 392.05,407.74 20.93,-210.06 184.09,-378.37 392.05,-407.74 -207.98,-29.38 -371.16,-197.69 -392.06,-407.78z"></path></svg></div>
+                    <div class="star-5"><svg viewBox="0 0 784.11 815.53"><path class="fil0" d="M392.05 0c-20.9,210.08 -184.06,378.41 -392.05,407.78 207.96,29.37 371.12,197.68 392.05,407.74 20.93,-210.06 184.09,-378.37 392.05,-407.74 -207.98,-29.38 -371.16,-197.69 -392.06,-407.78z"></path></svg></div>
+                    <div class="star-6"><svg viewBox="0 0 784.11 815.53"><path class="fil0" d="M392.05 0c-20.9,210.08 -184.06,378.41 -392.05,407.78 207.96,29.37 371.12,197.68 392.05,407.74 20.93,-210.06 184.09,-378.37 392.05,-407.74 -207.98,-29.38 -371.16,-197.69 -392.06,-407.78z"></path></svg></div>
+                </a>
+
+                <!-- REGISTRO (Naranja) -->
+                <a href="{{ route('register') }}" class="star-btn star-btn-orange">
+                    Registrarse
+                    <div class="star-1"><svg viewBox="0 0 784.11 815.53"><path class="fil0" d="M392.05 0c-20.9,210.08 -184.06,378.41 -392.05,407.78 207.96,29.37 371.12,197.68 392.05,407.74 20.93,-210.06 184.09,-378.37 392.05,-407.74 -207.98,-29.38 -371.16,-197.69 -392.06,-407.78z"></path></svg></div>
+                    <div class="star-2"><svg viewBox="0 0 784.11 815.53"><path class="fil0" d="M392.05 0c-20.9,210.08 -184.06,378.41 -392.05,407.78 207.96,29.37 371.12,197.68 392.05,407.74 20.93,-210.06 184.09,-378.37 392.05,-407.74 -207.98,-29.38 -371.16,-197.69 -392.06,-407.78z"></path></svg></div>
+                    <div class="star-3"><svg viewBox="0 0 784.11 815.53"><path class="fil0" d="M392.05 0c-20.9,210.08 -184.06,378.41 -392.05,407.78 207.96,29.37 371.12,197.68 392.05,407.74 20.93,-210.06 184.09,-378.37 392.05,-407.74 -207.98,-29.38 -371.16,-197.69 -392.06,-407.78z"></path></svg></div>
+                    <div class="star-4"><svg viewBox="0 0 784.11 815.53"><path class="fil0" d="M392.05 0c-20.9,210.08 -184.06,378.41 -392.05,407.78 207.96,29.37 371.12,197.68 392.05,407.74 20.93,-210.06 184.09,-378.37 392.05,-407.74 -207.98,-29.38 -371.16,-197.69 -392.06,-407.78z"></path></svg></div>
+                    <div class="star-5"><svg viewBox="0 0 784.11 815.53"><path class="fil0" d="M392.05 0c-20.9,210.08 -184.06,378.41 -392.05,407.78 207.96,29.37 371.12,197.68 392.05,407.74 20.93,-210.06 184.09,-378.37 392.05,-407.74 -207.98,-29.38 -371.16,-197.69 -392.06,-407.78z"></path></svg></div>
+                    <div class="star-6"><svg viewBox="0 0 784.11 815.53"><path class="fil0" d="M392.05 0c-20.9,210.08 -184.06,378.41 -392.05,407.78 207.96,29.37 371.12,197.68 392.05,407.74 20.93,-210.06 184.09,-378.37 392.05,-407.74 -207.98,-29.38 -371.16,-197.69 -392.06,-407.78z"></path></svg></div>
+                </a>
+            </div>
         @endguest
         @endguest
     </div>
 
   </footer>
 
-  <!-- MODAL -->
+  <!-- MODAL Y JS (Se mantienen igual) -->
   <div id="authModal" class="modal hidden">
     <div class="modal-content">
       <h3 class="text-lg font-bold text-gray-900">Autenticación Requerida</h3>
@@ -375,56 +411,13 @@
     </div>
   </div>
 
-  <!-- JS -->
   <script>
-    function navigateTo(page) {
-      const routes = {
-        inicio: '/',
-        recursos: '/recursos'
-      };
-      if (routes[page]) {
-        window.location.href = routes[page];
-      }
-    }
-
-    function scrollToSection(section) {
-      const element = document.getElementById(section);
-      if (element) {
-        element.scrollIntoView({ behavior: 'smooth' });
-        document.getElementById('mobileMenu')?.classList.remove('show');
-      }
-    }
-
-    function showAuthModal(target) {
-      @auth
-        const routes = {
-          'formulario': '/formulario',
-          'seguimiento': '/seguimiento'
-        };
-        if (routes[target]) {
-          window.location.href = routes[target];
-        }
-      @else
-        document.getElementById('authModal').classList.remove('hidden');
-      @endauth
-    }
-
-    document.getElementById('authModal')?.addEventListener('click', (e) => {
-      if (e.target === e.currentTarget) {
-        e.currentTarget.classList.add('hidden');
-      }
-    });
-
-    document.getElementById('menuToggle')?.addEventListener('click', () => {
-      document.getElementById('mobileMenu').classList.toggle('show');
-    });
-
-    // FAQ Toggle
-    document.querySelectorAll('.faq-question').forEach(question => {
-      question.addEventListener('click', function() {
-        this.parentElement.classList.toggle('active');
-      });
-    });
+    function navigateTo(page) { const routes = { inicio: '/', recursos: '/recursos' }; if (routes[page]) window.location.href = routes[page]; }
+    function scrollToSection(section) { const element = document.getElementById(section); if (element) element.scrollIntoView({ behavior: 'smooth' }); }
+    function showAuthModal(target) { @auth const routes = { 'formulario': '/formulario', 'seguimiento': '/seguimiento' }; if (routes[target]) window.location.href = routes[target]; @else document.getElementById('authModal').classList.remove('hidden'); @endauth }
+    document.getElementById('authModal')?.addEventListener('click', (e) => { if (e.target === e.currentTarget) e.currentTarget.classList.add('hidden'); });
+    document.getElementById('menuToggle')?.addEventListener('click', () => { document.getElementById('mobileMenu').classList.toggle('show'); });
+    document.querySelectorAll('.faq-question').forEach(question => { question.addEventListener('click', function() { this.parentElement.classList.toggle('active'); }); });
   </script>
 </body>
 </html>

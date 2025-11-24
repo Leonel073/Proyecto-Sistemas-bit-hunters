@@ -33,7 +33,8 @@
 
       <div class="nav-links" id="navLinks">
         <button onclick="window.location.href='{{ route('home') }}'">Inicio</button>
-        <button class="active">Gestión de Usuarios</button>
+        <!-- ✅ CORREGIDO: admin.empleados.index -->
+        <button class="active" onclick="window.location.href='{{ route('admin.empleados.index') }}'">Gestión de Usuarios</button>
       </div>
     </div>
   </nav>
@@ -42,7 +43,8 @@
     <div class="users-container">
       <h1 class="users-title">Editar Empleado</h1>
 
-      <form action="{{ route('empleados.update', $empleado->idEmpleado) }}" method="POST" class="space-y-4">
+      <!-- ✅ CORREGIDO: route('admin.empleados.update') -->
+      <form action="{{ route('admin.empleados.update', $empleado->idEmpleado) }}" method="POST" class="space-y-4">
         @csrf
         @method('PUT')
 
@@ -93,7 +95,8 @@
 
         <div class="action-buttons mt-6">
           <button type="submit" class="btn-action">Guardar Cambios</button>
-          <a href="{{ route('usuarios') }}" class="btn-deleted">Cancelar</a>
+          <!-- ✅ CORREGIDO: route('admin.empleados.index') -->
+          <a href="{{ route('admin.empleados.index') }}" class="btn-deleted">Cancelar</a>
         </div>
       </form>
     </div>

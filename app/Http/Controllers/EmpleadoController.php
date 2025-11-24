@@ -7,13 +7,10 @@ use App\Models\Usuario;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
-use Illuminate\Validation\Rules\Password; // Importante: Añadir esto
+use Illuminate\Validation\Rules\Password;
 
 class EmpleadoController extends Controller
 {
-    /**
-     * Mostrar la lista de empleados activos (no eliminados)
-     */
     public function index()
     {
         $empleados = Empleado::where('estado', '!=', 'Eliminado')
@@ -26,21 +23,14 @@ class EmpleadoController extends Controller
         return view('usuarios', compact('empleados', 'usuarios'));
     }
 
-    /**
-     * Mostrar el formulario para crear un nuevo empleado
-     */
     public function create()
     {
-        $gerenteExiste = Empleado::where('rol', 'Gerente')->exists(); // Corregido 'gerente_soporte' a 'Gerente'
+        $gerenteExiste = Empleado::where('rol', 'Gerente')->exists();
         return view('admin.empleados_create', compact('gerenteExiste'));
     }
 
-    /**
-     * Guardar un nuevo empleado
-     */
     public function store(Request $request)
     {
-        // --- ✅ VALIDACIONES ESTRICTAS AÑADIDAS ✅ ---
         $request->validate([
             'primerNombre' => ['required', 'string', 'max:100', 'regex:/^[\pL\s\-]+$/u'],
             'segundoNombre' => ['required', 'string', 'max:100', 'regex:/^[\pL\s\-]+$/u'],
@@ -52,25 +42,8 @@ class EmpleadoController extends Controller
             'fechaIngreso' => 'required|date',
             'password' => ['required', 'confirmed', Password::min(8)->mixedCase()->numbers()->symbols()],
             'rol' => 'required|in:Gerente,SupervisorOperador,SupervisorTecnico,Operador,Tecnico',
-        ], [
-            // ... (Mensajes de error en español) ...
-            'primerNombre.required' => 'El primer nombre es obligatorio.',
-            'segundoNombre.required' => 'El segundo nombre es obligatorio.',
-            'apellidoPaterno.required' => 'El apellido paterno es obligatorio.',
-            'apellidoMaterno.required' => 'El apellido materno es obligatorio.',
-            'ci.required' => 'El campo CI es obligatorio.',
-            'ci.numeric' => 'El CI debe contener solo números.',
-            'ci.unique' => 'Este CI ya está registrado.',
-            'numeroCelular.required' => 'El número de celular es obligatorio.',
-            'numeroCelular.numeric' => 'El celular debe contener solo números.',
-            'numeroCelular.unique' => 'Este número de celular ya está registrado.',
-            'emailCorporativo.required' => 'El correo electrónico es obligatorio.',
-            'emailCorporativo.unique' => 'Este correo electrónico ya está registrado.',
-            'fechaIngreso.required' => 'La fecha de ingreso es obligatoria.',
-            'password.confirmed' => 'Las contraseñas no coinciden.',
         ]);
 
-        // Si ya existe un gerente de soporte, evitar crear otro
         if ($request->rol === 'Gerente' && Empleado::where('rol', 'Gerente')->exists()) {
             return back()->withErrors(['rol' => 'Ya existe un Gerente de Soporte. No se puede crear otro.']);
         }
@@ -86,43 +59,27 @@ class EmpleadoController extends Controller
             'passwordHash' => Hash::make($request->password),
             'rol' => $request->rol,
             'estado' => 'Activo',
-            'fechaIngreso' => $request->fechaIngreso, // Usar la fecha del request
+            'fechaIngreso' => $request->fechaIngreso,
         ]);
 
-        // 👇 Insertar en tabla específica según el rol
         switch ($empleado->rol) {
-            case 'Gerente':
-                \App\Models\GerenteSoporte::create(['idEmpleado' => $empleado->idEmpleado]);
-                break;
-            case 'SupervisorOperador':
-                \App\Models\SupervisorOperador::create(['idEmpleado' => $empleado->idEmpleado]);
-                break;
-            case 'SupervisorTecnico':
-                \App\Models\SupervisorTecnico::create(['idEmpleado' => $empleado->idEmpleado]);
-                break;
-            case 'Operador':
-                \App\Models\Operador::create(['idEmpleado' => $empleado->idEmpleado, 'turno' => 'Mañana']);
-                break;
-            case 'Tecnico':
-                \App\Models\Tecnico::create(['idEmpleado' => $empleado->idEmpleado, 'especialidad' => 'General']);
-                break;
+            case 'Gerente': \App\Models\GerenteSoporte::create(['idEmpleado' => $empleado->idEmpleado]); break;
+            case 'SupervisorOperador': \App\Models\SupervisorOperador::create(['idEmpleado' => $empleado->idEmpleado]); break;
+            case 'SupervisorTecnico': \App\Models\SupervisorTecnico::create(['idEmpleado' => $empleado->idEmpleado]); break;
+            case 'Operador': \App\Models\Operador::create(['idEmpleado' => $empleado->idEmpleado, 'turno' => 'Mañana']); break;
+            case 'Tecnico': \App\Models\Tecnico::create(['idEmpleado' => $empleado->idEmpleado, 'especialidad' => 'General']); break;
         }
 
-        return redirect()->route('usuarios')->with('success', 'Empleado registrado correctamente.');
+        // ✅ CORREGIDO: admin.empleados.index
+        return redirect()->route('admin.empleados.index')->with('success', 'Empleado registrado correctamente.');
     }
 
-    /**
-     * Mostrar el formulario de edición de un empleado
-     */
     public function edit($id)
     {
         $empleado = Empleado::findOrFail($id);
         return view('admin.empleados_edit', compact('empleado'));
     }
 
-    /**
-     * Actualizar los datos de un empleado
-     */
     public function update(Request $request, $id)
     {
         $empleado = Empleado::findOrFail($id);
@@ -130,10 +87,7 @@ class EmpleadoController extends Controller
         $request->validate([
             'primerNombre' => 'required|string|max:100',
             'apellidoPaterno' => 'required|string|max:100',
-            'emailCorporativo' => [
-                'required', 'email', 'max:150',
-                Rule::unique('empleados')->ignore($empleado->idEmpleado, 'idEmpleado')
-            ],
+            'emailCorporativo' => ['required', 'email', 'max:150', Rule::unique('empleados')->ignore($empleado->idEmpleado, 'idEmpleado')],
             'rol' => 'required|in:Gerente,SupervisorOperador,SupervisorTecnico,Operador,Tecnico',
             'estado' => 'required|string|in:Activo,Bloqueado,Eliminado',
         ]);
@@ -148,58 +102,42 @@ class EmpleadoController extends Controller
             'estado' => $request->estado,
         ]);
 
-        return redirect()->route('usuarios')->with('success', 'Empleado actualizado correctamente.');
+        // ✅ CORREGIDO: admin.empleados.index
+        return redirect()->route('admin.empleados.index')->with('success', 'Empleado actualizado correctamente.');
     }
 
-    /**
-     * Eliminar (soft delete) un empleado
-     */
     public function destroy($id)
     {
         $empleado = Empleado::findOrFail($id);
-        $empleado->update([
-            'estado' => 'Eliminado',
-            'fechaEliminacion' => now(),
-        ]);
+        $empleado->update(['estado' => 'Eliminado', 'fechaEliminacion' => now()]);
 
-        return redirect()->route('usuarios')->with('success', 'Empleado eliminado correctamente.');
+        // ✅ CORREGIDO: admin.empleados.index
+        return redirect()->route('admin.empleados.index')->with('success', 'Empleado eliminado correctamente.');
     }
 
-    /**
-     * Mostrar la lista de empleados eliminados
-     */
     public function deleted()
     {
         $empleados = Empleado::where('estado', 'Eliminado')->get();
         $usuarios = \App\Models\Usuario::where('estado', 'Eliminado')->get();
-
         return view('admin.usuarios_deleted', compact('empleados', 'usuarios'));
     }
 
-
     public function restore($id)
     {
-        // En lugar de findOrFail, usamos find para manejar ambos tipos
         $empleado = Empleado::find($id);
-        
         if ($empleado) {
-             $empleado->update([
-                'estado' => 'Activo',
-                'fechaEliminacion' => null,
-            ]);
-            return redirect()->route('usuarios.deleted')->with('success', 'Empleado reactivado correctamente.');
+             $empleado->update(['estado' => 'Activo', 'fechaEliminacion' => null]);
+             // ✅ CORREGIDO: admin.empleados.deleted
+             return redirect()->route('admin.empleados.deleted')->with('success', 'Empleado reactivado correctamente.');
         } 
         
-        // Si no es empleado, busca en usuarios (basado en tu vista de eliminados)
         $usuario = Usuario::find($id);
          if ($usuario) {
-            $usuario->update([
-                'estado' => 'Activo',
-                'fechaEliminacion' => null,
-            ]);
-            return redirect()->route('usuarios.deleted')->with('success', 'Usuario reactivado correctamente.');
+            $usuario->update(['estado' => 'Activo', 'fechaEliminacion' => null]);
+            // ✅ CORREGIDO: admin.empleados.deleted
+            return redirect()->route('admin.empleados.deleted')->with('success', 'Usuario reactivado correctamente.');
         }
 
-        return redirect()->route('usuarios.deleted')->withErrors('No se pudo encontrar el usuario o empleado.');
+        return redirect()->route('admin.empleados.deleted')->withErrors('No se pudo encontrar el usuario o empleado.');
     }
 }
