@@ -11,15 +11,17 @@ class Reclamo extends Model
 
     protected $table = 'reclamos';
     protected $primaryKey = 'idReclamo';
-    public $timestamps = false;
+    
+    // Indicamos que los timestamps existen (created_at, updated_at)
+    public $timestamps = true;
 
+    // Los campos que se pueden llenar masivamente
     protected $fillable = [
         'idUsuario',
         'idOperador',
         'idTecnicoAsignado',
         'idPoliticaSLA',
-        'idTipoIncidente',
-        'idCausaRaiz',
+        'idTipoIncidente', // O 'tipoIncidente' string, según tu última migración
         'titulo',
         'descripcionDetallada',
         'solucionTecnica',
@@ -27,21 +29,53 @@ class Reclamo extends Model
         'prioridad',
         'latitudIncidente',
         'longitudIncidente',
-        'fechaCreacion',
+        'comentarios', // <--- Agregamos esto para que funcione lo del chat
         'fechaResolucion',
         'fechaCierre',
-        'fechaActualizacion',
         'fechaEliminacion'
     ];
 
-    // Relaciones opcionales (ejemplo)
-    public function usuario()
+    // Casting para que 'comentarios' se maneje como array automáticamente
+    protected $casts = [
+        'comentarios' => 'array',
+        'fechaCreacion' => 'datetime',
+        'fechaResolucion' => 'datetime',
+    ];
+
+    // ==========================================
+    // RELACIONES QUE FALTABAN (AQUÍ ESTÁ LA SOLUCIÓN)
+    // ==========================================
+
+    /**
+     * Relación: Un Reclamo pertenece a un Operador (que es un Empleado)
+     */
+    public function operador()
     {
-        return $this->belongsTo(Usuario::class, 'idUsuario');
+        // 'idOperador' es la FK en reclamos, 'idEmpleado' es la PK en empleados
+        return $this->belongsTo(Empleado::class, 'idOperador', 'idEmpleado');
     }
 
+    /**
+     * Relación: Un Reclamo pertenece a un Técnico Asignado (que es un Empleado)
+     */
     public function tecnico()
     {
         return $this->belongsTo(Empleado::class, 'idTecnicoAsignado', 'idEmpleado');
+    }
+
+    /**
+     * Relación: Un Reclamo pertenece a un Usuario (Cliente)
+     */
+    public function usuario()
+    {
+        return $this->belongsTo(Usuario::class, 'idUsuario', 'idUsuario');
+    }
+    
+    /**
+     * Relación: Un Reclamo pertenece a una Política SLA
+     */
+    public function politicaSLA()
+    {
+        return $this->belongsTo(SlaPolitica::class, 'idPoliticaSLA', 'idPoliticaSLA');
     }
 }
