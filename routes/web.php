@@ -5,9 +5,8 @@ use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\EmpleadoController;
 use App\Http\Controllers\UsuarioController;
-use App\Http\Controllers\TecnicoDashboardController; 
-use App\Http\Controllers\ReclamoResolucionController;
-use App\Http\Controllers\ReclamoController;
+use App\Http\Controllers\TecnicoController; // Usamos TecnicoController para el panel técnico
+use App\Http\Controllers\ReclamoController; 
 use App\Http\Controllers\OperadorController;
 use App\Http\Controllers\SupervisorOperadorController;
 use App\Http\Controllers\SupervisorTecnicoController;
@@ -37,6 +36,8 @@ Route::post('/sign_up', [RegisterController::class, 'store'])->name('register.st
 Route::middleware('auth')->group(function () {
     Route::view('/formulario', 'formulario')->name('formulario');
     Route::view('/seguimiento', 'seguimiento')->name('seguimiento');
+    
+    // CORRECCIÓN 1: Cambiamos 'storeFront' a 'store' para solucionar el error de método indefinido.
     Route::post('/reclamo', [ReclamoController::class, 'store'])->name('reclamo.store');
 
     // Editar Perfil de Usuario
@@ -103,7 +104,6 @@ Route::middleware(['auth:empleado', 'role:SupervisorTecnico,Gerente'])
 
 // 4. ÁREA OPERATIVA (PANEL DE OPERADOR)
 // Acceso: Operador, SupervisorOperador y Gerente
-// (El técnico NO puede entrar aquí, ni el SupervisorTecnico)
 Route::middleware(['auth:empleado', 'role:Operador,SupervisorOperador,Gerente'])
     ->prefix('operador')->name('operador.')->group(function () {
     
@@ -120,11 +120,17 @@ Route::middleware(['auth:empleado', 'role:Operador,SupervisorOperador,Gerente'])
 
 // 5. ÁREA TÉCNICA (DASHBOARD TÉCNICO)
 // Acceso: Tecnico, SupervisorTecnico y Gerente
-// (El operador NO puede entrar aquí, ni el SupervisorOperador)
 Route::middleware(['auth:empleado', 'role:Tecnico,SupervisorTecnico,Gerente'])
     ->prefix('tecnico')->name('tecnico.')->group(function () {
     
-    Route::get('/dashboard', [TecnicoDashboardController::class, 'index'])->name('dashboard');
-    Route::post('/estado/actualizar', [TecnicoDashboardController::class, 'actualizarEstadoDisponibilidad'])->name('estado.update');
-    Route::post('/reclamo/{reclamo}/resolver', [ReclamoResolucionController::class, 'resolver'])->name('reclamo.resolver');
+    // CORRECCIÓN 2: Usamos TecnicoController para el panel.
+    Route::get('/dashboard', [TecnicoController::class, 'panel'])->name('dashboard');
+    // CORRECCIÓN 3: Usamos TecnicoController para actualizar estado.
+    Route::post('/estado/update', [TecnicoController::class, 'actualizarEstado'])->name('estado.update');
+
+    // RUTA FALTANTE (DEBE EXISTIR para la lógica en el dashboard)
+    Route::post('/reclamo/{reclamo}/aceptar', [TecnicoController::class, 'aceptarReclamo'])->name('reclamo.aceptar');
+    
+    // CORRECCIÓN 4: Usamos TecnicoController para resolver reclamo.
+    Route::post('/reclamo/{reclamo}/resolver', [TecnicoController::class, 'resolverReclamo'])->name('reclamo.resolver');
 });
