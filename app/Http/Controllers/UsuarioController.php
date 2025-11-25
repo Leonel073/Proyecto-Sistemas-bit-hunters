@@ -5,19 +5,30 @@ namespace App\Http\Controllers;
 use App\Models\Usuario;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
-use Illuminate\Support\Facades\Auth; // Importante
-use Illuminate\Support\Facades\Hash; // Importante para la contraseña
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
+use App\Http\Controllers\Controller; // Asegúrate de que el controlador base esté importado
 
 class UsuarioController extends Controller
 {
+    // =========================================================
+    // CRUD BÁSICO (Para la API o la administración de LISTA)
+    // =========================================================
     public function index()
     {
-        $usuarios = Usuario::whereNull('fechaEliminacion')->get();
-        return response()->json($usuarios);
+        // Carga la lista de clientes/usuarios
+    $usuarios = Usuario::whereNull('fechaEliminacion')->get();
+    
+    // ✅ CORRECCIÓN: Definimos $empleados como un array vacío para evitar el error
+    $empleados = []; 
+    
+    // Devolvemos ambas variables a la vista
+    return view('usuarios', compact('usuarios', 'empleados'));
     }
 
     public function store(Request $request)
     {
+        // Método usado para la creación de usuarios por API
         $request->validate([
             'primerNombre' => 'required|string|max:100',
             'apellidoPaterno' => 'required|string|max:100',
@@ -36,41 +47,56 @@ class UsuarioController extends Controller
         return response()->json($usuario);
     }
 
-    // Esta función es para que el ADMIN edite a un usuario
+    // =========================================================
+    // FUNCIONES DE ADMINISTRACIÓN (Rutas: admin.usuarios.*)
+    // =========================================================
+
+    // Muestra el formulario para editar (ADMIN)
     public function edit($id)
     {
         $usuario = Usuario::findOrFail($id);
+        // NOTA: Asegúrate de que esta vista sea donde tienes el formulario corregido
         return view('views_usuarios.usuarios_edit', compact('usuario'));
     }
 
-    // Esta función es para que el ADMIN actualice a un usuario
+    // Procesa la actualización (ADMIN)
+    // ✅ CORRECCIÓN DE REDIRECCIÓN APLICADA
     public function update(Request $request, $id)
     {
         try {
+            // Validación de los campos que vienen del formulario de edición
             $request->validate([
                 'primerNombre' => 'required|string|max:255',
                 'apellidoPaterno' => 'required|string|max:255',
-                'email' => 'required|email|max:255',
+                // Validación de unicidad: ignora al usuario actual ($id)
+                'email' => ['required', 'email', 'max:255', Rule::unique('usuarios')->ignore($id, 'idUsuario')],
+                'numeroCelular' => ['required', 'string', 'max:20', Rule::unique('usuarios')->ignore($id, 'idUsuario')],
                 'estado' => 'required|string',
             ]);
 
             $usuario = Usuario::findOrFail($id);
 
+            // Asignación de valores
             $usuario->primerNombre = $request->primerNombre;
             $usuario->segundoNombre = $request->segundoNombre;
             $usuario->apellidoPaterno = $request->apellidoPaterno;
             $usuario->apellidoMaterno = $request->apellidoMaterno;
             $usuario->email = $request->email;
+            $usuario->numeroCelular = $request->numeroCelular; // Agregado
             $usuario->estado = $request->estado;
-
+            // CI no se actualiza por ser campo único
+            
             $usuario->save();
 
-            return redirect()->route('usuarios')->with('success', 'Usuario actualizado correctamente.');
+            // ✅ REDIRECCIÓN CORREGIDA: Va a la lista principal del admin
+            return redirect()->route('admin.usuarios.index')->with('success', 'Usuario actualizado correctamente.');
         } catch (\Throwable $e) {
             return back()->withErrors(['error' => 'Error al actualizar: '.$e->getMessage()]);
         }
     }
 
+    // Borrado lógico (ADMIN)
+    // ✅ CORRECCIÓN DE REDIRECCIÓN APLICADA
     public function destroy($id)
     {
         $usuario = Usuario::findOrFail($id);
@@ -79,9 +105,12 @@ class UsuarioController extends Controller
             'fechaEliminacion' => now(),
         ]);
 
-        return redirect()->route('usuarios')->with('success', 'Usuario eliminado correctamente.');
+        // ✅ REDIRECCIÓN CORREGIDA: Va a la lista principal del admin
+        return redirect()->route('admin.usuarios.index')->with('success', 'Usuario eliminado correctamente.');
     }
 
+    // Restaurar usuario (ADMIN)
+    // ✅ CORRECCIÓN DE REDIRECCIÓN APLICADA
     public function restore($id)
     {
         $usuario = Usuario::findOrFail($id);
@@ -90,19 +119,19 @@ class UsuarioController extends Controller
             'fechaEliminacion' => null,
         ]);
 
-        return redirect()->route('usuarios.deleted')->with('success', 'Usuario reactivado correctamente.');
+        // ✅ REDIRECCIÓN CORREGIDA: Va a la lista de eliminados del admin
+        return redirect()->route('admin.usuarios.deleted')->with('success', 'Usuario reactivado correctamente.');
     }
 
-    // ==========================================
-    // ✅ NUEVAS FUNCIONES PARA EL PERFIL DEL USUARIO
-    // ==========================================
+    // =========================================================
+    // FUNCIONES DE PERFIL DEL PROPIO USUARIO (CLIENTE)
+    // =========================================================
 
     /**
      * Muestra el formulario para que el usuario edite sus propios datos
      */
     public function perfil()
     {
-        // Obtener el usuario autenticado actualmente
         $usuario = Auth::user();
         return view('views_usuarios/perfil_editar', compact('usuario'));
     }
@@ -122,7 +151,6 @@ class UsuarioController extends Controller
             'apellidoMaterno' => 'nullable|string|max:100',
             'numeroCelular' => ['required', 'string', 'max:20', Rule::unique('usuarios')->ignore($usuario->idUsuario, 'idUsuario')],
             'email' => ['required', 'email', 'max:255', Rule::unique('usuarios')->ignore($usuario->idUsuario, 'idUsuario')],
-            // La contraseña es opcional (nullable)
             'password' => 'nullable|string|min:8|confirmed', 
         ], [
             'numeroCelular.unique' => 'Este número de celular ya está en uso.',

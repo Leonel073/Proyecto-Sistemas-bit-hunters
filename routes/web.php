@@ -63,6 +63,7 @@ Route::middleware(['auth:empleado', 'role:Gerente'])
 
     // CRUD Usuarios
     Route::resource('usuarios', UsuarioController::class)->except(['create', 'store', 'show']);
+    Route::get('usuarios', [\App\Http\Controllers\UsuarioController::class, 'index'])->name('usuarios.index');
     Route::put('usuarios/{id}/restore', [UsuarioController::class, 'restore'])->name('usuarios.restore');
 });
 

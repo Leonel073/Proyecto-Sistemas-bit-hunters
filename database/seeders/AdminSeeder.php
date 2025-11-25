@@ -26,7 +26,7 @@ class AdminSeeder extends Seeder
                 'ci' => '0000000',          // CI ficticio
                 'numeroCelular' => '00000000', // Celular ficticio
                 'emailCorporativo' => $emailAdmin,
-                'passwordHash' => Hash::make('Admin123'), // <--- TU CONTRASEÑA FIJA
+                'passwordHash' => Hash::make('Admin123$'), // <--- TU CONTRASEÑA FIJA
                 'rol' => 'Gerente',
                 'estado' => 'Activo',
                 'fechaIngreso' => $now,

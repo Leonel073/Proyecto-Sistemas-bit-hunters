@@ -11,33 +11,13 @@
       'resources/css/nav.css',
       'resources/css/footer.css',
       'resources/css/users-management.css',
+      'resources/css/admin.css',
       'resources/js/nav.js'
   ])
 
 </head>
 <body>
-  <!-- NAV -->
-  <nav>
-    <div class="container">
-      <div class="logo" onclick="window.location.href='{{ route('home') }}'">
-        <div class="logo-icon">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M12 20h.01M2 8.82a15.91 15.91 0 0 1 20 0M5.17 12.25a10.91 10.91 0 0 1 13.66 0M8.31 15.68a5.91 5.91 0 0 1 7.38 0" />
-          </svg>
-        </div>
-        <div class="logo-text">
-          <div class="title">Nexora Bolivia</div>
-          <div class="subtitle">Apoyo al Usuario</div>
-        </div>
-      </div>
-
-      <div class="nav-links" id="navLinks">
-        <button onclick="window.location.href='{{ route('home') }}'">Inicio</button>
-        <!-- ✅ CORREGIDO: admin.empleados.index -->
-        <button class="active" onclick="window.location.href='{{ route('admin.empleados.index') }}'">Gestión de Usuarios</button>
-      </div>
-    </div>
-  </nav>
+  @include('admin._nav')
 
   <section class="users-management">
     <div class="users-container">
@@ -50,46 +30,53 @@
 
         <div class="grid md:grid-cols-2 gap-4">
           <div>
-            <label>Primer Nombre</label>
-            <input type="text" name="primerNombre" value="{{ old('primerNombre', $empleado->primerNombre) }}" required>
+            <label for="primerNombre">Primer Nombre</label>
+            <input id="primerNombre" type="text" name="primerNombre" value="{{ old('primerNombre', $empleado->primerNombre) }}" required class="input-control">
+            @error('primerNombre')<p class="error-message">{{ $message }}</p>@enderror
           </div>
 
           <div>
-            <label>Segundo Nombre</label>
-            <input type="text" name="segundoNombre" value="{{ old('segundoNombre', $empleado->segundoNombre) }}">
+            <label for="segundoNombre">Segundo Nombre</label>
+            <input id="segundoNombre" type="text" name="segundoNombre" value="{{ old('segundoNombre', $empleado->segundoNombre) }}" class="input-control">
+            @error('segundoNombre')<p class="error-message">{{ $message }}</p>@enderror
           </div>
 
           <div>
-            <label>Apellido Paterno</label>
-            <input type="text" name="apellidoPaterno" value="{{ old('apellidoPaterno', $empleado->apellidoPaterno) }}" required>
+            <label for="apellidoPaterno">Apellido Paterno</label>
+            <input id="apellidoPaterno" type="text" name="apellidoPaterno" value="{{ old('apellidoPaterno', $empleado->apellidoPaterno) }}" required class="input-control">
+            @error('apellidoPaterno')<p class="error-message">{{ $message }}</p>@enderror
           </div>
 
           <div>
-            <label>Apellido Materno</label>
-            <input type="text" name="apellidoMaterno" value="{{ old('apellidoMaterno', $empleado->apellidoMaterno) }}">
+            <label for="apellidoMaterno">Apellido Materno</label>
+            <input id="apellidoMaterno" type="text" name="apellidoMaterno" value="{{ old('apellidoMaterno', $empleado->apellidoMaterno) }}" class="input-control">
+            @error('apellidoMaterno')<p class="error-message">{{ $message }}</p>@enderror
           </div>
 
           <div>
-            <label>Email Corporativo</label>
-            <input type="email" name="emailCorporativo" value="{{ old('emailCorporativo', $empleado->emailCorporativo) }}" required>
+            <label for="emailCorporativo">Email Corporativo</label>
+            <input id="emailCorporativo" type="email" name="emailCorporativo" value="{{ old('emailCorporativo', $empleado->emailCorporativo) }}" required class="input-control">
+            @error('emailCorporativo')<p class="error-message">{{ $message }}</p>@enderror
           </div>
 
           <div>
-            <label>Rol</label>
-            <select name="rol" required>
+            <label for="rol">Rol</label>
+            <select id="rol" name="rol" required class="input-control">
               @foreach (['Gerente','SupervisorOperador','SupervisorTecnico','Operador','Tecnico'] as $rol)
                 <option value="{{ $rol }}" {{ $empleado->rol == $rol ? 'selected' : '' }}>{{ $rol }}</option>
               @endforeach
             </select>
+            @error('rol')<p class="error-message">{{ $message }}</p>@enderror
           </div>
 
           <div>
-            <label>Estado</label>
-            <select name="estado" required>
+            <label for="estado">Estado</label>
+            <select id="estado" name="estado" required class="input-control">
               @foreach (['Activo','Bloqueado','Eliminado'] as $estado)
                 <option value="{{ $estado }}" {{ $empleado->estado == $estado ? 'selected' : '' }}>{{ $estado }}</option>
               @endforeach
             </select>
+            @error('estado')<p class="error-message">{{ $message }}</p>@enderror
           </div>
         </div>
 

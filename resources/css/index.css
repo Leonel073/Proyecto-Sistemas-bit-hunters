@@ -2,7 +2,40 @@
    NEXORA BOLIVIA - PÁGINA INDEX MEJORADA
    ========================================== */
 
-/* Contenedor base */
+:root {
+  --primary: #667eea;
+  --secondary: #764ba2;
+  --accent: #ffed4e;
+  --danger: #ff6b6b;
+  --success: #51cf66;
+  --dark: #1a1a2e;
+  --light: #f8f9ff;
+  --white: #ffffff;
+  --text: #333;
+  --border: #e0e0e0;
+  --shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 20px 50px rgba(0, 0, 0, 0.15);
+}
+
+/* Clase de utilidad para ocultar elementos */
+.hidden {
+  display: none !important;
+  visibility: hidden !important;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  line-height: 1.6;
+  color: var(--text);
+  background: var(--white);
+}
+
 .container {
   max-width: 1200px;
   margin: 0 auto;
@@ -10,66 +43,330 @@
 }
 
 /* ==========================================
+   SECCIÓN HERO
+   ========================================== */
+
+.hero {
+  position: relative;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  min-height: 750px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  padding: 80px 20px;
+}
+
+.hero-bg-animated {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  opacity: 0.1;
+}
+
+.hero-circle-1, .hero-circle-2 {
+  position: absolute;
+  border-radius: 50%;
+  opacity: 0.1;
+}
+
+.hero-circle-1 {
+  width: 300px;
+  height: 300px;
+  background: white;
+  top: -50px;
+  right: -50px;
+  animation: float 6s ease-in-out infinite;
+}
+
+.hero-circle-2 {
+  width: 200px;
+  height: 200px;
+  background: white;
+  bottom: -30px;
+  left: -30px;
+  animation: float 8s ease-in-out infinite reverse;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(30px); }
+}
+
+.hero-content {
+  position: relative;
+  z-index: 2;
+  max-width: 900px;
+  text-align: center;
+  color: white;
+  animation: fadeInUp 0.8s ease;
+}
+
+.hero-badge {
+  display: inline-block;
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50px;
+  padding: 10px 20px;
+  font-size: 0.9rem;
+  margin-bottom: 30px;
+  backdrop-filter: blur(10px);
+  font-weight: 500;
+}
+
+.hero h1 {
+  font-size: clamp(2.5rem, 5vw, 4rem);
+  font-weight: 800;
+  line-height: 1.2;
+  margin-bottom: 20px;
+  letter-spacing: -1px;
+}
+
+.hero h1 span {
+  background: linear-gradient(135deg, #ffed4e, #ffc107);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.hero p {
+  font-size: 1.15rem;
+  margin-bottom: 40px;
+  opacity: 0.95;
+  max-width: 650px;
+  margin-left: auto;
+  margin-right: auto;
+  line-height: 1.7;
+}
+
+.hero-buttons {
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-bottom: 60px;
+}
+
+.hero-btn {
+  padding: 14px 35px;
+  font-size: 1rem;
+  border: none;
+  border-radius: 50px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.hero-btn-primary {
+  background: linear-gradient(135deg, #ffed4e, #ffc107);
+  color: #1a1a2e;
+  box-shadow: 0 10px 25px rgba(255, 237, 74, 0.3);
+}
+
+.hero-btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 15px 35px rgba(255, 237, 74, 0.4);
+}
+
+.hero-btn-outline {
+  background: rgba(255, 255, 255, 0.15);
+  color: white;
+  border: 2px solid rgba(255, 255, 255, 0.5);
+  backdrop-filter: blur(10px);
+}
+
+.hero-btn-outline:hover {
+  background: rgba(255, 255, 255, 0.25);
+  border-color: white;
+  transform: translateY(-2px);
+}
+
+/* ==========================================
+   SECCIÓN HERO - TARJETAS DE SERVICIOS
+   ========================================== */
+
+.hero-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 20px;
+  max-width: 1000px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.card {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0.05) 100%);
+  backdrop-filter: blur(20px);
+  border: 1.5px solid rgba(255, 255, 255, 0.3);
+  border-radius: 20px;
+  padding: 35px 25px;
+  text-align: center;
+  color: white;
+  transition: all 0.4s cubic-bezier(0.4, 0.0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+.card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, rgba(255, 237, 74, 0.1) 0%, rgba(255, 255, 255, 0) 100%);
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+
+.card:hover {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.25) 0%, rgba(255, 255, 255, 0.1) 100%);
+  transform: translateY(-10px);
+  box-shadow: 0 15px 50px rgba(0, 0, 0, 0.2);
+  border-color: rgba(255, 237, 74, 0.5);
+}
+
+.card:hover::before {
+  opacity: 1;
+}
+
+.card-icon {
+  font-size: 3rem;
+  color: var(--accent);
+  margin-bottom: 20px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 80px;
+  height: 80px;
+  background: rgba(255, 237, 74, 0.1);
+  border-radius: 50%;
+  transition: all 0.4s ease;
+  position: relative;
+  z-index: 1;
+}
+
+.card:hover .card-icon {
+  background: rgba(255, 237, 74, 0.2);
+  transform: scale(1.15) rotate(5deg);
+}
+
+.card h3 {
+  margin: 15px 0 10px;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: white;
+  letter-spacing: 0.5px;
+  position: relative;
+  z-index: 1;
+}
+
+.card p {
+  font-size: 0.95rem;
+  opacity: 0.95;
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.95);
+  position: relative;
+  z-index: 1;
+}
+
+@media (max-width: 768px) {
+  .hero-cards {
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+  }
+  
+  .card {
+    padding: 25px 20px;
+  }
+  
+  .card-icon {
+    font-size: 2.5rem;
+    width: 70px;
+    height: 70px;
+  }
+  
+  .card h3 {
+    font-size: 1.1rem;
+  }
+  
+  .card p {
+    font-size: 0.9rem;
+  }
+}
+
+/* ==========================================
    SECCIÓN DE ESTADÍSTICAS
    ========================================== */
 
 .stats-section {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
   color: white;
-  padding: 80px 20px;
-  margin: 60px 0;
+  padding: 100px 20px;
+  margin: 0;
+  position: relative;
+  overflow: hidden;
 }
 
-.stats-section h2 {
-  text-align: center;
-  font-size: 2.5rem;
-  margin-bottom: 60px;
-  font-weight: 700;
+.stats-section::before {
+  content: '';
+  position: absolute;
+  width: 500px;
+  height: 500px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 50%;
+  top: -200px;
+  right: -100px;
+  animation: float-slow 8s ease-in-out infinite;
+}
+
+@keyframes float-slow {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-50px); }
+}
+
+.stats-container { 
+  max-width: 1200px; 
+  margin: 0 auto; 
+  position: relative;
+  z-index: 1;
+}
+
+.stats-section h2 { 
+  text-align: center; 
+  font-size: 2.5rem; 
+  margin-bottom: 60px; 
+  font-weight: 800;
+  letter-spacing: -1px;
 }
 
 .stats-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 40px;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 30px;
 }
 
 .stat-item {
   text-align: center;
   background: rgba(255, 255, 255, 0.1);
-  padding: 30px;
-  border-radius: 15px;
+  padding: 40px 30px;
+  border-radius: 20px;
   backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.2);
-  transition: all 0.3s ease;
+  transition: all 0.4s ease;
+  animation: slideUp 0.6s ease-out;
 }
 
-.stat-item:hover {
-  transform: translateY(-5px);
-  background: rgba(255, 255, 255, 0.15);
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-}
-
-.stat-number {
-  font-size: 2.8rem;
-  font-weight: 800;
-  margin-bottom: 10px;
-}
-
-.stat-label {
-  font-size: 1.2rem;
-  font-weight: 600;
-  margin-bottom: 8px;
-}
-
-.stat-item p {
-  font-size: 0.9rem;
-  opacity: 0.9;
-}
-
-@keyframes fade-in {
+@keyframes slideUp {
   from {
     opacity: 0;
-    transform: translateY(20px);
+    transform: translateY(30px);
   }
   to {
     opacity: 1;
@@ -77,9 +374,51 @@
   }
 }
 
-.animate-fade-in {
-  animation: fade-in 0.6s ease-out forwards;
-  opacity: 0;
+.stat-item:hover {
+  transform: translateY(-10px);
+  background: rgba(255, 255, 255, 0.15);
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+  border-color: rgba(255, 237, 74, 0.5);
+}
+
+.stat-number {
+  font-size: 3rem;
+  font-weight: 900;
+  margin-bottom: 10px;
+  color: var(--accent);
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+}
+
+.stat-label {
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin-bottom: 8px;
+  letter-spacing: 0.5px;
+}
+
+.stat-item p {
+  font-size: 0.95rem;
+  opacity: 0.9;
+  line-height: 1.5;
+}
+
+@media (max-width: 768px) {
+  .stats-section {
+    padding: 60px 20px;
+  }
+  
+  .stats-section h2 { 
+    font-size: 2rem; 
+    margin-bottom: 40px;
+  }
+  
+  .stat-item {
+    padding: 30px 20px;
+  }
+  
+  .stat-number {
+    font-size: 2.2rem;
+  }
 }
 
 /* ==========================================
@@ -87,16 +426,1149 @@
    ========================================== */
 
 .benefits-section {
-  padding: 80px 20px;
-  background: #f8f9fa;
+  padding: 100px 20px;
+  background: linear-gradient(180deg, var(--light) 0%, var(--white) 100%);
+  position: relative;
+}
+
+.benefits-section::before {
+  content: '';
+  position: absolute;
+  width: 400px;
+  height: 400px;
+  background: radial-gradient(circle, rgba(102, 126, 234, 0.1) 0%, rgba(102, 126, 234, 0) 70%);
+  border-radius: 50%;
+  top: -100px;
+  left: -100px;
+  z-index: 0;
+}
+
+.benefits-container { 
+  max-width: 1200px; 
+  margin: 0 auto; 
+  position: relative;
+  z-index: 1;
 }
 
 .benefits-section h2 {
   text-align: center;
   font-size: 2.5rem;
+  margin-bottom: 15px;
+  color: var(--dark);
+  font-weight: 900;
+  letter-spacing: -1px;
+}
+
+.benefits-subtitle { 
+  text-align: center; 
+  font-size: 1.1rem; 
+  color: #666; 
   margin-bottom: 60px;
-  color: #1a1a1a;
+  font-weight: 500;
+}
+
+.benefits-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 30px;
+}
+
+.benefit-card {
+  background: white;
+  padding: 40px 30px;
+  border-radius: 20px;
+  box-shadow: 0 5px 25px rgba(0, 0, 0, 0.08);
+  text-align: center;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  border-left: 5px solid;
+  position: relative;
+  overflow: hidden;
+}
+
+.benefit-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 0;
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%);
+  transition: height 0.4s ease;
+}
+
+.benefit-card:nth-child(1) { border-left-color: #667eea; }
+.benefit-card:nth-child(2) { border-left-color: #764ba2; }
+.benefit-card:nth-child(3) { border-left-color: #ff6b6b; }
+.benefit-card:nth-child(4) { border-left-color: #4ecdc4; }
+.benefit-card:nth-child(5) { border-left-color: #ffd93d; }
+.benefit-card:nth-child(6) { border-left-color: #a29bfe; }
+
+.benefit-card:hover {
+  transform: translateY(-12px);
+  box-shadow: 0 20px 50px rgba(102, 126, 234, 0.15);
+}
+
+.benefit-card:hover::before {
+  height: 100%;
+}
+
+.benefit-icon {
+  font-size: 2.8rem;
+  margin-bottom: 20px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  transition: all 0.4s ease;
+  position: relative;
+  z-index: 1;
+}
+
+.benefit-card:nth-child(1) .benefit-icon { 
+  color: #667eea; 
+  background: rgba(102, 126, 234, 0.1);
+}
+.benefit-card:nth-child(2) .benefit-icon { 
+  color: #764ba2; 
+  background: rgba(118, 75, 162, 0.1);
+}
+.benefit-card:nth-child(3) .benefit-icon { 
+  color: #ff6b6b; 
+  background: rgba(255, 107, 107, 0.1);
+}
+.benefit-card:nth-child(4) .benefit-icon { 
+  color: #4ecdc4; 
+  background: rgba(78, 205, 196, 0.1);
+}
+.benefit-card:nth-child(5) .benefit-icon { 
+  color: #ffd93d; 
+  background: rgba(255, 217, 61, 0.1);
+}
+.benefit-card:nth-child(6) .benefit-icon { 
+  color: #a29bfe; 
+  background: rgba(162, 155, 254, 0.1);
+}
+
+.benefit-card:hover .benefit-icon {
+  transform: scale(1.1) rotate(-5deg);
+}
+
+.benefit-card h3 { 
+  font-size: 1.3rem; 
+  font-weight: 800; 
+  color: var(--dark); 
+  margin-bottom: 15px;
+  position: relative;
+  z-index: 1;
+  letter-spacing: -0.5px;
+}
+
+.benefit-card p { 
+  color: #666; 
+  line-height: 1.7; 
+  font-size: 0.95rem;
+  position: relative;
+  z-index: 1;
+}
+
+@media (max-width: 768px) {
+  .benefits-section {
+    padding: 60px 20px;
+  }
+  
+  .benefits-section h2 { 
+    font-size: 2rem; 
+  }
+  
+  .benefits-grid {
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+  }
+  
+  .benefit-card {
+    padding: 30px 20px;
+  }
+  
+  .benefit-icon {
+    width: 75px;
+    height: 75px;
+    font-size: 2.2rem;
+  }
+}
+
+/* ==========================================
+   SECCIÓN DE PROCESO
+   ========================================== */
+
+.process-section {
+  padding: 80px 20px;
+  background: white;
+  position: relative;
+}
+
+.process-section h2 {
+  text-align: center;
+  font-size: clamp(2rem, 4vw, 2.8rem);
+  margin-bottom: 70px;
+  color: var(--dark);
+  font-weight: 800;
+  letter-spacing: -0.5px;
+}
+
+.process-timeline {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 25px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.process-step {
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.95) 0%, rgba(118, 75, 162, 0.95) 100%);
+  color: white;
+  padding: 40px 25px;
+  border-radius: 15px;
+  text-align: center;
+  position: relative;
+  transition: all 0.3s ease;
+  box-shadow: 0 10px 30px rgba(102, 126, 234, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.process-step:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 20px 45px rgba(102, 126, 234, 0.25);
+  background: linear-gradient(135deg, rgba(102, 126, 234, 1) 0%, rgba(118, 75, 162, 1) 100%);
+}
+
+.step-number {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 50px;
+  height: 50px;
+  background: rgba(255, 237, 74, 0.3);
+  border: 2px solid rgba(255, 237, 74, 0.8);
+  border-radius: 50%;
+  font-size: 1.5rem;
+  font-weight: 800;
+  margin-bottom: 15px;
+}
+
+.process-step h3 {
+  font-size: 1.25rem;
   font-weight: 700;
+  margin-bottom: 10px;
+}
+
+.process-step p {
+  font-size: 0.9rem;
+  opacity: 0.95;
+  line-height: 1.6;
+  margin-bottom: 15px;
+}
+
+.step-icon {
+  font-size: 2.5rem;
+  opacity: 0.7;
+}
+
+.process-arrow {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .process-timeline {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ==========================================
+   SECCIÓN CTA
+   ========================================== */
+
+.cta-section {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 80px 20px;
+  position: relative;
+  overflow: hidden;
+}
+
+.cta-section::before,
+.cta-section::after {
+  content: '';
+  position: absolute;
+  opacity: 0.1;
+  pointer-events: none;
+}
+
+.cta-section::before {
+  width: 300px;
+  height: 300px;
+  background: white;
+  border-radius: 50%;
+  top: -100px;
+  right: -100px;
+}
+
+.cta-section::after {
+  width: 200px;
+  height: 200px;
+  background: white;
+  border-radius: 50%;
+  bottom: -50px;
+  left: -50px;
+}
+
+.cta-content {
+  max-width: 700px;
+  margin: 0 auto;
+  text-align: center;
+  color: white;
+  position: relative;
+  z-index: 2;
+}
+
+.cta-content h2 {
+  font-size: clamp(2rem, 4vw, 2.8rem);
+  font-weight: 800;
+  margin-bottom: 20px;
+  letter-spacing: -0.5px;
+}
+
+.cta-content p {
+  font-size: 1.15rem;
+  margin-bottom: 40px;
+  opacity: 0.95;
+  line-height: 1.7;
+}
+
+.cta-btn {
+  background: linear-gradient(135deg, #ffed4e, #ffc107);
+  color: #1a1a2e;
+  padding: 16px 40px;
+  font-size: 1.05rem;
+  font-weight: 700;
+  border: none;
+  border-radius: 50px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  box-shadow: 0 10px 30px rgba(255, 237, 74, 0.3);
+}
+
+.cta-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 15px 40px rgba(255, 237, 74, 0.4);
+}
+
+/* ==========================================
+   SECCIÓN FAQ
+   ========================================== */
+
+.faq-section {
+  padding: 80px 20px;
+  background: linear-gradient(135deg, #f8f9ff 0%, #f0f4ff 100%);
+}
+
+.faq-container {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.faq-section h2 {
+  text-align: center;
+  font-size: clamp(2rem, 4vw, 2.8rem);
+  margin-bottom: 60px;
+  color: var(--dark);
+  font-weight: 800;
+  letter-spacing: -0.5px;
+}
+
+.faq-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 20px;
+}
+
+.faq-item {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+  transition: all 0.3s ease;
+  border-left: 5px solid var(--primary);
+}
+
+.faq-item.active {
+  box-shadow: 0 10px 30px rgba(102, 126, 234, 0.15);
+}
+
+.faq-question {
+  padding: 25px;
+  background: white;
+  cursor: pointer;
+  user-select: none;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 15px;
+  transition: all 0.3s ease;
+}
+
+.faq-question:hover {
+  background: #f8f9ff;
+}
+
+.faq-question h4 {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--dark);
+  text-align: left;
+  margin: 0;
+}
+
+.faq-question i {
+  flex-shrink: 0;
+  font-size: 1.2rem;
+  color: var(--primary);
+  transition: transform 0.3s ease;
+}
+
+.faq-answer {
+  padding: 0 25px 0 25px;
+  background: white;
+  color: #666;
+  font-size: 0.95rem;
+  line-height: 1.7;
+  display: none;
+  animation: slideDown 0.3s ease;
+  max-height: 0;
+  overflow: hidden;
+}
+
+.faq-item.active .faq-answer {
+  display: block;
+  padding: 0 25px 25px 25px;
+  max-height: 500px;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    max-height: 0;
+  }
+  to {
+    opacity: 1;
+    max-height: 500px;
+  }
+}
+
+/* ==========================================
+   SECCIÓN TARJETAS DE SERVICIOS (HERO)
+   ========================================== */
+
+.card {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0.05) 100%);
+  backdrop-filter: blur(20px);
+  border: 1.5px solid rgba(255, 255, 255, 0.3);
+  border-radius: 15px;
+  padding: 30px 20px;
+  text-align: center;
+  color: white;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+.card:hover {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.25) 0%, rgba(255, 255, 255, 0.1) 100%);
+  transform: translateY(-8px);
+  box-shadow: 0 15px 45px rgba(0, 0, 0, 0.2);
+  border-color: rgba(255, 237, 74, 0.5);
+}
+
+.card-icon {
+  font-size: 2.8rem;
+  color: var(--accent);
+  margin-bottom: 15px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.card h3 {
+  font-size: 1.15rem;
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+
+.card p {
+  font-size: 0.85rem;
+  opacity: 0.9;
+  line-height: 1.5;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ==========================================
+   MEDIA QUERIES RESPONSIVE - TABLET
+   ========================================== */
+
+@media (max-width: 1024px) {
+  .hero {
+    min-height: 600px;
+    padding: 60px 20px;
+  }
+
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .benefits-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .faq-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ==========================================
+   MEDIA QUERIES RESPONSIVE - MOBILE
+   ========================================== */
+
+@media (max-width: 768px) {
+  .hero {
+    min-height: 500px;
+    padding: 50px 20px;
+  }
+
+  .hero h1 {
+    font-size: 2rem;
+  }
+
+  .hero p {
+    font-size: 1rem;
+  }
+
+  .hero-buttons {
+    flex-direction: column;
+    margin-bottom: 40px;
+  }
+
+  .hero-btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .hero-cards {
+    grid-template-columns: 1fr;
+    gap: 15px;
+    margin-top: 30px;
+  }
+
+  .card {
+    padding: 25px 15px;
+  }
+
+  .card-icon {
+    font-size: 2.2rem;
+    width: 60px;
+    height: 60px;
+  }
+
+  .stats-section {
+    padding: 50px 20px;
+  }
+
+  .stats-section h2 {
+    font-size: 1.8rem;
+  }
+
+  .stats-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  .stat-item {
+    padding: 25px 15px;
+  }
+
+  .stat-number {
+    font-size: 2rem;
+  }
+
+  .benefits-section {
+    padding: 50px 20px;
+  }
+
+  .benefits-section h2 {
+    font-size: 1.8rem;
+  }
+
+  .benefits-grid {
+    grid-template-columns: 1fr;
+    gap: 15px;
+  }
+
+  .benefit-card {
+    padding: 25px 15px;
+  }
+
+  .benefit-icon {
+    width: 60px;
+    height: 60px;
+    font-size: 1.8rem;
+  }
+
+  .process-section {
+    padding: 50px 20px;
+  }
+
+  .process-section h2 {
+    font-size: 1.8rem;
+    margin-bottom: 40px;
+  }
+
+  .process-timeline {
+    grid-template-columns: 1fr;
+    gap: 15px;
+  }
+
+  .process-step {
+    padding: 30px 20px;
+  }
+
+  .cta-section {
+    padding: 50px 20px;
+  }
+
+  .cta-content h2 {
+    font-size: 1.8rem;
+  }
+
+  .cta-content p {
+    font-size: 1rem;
+  }
+
+  .cta-btn {
+    padding: 12px 30px;
+    font-size: 0.95rem;
+  }
+
+  .faq-section {
+    padding: 50px 20px;
+  }
+
+  .faq-section h2 {
+    font-size: 1.8rem;
+  }
+
+  .faq-grid {
+    grid-template-columns: 1fr;
+    gap: 15px;
+  }
+
+  .faq-question {
+    padding: 15px;
+  }
+
+  .faq-question h4 {
+    font-size: 0.9rem;
+  }
+
+  .faq-answer {
+    padding: 0 15px;
+  }
+
+  .faq-item.active .faq-answer {
+    padding: 0 15px 15px 15px;
+  }
+}
+
+/* ==========================================
+   MEDIA QUERIES - MÓVIL PEQUEÑO
+   ========================================== */
+
+@media (max-width: 480px) {
+  .hero {
+    min-height: 400px;
+    padding: 40px 15px;
+  }
+
+  .hero h1 {
+    font-size: 1.5rem;
+    line-height: 1.3;
+  }
+
+  .hero p {
+    font-size: 0.9rem;
+    margin-bottom: 30px;
+  }
+
+  .hero-buttons {
+    gap: 10px;
+    margin-bottom: 30px;
+  }
+
+  .hero-btn {
+    padding: 12px 25px;
+    font-size: 0.9rem;
+  }
+
+  .hero-badge {
+    font-size: 0.8rem;
+    padding: 8px 15px;
+  }
+
+  .hero-cards {
+    gap: 12px;
+    margin-top: 20px;
+  }
+
+  .card {
+    padding: 20px 12px;
+  }
+
+  .card-icon {
+    font-size: 2rem;
+    width: 50px;
+    height: 50px;
+    margin-bottom: 10px;
+  }
+
+  .card h3 {
+    font-size: 1rem;
+  }
+
+  .card p {
+    font-size: 0.8rem;
+  }
+
+  .stats-section {
+    padding: 40px 15px;
+  }
+
+  .stats-section h2 {
+    font-size: 1.5rem;
+    margin-bottom: 30px;
+  }
+
+  .stat-item {
+    padding: 20px 12px;
+  }
+
+  .stat-number {
+    font-size: 1.8rem;
+  }
+
+  .stat-label {
+    font-size: 1rem;
+  }
+
+  .stat-item p {
+    font-size: 0.85rem;
+  }
+
+  .benefits-section {
+    padding: 40px 15px;
+  }
+
+  .benefits-section h2 {
+    font-size: 1.5rem;
+    margin-bottom: 30px;
+  }
+
+  .benefits-subtitle {
+    font-size: 0.95rem;
+    margin-bottom: 30px;
+  }
+
+  .benefit-card {
+    padding: 20px 12px;
+  }
+
+  .benefit-icon {
+    width: 50px;
+    height: 50px;
+    font-size: 1.5rem;
+    margin-bottom: 12px;
+  }
+
+  .benefit-card h3 {
+    font-size: 1.05rem;
+    margin-bottom: 10px;
+  }
+
+  .benefit-card p {
+    font-size: 0.85rem;
+  }
+
+  .process-section {
+    padding: 40px 15px;
+  }
+
+  .process-section h2 {
+    font-size: 1.5rem;
+    margin-bottom: 30px;
+  }
+
+  .process-step {
+    padding: 25px 15px;
+  }
+
+  .process-step h3 {
+    font-size: 1rem;
+  }
+
+  .process-step p {
+    font-size: 0.8rem;
+  }
+
+  .step-number {
+    width: 40px;
+    height: 40px;
+    font-size: 1.2rem;
+  }
+
+  .step-icon {
+    font-size: 2rem;
+  }
+
+  .cta-section {
+    padding: 40px 15px;
+  }
+
+  .cta-content h2 {
+    font-size: 1.5rem;
+    margin-bottom: 15px;
+  }
+
+  .cta-content p {
+    font-size: 0.9rem;
+    margin-bottom: 25px;
+  }
+
+  .cta-btn {
+    padding: 11px 25px;
+    font-size: 0.9rem;
+  }
+
+  .faq-section {
+    padding: 40px 15px;
+  }
+
+  .faq-section h2 {
+    font-size: 1.5rem;
+    margin-bottom: 30px;
+  }
+
+  .faq-question {
+    padding: 12px;
+  }
+
+  .faq-question h4 {
+    font-size: 0.85rem;
+  }
+
+  .faq-question i {
+    font-size: 1rem;
+  }
+
+  .faq-answer {
+    padding: 0 12px;
+    font-size: 0.85rem;
+  }
+
+  .faq-item.active .faq-answer {
+    padding: 0 12px 12px 12px;
+  }
+}
+
+/* Fin del CSS - Index */
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.benefit-card {
+  animation: fadeInUp 0.6s ease-out;
+}
+
+/* Scroll smooth */
+html {
+  scroll-behavior: smooth;
+}
+
+/* ==========================================
+   AJUSTES RESPONSIVOS GLOBALES
+   ========================================== */
+
+@media (max-width: 480px) {
+  .container {
+    padding: 0 15px;
+  }
+  
+  h1, h2, h3 {
+    letter-spacing: 0 !important;
+  }
+}
+
+/* ==========================================
+   SECCIÓN HERO - COMPLETA
+   ========================================== */
+
+.hero {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  position: relative;
+  overflow: hidden;
+  padding: 60px 20px 80px;
+  color: white;
+  text-align: center;
+  min-height: 700px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.hero-bg-animated {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  z-index: 0;
+}
+
+.hero-circle-1 {
+  position: absolute;
+  width: 300px;
+  height: 300px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 50%;
+  top: -50px;
+  right: -50px;
+  animation: float 6s ease-in-out infinite;
+}
+
+.hero-circle-2 {
+  position: absolute;
+  width: 200px;
+  height: 200px;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 50%;
+  bottom: 50px;
+  left: 50px;
+  animation: float 8s ease-in-out infinite 2s;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-30px); }
+}
+
+.hero-content {
+  position: relative;
+  z-index: 1;
+  max-width: 900px;
+  width: 100%;
+}
+
+.hero-badge {
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(10px);
+  color: white;
+  padding: 8px 16px;
+  border-radius: 20px;
+  display: inline-block;
+  margin-bottom: 20px;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.hero h1 {
+  font-size: 3rem;
+  font-weight: 800;
+  margin: 20px 0;
+  line-height: 1.2;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+}
+
+.hero h1 span {
+  background: linear-gradient(90deg, #ffed4e, #fff);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.hero p {
+  font-size: 1.1rem;
+  max-width: 600px;
+  margin: 20px auto 30px;
+  line-height: 1.6;
+  font-weight: 300;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.hero-buttons {
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+  margin-bottom: 50px;
+  flex-wrap: wrap;
+}
+
+.hero-btn {
+  padding: 12px 28px;
+  font-weight: 600;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 0.95rem;
+}
+
+.hero-btn-primary {
+  background: white;
+  color: #667eea;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.hero-btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+}
+
+.hero-btn-outline {
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  border: 2px solid white;
+  backdrop-filter: blur(10px);
+}
+
+.hero-btn-outline:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+/* ==========================================
+   SECCIÓN ESTADÍSTICAS
+   ========================================== */
+
+.stats-section {
+  background: linear-gradient(135deg, #f8f9ff 0%, #f0f4ff 100%);
+  padding: 80px 20px;
+}
+
+.stats-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.stats-section h2 {
+  font-size: clamp(2rem, 4vw, 2.8rem);
+  font-weight: 800;
+  color: var(--dark);
+  margin-bottom: 60px;
+  letter-spacing: -0.5px;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 40px;
+}
+
+.stat-item {
+  background: white;
+  padding: 40px 30px;
+  border-radius: 15px;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+  border-left: 5px solid var(--primary);
+}
+
+.stat-item:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.12);
+}
+
+.stat-number {
+  font-size: clamp(2rem, 3vw, 3rem);
+  font-weight: 900;
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 10px;
+}
+
+.stat-label {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--dark);
+  margin-bottom: 8px;
+}
+
+.stat-item p {
+  font-size: 0.95rem;
+  color: #666;
+}
+
+/* ==========================================
+   SECCIÓN BENEFICIOS
+   ========================================== */
+
+.benefits-section {
+  padding: 80px 20px;
+  background: white;
+}
+
+.benefits-container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.benefits-section h2 {
+  font-size: clamp(2rem, 4vw, 2.8rem);
+  font-weight: 800;
+  text-align: center;
+  color: var(--dark);
+  margin-bottom: 15px;
+  letter-spacing: -0.5px;
+}
+
+.benefits-subtitle {
+  text-align: center;
+  font-size: 1.1rem;
+  color: #666;
+  margin-bottom: 60px;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .benefits-grid {
@@ -109,444 +1581,283 @@
   background: white;
   padding: 40px 30px;
   border-radius: 12px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
-  text-align: center;
+  border-left: 5px solid var(--primary);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
   transition: all 0.3s ease;
-  border-top: 4px solid #667eea;
+  text-align: left;
 }
+
+.benefit-card:nth-child(1) { border-left-color: #667eea; }
+.benefit-card:nth-child(2) { border-left-color: #764ba2; }
+.benefit-card:nth-child(3) { border-left-color: #f093fb; }
+.benefit-card:nth-child(4) { border-left-color: #4facfe; }
+.benefit-card:nth-child(5) { border-left-color: #43e97b; }
+.benefit-card:nth-child(6) { border-left-color: #fa709a; }
 
 .benefit-card:hover {
   transform: translateY(-8px);
-  box-shadow: 0 15px 35px rgba(102, 126, 234, 0.15);
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.12);
 }
 
 .benefit-icon {
-  font-size: 3rem;
-  color: #667eea;
+  font-size: 2.5rem;
   margin-bottom: 20px;
   display: inline-block;
-  width: 70px;
-  height: 70px;
-  background: rgba(102, 126, 234, 0.1);
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
 }
+
+.benefit-card:nth-child(1) .benefit-icon { color: #667eea; }
+.benefit-card:nth-child(2) .benefit-icon { color: #764ba2; }
+.benefit-card:nth-child(3) .benefit-icon { color: #f093fb; }
+.benefit-card:nth-child(4) .benefit-icon { color: #4facfe; }
+.benefit-card:nth-child(5) .benefit-icon { color: #43e97b; }
+.benefit-card:nth-child(6) .benefit-icon { color: #fa709a; }
 
 .benefit-card h3 {
   font-size: 1.3rem;
-  margin-bottom: 15px;
-  color: #1a1a1a;
-  font-weight: 600;
+  font-weight: 700;
+  margin-bottom: 12px;
+  color: var(--dark);
 }
 
 .benefit-card p {
+  font-size: 0.95rem;
   color: #666;
   line-height: 1.6;
+}
+
+.stats-section {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 60px 20px;
+}
+
+.stats-container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.stats-section h2 {
+  text-align: center;
+  font-size: 2.5rem;
+  font-weight: 800;
+  margin-bottom: 50px;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 30px;
+}
+
+.stat-item {
+  text-align: center;
+  animation: fadeInUp 0.6s ease;
+}
+
+.stat-number {
+  font-size: 2.8rem;
+  font-weight: 800;
+  color: #ffed4e;
+  margin-bottom: 10px;
+}
+
+.stat-label {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 5px;
+}
+
+.stat-item p {
+  opacity: 0.9;
   font-size: 0.95rem;
 }
 
 /* ==========================================
-   SECCIÓN DE PROCESO
+   SECCIÓN BENEFICIOS
    ========================================== */
 
-.process-section {
-  padding: 80px 20px;
-  background: white;
+.benefits-container {
+  max-width: 1200px;
+  margin: 0 auto;
 }
 
-.process-section h2 {
+.benefits-subtitle {
   text-align: center;
-  font-size: 2.5rem;
-  margin-bottom: 60px;
-  color: #1a1a1a;
-  font-weight: 700;
-}
-
-.process-timeline {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 20px;
-}
-
-.process-step {
-  flex: 1;
-  min-width: 200px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  padding: 40px 25px;
-  border-radius: 12px;
-  text-align: center;
-  position: relative;
-  transition: all 0.3s ease;
-}
-
-.process-step:hover {
-  transform: translateY(-10px);
-  box-shadow: 0 15px 40px rgba(102, 126, 234, 0.3);
-}
-
-.step-number {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 50px;
-  height: 50px;
-  background: rgba(255, 255, 255, 0.3);
-  border-radius: 50%;
-  font-size: 1.8rem;
-  font-weight: 700;
-  margin-bottom: 15px;
-}
-
-.process-step h3 {
-  font-size: 1.3rem;
-  margin-bottom: 12px;
-  font-weight: 600;
-}
-
-.process-step p {
-  font-size: 0.9rem;
-  line-height: 1.5;
-  opacity: 0.95;
-}
-
-.step-icon {
-  font-size: 2.5rem;
-  margin-top: 15px;
-  opacity: 0.8;
-}
-
-.process-arrow {
-  font-size: 2rem;
-  color: #667eea;
-  flex: 0.5;
-  text-align: center;
-  min-width: 40px;
-}
-
-@media (max-width: 768px) {
-  .process-timeline {
-    flex-direction: column;
-  }
-  
-  .process-arrow {
-    transform: rotate(90deg);
-    margin: 10px 0;
-  }
+  font-size: 1.1rem;
+  color: #666;
+  margin-bottom: 50px;
 }
 
 /* ==========================================
-   SECCIÓN CTA (CALL TO ACTION)
+   SECCIÓN CTA
    ========================================== */
 
 .cta-section {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  padding: 80px 20px;
-  text-align: center;
   color: white;
+  padding: 80px 20px;
+  position: relative;
+  overflow: hidden;
+  text-align: center;
 }
 
-.cta-content h2 {
+.cta-section::before {
+  content: '';
+  position: absolute;
+  width: 400px;
+  height: 400px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 50%;
+  top: -100px;
+  right: -100px;
+}
+
+.cta-section::after {
+  content: '';
+  position: absolute;
+  width: 300px;
+  height: 300px;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 50%;
+  bottom: -80px;
+  left: 10%;
+}
+
+.cta-content {
+  max-width: 800px;
+  margin: 0 auto;
+  position: relative;
+  z-index: 1;
+}
+
+.cta-section h2 {
   font-size: 2.5rem;
+  font-weight: 800;
   margin-bottom: 20px;
-  font-weight: 700;
+  line-height: 1.3;
 }
 
-.cta-content p {
-  font-size: 1.2rem;
-  margin-bottom: 40px;
-  opacity: 0.95;
-  max-width: 600px;
-  margin-left: auto;
-  margin-right: auto;
-}
-
-.btn-large {
-  padding: 15px 50px !important;
+.cta-section p {
   font-size: 1.1rem;
-  background: white !important;
-  color: #667eea !important;
+  margin-bottom: 30px;
+  opacity: 0.95;
+  line-height: 1.6;
+}
+
+.cta-btn {
+  background: white;
+  color: #667eea;
+  padding: 16px 40px;
+  font-weight: 700;
   border: none;
-  font-weight: 600;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 1.05rem;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
   transition: all 0.3s ease;
 }
 
-.btn-large:hover {
-  transform: scale(1.05);
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+.cta-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
 }
 
 /* ==========================================
    SECCIÓN FAQ
    ========================================== */
 
-.faq-section {
-  padding: 80px 20px;
-  background: #f8f9fa;
-}
-
-.faq-section h2 {
-  text-align: center;
-  font-size: 2.5rem;
-  margin-bottom: 60px;
-  color: #1a1a1a;
-  font-weight: 700;
-}
-
-.faq-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-  gap: 20px;
-  max-width: 1000px;
+.faq-container {
+  max-width: 900px;
   margin: 0 auto;
 }
 
-.faq-item {
-  background: white;
-  border-radius: 12px;
-  overflow: hidden;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
-  transition: all 0.3s ease;
-}
-
-.faq-question {
-  padding: 25px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  cursor: pointer;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  user-select: none;
-  transition: all 0.3s ease;
-}
-
-.faq-question:hover {
-  background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
-}
-
-.faq-question h4 {
-  margin: 0;
-  font-size: 1.1rem;
-  font-weight: 600;
-}
-
-.faq-question i {
-  font-size: 1.2rem;
-  transition: transform 0.3s ease;
-}
-
-.faq-answer {
-  padding: 0;
-  background: white;
-  max-height: 0;
-  overflow: hidden;
-  transition: all 0.3s ease;
-  color: #666;
-  line-height: 1.6;
-}
-
-.faq-item.active .faq-answer {
-  padding: 25px;
-  max-height: 500px;
-}
-
-.faq-item.active .faq-question i {
-  transform: rotate(180deg);
+.faq-section h2 {
+  font-size: 2.5rem;
+  margin-bottom: 50px;
 }
 
 /* ==========================================
-   RESPONSIVE
+   RESPONSIVOS HERO Y SECCIONES
    ========================================== */
 
 @media (max-width: 768px) {
-  .stats-section h2,
-  .benefits-section h2,
-  .process-section h2,
-  .cta-section h2,
-  .faq-section h2 {
+  .hero {
+    min-height: 600px;
+    padding: 40px 20px 60px;
+  }
+
+  .hero h1 {
     font-size: 2rem;
   }
 
-  .stats-grid {
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-    gap: 20px;
+  .hero p {
+    font-size: 0.95rem;
+  }
+
+  .hero-buttons {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .hero-btn {
+    width: 100%;
+  }
+
+  .stats-section h2,
+  .benefits-section h2,
+  .cta-section h2,
+  .faq-section h2 {
+    font-size: 2rem;
   }
 
   .stat-number {
     font-size: 2rem;
   }
 
-  .stat-label {
-    font-size: 1rem;
-  }
-
-  .benefits-grid {
+  .hero-cards {
     grid-template-columns: 1fr;
-  }
-
-  .benefit-card {
-    padding: 30px 20px;
-  }
-
-  .process-step {
-    min-width: unset;
-  }
-
-  .cta-content p {
-    font-size: 1rem;
-  }
-
-  .btn-large {
-    padding: 12px 30px !important;
-    font-size: 1rem;
-  }
-
-  .faq-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .faq-question {
-    padding: 20px;
-  }
-
-  .faq-question h4 {
-    font-size: 1rem;
   }
 }
 
 @media (max-width: 480px) {
-  .stats-section,
-  .benefits-section,
-  .process-section,
-  .cta-section,
-  .faq-section {
-    padding: 40px 15px;
+  .hero {
+    min-height: 500px;
+    padding: 30px 15px 50px;
   }
 
-  .stats-section h2,
-  .benefits-section h2,
-  .process-section h2,
-  .cta-section h2,
-  .faq-section h2 {
+  .hero h1 {
     font-size: 1.5rem;
   }
 
-  .stat-item {
-    padding: 20px;
+  .hero p {
+    font-size: 0.9rem;
   }
 
-  .benefit-card {
-    padding: 20px 15px;
+  .hero-btn {
+    padding: 10px 20px;
+    font-size: 0.9rem;
   }
 
-  .process-step {
-    padding: 30px 20px;
+  .cta-section {
+    padding: 60px 15px;
   }
 
-  .step-number {
-    width: 40px;
-    height: 40px;
+  .cta-section h2 {
     font-size: 1.5rem;
   }
 
-  .process-step h3 {
-    font-size: 1.1rem;
-  }
-
-  .process-step p {
-    font-size: 0.85rem;
-  }
-
-  .cta-content h2 {
-    font-size: 1.5rem;
-  }
-
-  .cta-content p {
+  .cta-btn {
+    padding: 12px 30px;
     font-size: 0.95rem;
   }
-
-  .faq-question {
-    padding: 15px;
-  }
-
-  .faq-answer {
-    line-height: 1.5;
-  }
-
-  .faq-item.active .faq-answer {
-    padding: 15px;
-  }
 }
 
-/* ==========================================
-   ANIMACIONES
-   ========================================== */
-
-@keyframes slide-up {
-  from {
-    opacity: 0;
-    transform: translateY(30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.benefit-card {
-  animation: slide-up 0.6s ease-out;
-}
-
-@keyframes pulse {
-  0%, 100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.5;
-  }
-}
-
-/* Scroll smooth */
-html {
-  scroll-behavior: smooth;
-}
-
-/* ==========================================
-   MEJORAS VISUALES
-   ========================================== */
-
-/* Gradientes de fondo */
-.benefits-section {
-  background: linear-gradient(180deg, #ffffff 0%, #f8f9fa 100%);
-}
-
-.faq-section {
-  background: linear-gradient(180deg, #f8f9fa 0%, #ffffff 100%);
-}
-
-/* Sombras mejoradas */
-.benefit-card,
-.faq-item {
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
-}
-
-.benefit-card:hover,
-.faq-item:hover {
-  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.12);
-}
-
-/* Bordes redondeados consistentes */
-* {
-  border-radius: 8px;
-}
-
-button,
-.btn,
-input {
-  border-radius: 8px;
+/* ====== Fix: Centrado del título del HERO ====== */
+/* Esta regla aplica un contenedor flex-column y alinea los elementos al centro.
+   Soluciona conflictos de especificidad y asegura que el h1 quede centrado. */
+.hero .hero-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
 }
