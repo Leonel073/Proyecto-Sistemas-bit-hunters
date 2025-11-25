@@ -1,220 +1,178 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Formulario de Reclamo - Nexora Bolivia</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Registrar Reclamo</title>
 
-  <!-- VITE: Carga CSS y JS -->
-  @vite([
-      'resources/css/app.css',
-      'resources/css/nav.css',
-      'resources/css/formulario.css',
-      'resources/css/btns.css',
-      'resources/js/nav.js'
-  ])
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 
-  <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+    <style>
+        /* Define la altura CRÍTICA para que el mapa se muestre */
+        #map {
+            height: 350px;
+            width: 100%;
+            border-radius: 0.25rem;
+            margin-top: 15px;
+            margin-bottom: 15px;
+            border: 1px solid #ced4da;
+        }
+    </style>
 </head>
-<body>
+<body class="bg-light">
 
-  <!-- NAV -->
-  <nav>
-    <div class="nav-container">
-      <!-- LOGO -->
-      <div class="logo" onclick="navigateTo('inicio')">
-        <div class="logo-icon">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round"
-              d="M12 20h.01M2 8.82a15.91 15.91 0 0 1 20 0M5.17 12.25a10.91 10.91 0 0 1 13.66 0M8.31 15.68a5.91 5.91 0 0 1 7.38 0" />
-          </svg>
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="mb-0">Nuevo Reclamo</h3>
+                </div>
+                <div class="card-body">
+
+                    <form action="{{ route('reclamo.store') }}" method="POST">
+                        @csrf
+
+                        <div class="mb-3">
+                            <label class="form-label">Título *</label>
+                            <input type="text" name="titulo" class="form-control" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Tipo de Incidente *</label>
+                            <select name="idTipoIncidente" class="form-select" required>
+                                <option value="">Seleccione...</option>
+                                <option value="1">Falla de Conexión</option>
+                                <option value="2">Lentitud</option>
+                                <option value="3">Facturación</option>
+                                <option value="4">Soporte Técnico</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Prioridad *</label>
+                            <select name="prioridad" class="form-select" required>
+                                <option value="Baja">Baja</option>
+                                <option value="Media" selected>Media</option>
+                                <option value="Alta">Alta</option>
+                                <option value="Urgente">Urgente</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Descripción *</label>
+                            <textarea name="descripcionDetallada" class="form-control" required></textarea>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col">
+                                <label>Latitud</label>
+                                <input type="text" id="latitudIncidente" name="latitudIncidente" class="form-control" readonly required value="-16.5000">
+                            </div>
+                            <div class="col">
+                                <label>Longitud</label>
+                                <input type="text" id="longitudIncidente" name="longitudIncidente" class="form-control" readonly required value="-68.1500">
+                            </div>
+                        </div>
+
+                        <button type="button" id="btnActualizar" class="btn btn-warning mb-3 w-100">
+                            Actualizar a mi Ubicación Actual
+                        </button>
+
+                        <div id="map"></div>
+                        <small class="text-muted text-center d-block mb-3">
+                            Haga clic en el mapa o mueva el marcador para seleccionar la ubicación.
+                        </small>
+
+                        <button type="submit" class="btn btn-success btn-lg w-100">Enviar Reclamo</button>
+                    </form>
+                </div>
+            </div>
         </div>
-        <div class="logo-text">
-          <div class="title">Nexora Bolivia</div>
-          <div class="subtitle">Apoyo al Usuario</div>
-        </div>
-      </div>
-
-      <!-- LINKS DESKTOP -->
-      <div class="nav-links" id="navLinks">
-        <button onclick="navigateTo('inicio')">Inicio</button>
-        <button class="active" onclick="navigateTo('formulario')">Presentar Reclamo</button>
-        <button onclick="navigateTo('seguimiento')">Seguimiento</button>
-        <button onclick="navigateTo('recursos')">Recursos</button>
-      </div>
-
-      <!-- MENÚ MÓVIL -->
-      <button class="menu-button" id="menuToggle">
-        <svg id="menuIcon" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2"
-          viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
-        </svg>
-      </button>
     </div>
+</div>
 
-    <div class="mobile-menu" id="mobileMenu">
-      <button onclick="navigateTo('inicio')">Inicio</button>
-      <button class="active" onclick="navigateTo('reclamo')">Presentar Reclamo</button>
-      <button onclick="navigateTo('seguimiento')">Seguimiento</button>
-      <button onclick="navigateTo('recursos')">Recursos</button>
-    </div>
-  </nav>
-  <!-- NAV END -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
-  <div class="main-container" id="app">
-    @auth('web')
-    <!-- Formulario de reclamo -->
-    <div class="card" id="reclamoFormContainer">
-      <div class="card-header">
-        <h2 class="card-title">Formulario de Reclamo</h2>
-        <p class="card-description">
-          Completa todos los campos para registrar tu reclamo sobre el servicio de internet
-        </p>
-      </div>
-      <div class="card-content">
-        <form id="reclamoForm" action="{{ route('reclamo.store') }}" method="POST">
-          @csrf
-          <!-- Información Personal -->
-          <div class="form-section">
-            <h3 class="section-title">Información Personal</h3>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
 
-            <div class="form-group">
-              <label class="form-label" for="nombre">Nombre Completo *</label>
-              <input class="form-input" id="nombre" name="nombre" required placeholder="Juan Pérez" value="{{ auth('web')->user()->primerNombre ?? '' }} {{ auth('web')->user()->apellidoPaterno ?? '' }}" />
-            </div>
+    var latInput = document.getElementById('latitudIncidente');
+    var lngInput = document.getElementById('longitudIncidente');
+    var btnActualizar = document.getElementById('btnActualizar');
 
-            <div class="form-row">
-              <div class="form-group">
-                <label class="form-label" for="email">Correo Electrónico *</label>
-                <input type="email" class="form-input" id="email" name="email" required placeholder="correo@ejemplo.com" value="{{ auth('web')->user()->email ?? '' }}" />
-              </div>
-              <div class="form-group">
-                <label class="form-label" for="telefono">Teléfono *</label>
-                <input type="tel" class="form-input" id="telefono" name="telefono" required placeholder="+591 2 1234567" value="{{ auth('web')->user()->telefonoContacto ?? '' }}" />
-              </div>
-            </div>
+    var initialLat = parseFloat(latInput.value);
+    var initialLng = parseFloat(lngInput.value);
 
-            <div class="form-row">
-              <div class="form-group">
-                <label class="form-label" for="departamento">Departamento *</label>
-                <input class="form-input" id="departamento" name="departamento" value="La Paz" disabled />
-                <p class="small-text">Sistema de reclamos para el departamento de La Paz</p>
-              </div>
-              <div class="form-group">
-                <label class="form-label" for="localidad">Zona Rural *</label>
-                <select class="form-select" id="localidad" name="localidad" required>
-                  <option value="">Selecciona tu zona rural</option>
-                  <option value="Pacajes">Pacajes</option>
-                  <option value="Ingavi">Ingavi</option>
-                  <option value="Los Andes">Los Andes</option>
-                </select>
-                <p class="small-text">Selecciona la provincia rural donde se encuentra el problema</p>
-              </div>
-            </div>
-          </div>
+    // Inicializar mapa
+    var map = L.map('map').setView([initialLat, initialLng], 14);
 
-          <!-- Información del Reclamo -->
-          <div class="form-section">
-            <h3 class="section-title">Información del Reclamo</h3>
+    // ⭐ CORRECCIÓN 1: TileLayer con protocolo independiente (compatible con http://127.0.0.1)
+    L.tileLayer('//{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '© OpenStreetMap contributors'
+    }).addTo(map);
 
-            <div class="form-group">
-              <label class="form-label" for="titulo">Título del Reclamo *</label>
-              <input class="form-input" id="titulo" name="titulo" required placeholder="Resumen breve del problema" />
-            </div>
+    // Marcador arrastrable
+    var marker = L.marker([initialLat, initialLng], {draggable:true}).addTo(map);
 
-            <div class="form-group">
-              <label class="form-label" for="proveedor">Proveedor de Internet *</label>
-              <input class="form-input" id="proveedor" name="proveedor" required placeholder="Nombre del proveedor" />
-            </div>
+    // 1. Escuchar el arrastre del marcador
+    marker.on('dragend', function(e){
+        var pos = e.target.getLatLng();
+        latInput.value = pos.lat.toFixed(6);
+        lngInput.value = pos.lng.toFixed(6);
+    });
 
-            <div class="form-group">
-              <label class="form-label" for="tipoIncidente">Tipo de Incidente *</label>
-              <select class="form-select" id="tipoIncidente" name="tipoIncidente" required>
-                <option value="">Selecciona el tipo de incidente</option>
-                <option value="Velocidad inferior a la contratada">Velocidad inferior a la contratada</option>
-                <option value="Cortes frecuentes del servicio">Cortes frecuentes del servicio</option>
-                <option value="Sin servicio - Caída total">Sin servicio - Caída total</option>
-                <option value="Problemas de facturación">Problemas de facturación</option>
-                <option value="Problemas de instalación">Problemas de instalación</option>
-                <option value="Mala atención al cliente">Mala atención al cliente</option>
-                <option value="Servicio intermitente">Servicio intermitente</option>
-                <option value="Otro">Otro</option>
-              </select>
-            </div>
+    // 2. Escuchar el click en el mapa
+    map.on('click', function(e){
+        marker.setLatLng(e.latlng);
+        latInput.value = e.latlng.lat.toFixed(6);
+        lngInput.value = e.latlng.lng.toFixed(6);
+    });
 
-            <div class="form-row">
-              <div class="form-group">
-                <label class="form-label" for="velocidadContratada">Velocidad Contratada (Mbps)</label>
-                <input type="number" class="form-input" id="velocidadContratada" name="velocidadContratada" placeholder="10" />
-              </div>
-              <div class="form-group">
-                <label class="form-label" for="velocidadReal">Velocidad Real (Mbps)</label>
-                <input type="number" class="form-input" id="velocidadReal" name="velocidadReal" placeholder="3" />
-              </div>
-            </div>
+    // Función para actualizar ubicación por geolocalización
+    function actualizarUbicacion(){
+        if(navigator.geolocation){
+            navigator.geolocation.getCurrentPosition(function(position){
+                var lat = position.coords.latitude;
+                var lng = position.coords.longitude;
 
-            <div class="form-group">
-              <label class="form-label" for="descripcionDetallada">Descripción Detallada del Problema *</label>
-              <textarea class="form-textarea" id="descripcionDetallada" name="descripcionDetallada" required placeholder="Describe detalladamente el problema..."></textarea>
-            </div>
+                // Mover mapa y marcador
+                map.setView([lat,lng],16);
+                marker.setLatLng([lat,lng]);
+                
+                // Actualizar inputs
+                latInput.value = lat.toFixed(6);
+                lngInput.value = lng.toFixed(6);
 
-            <div class="form-row">
-              <div class="form-group">
-                <label class="form-label" for="latitud">Latitud de Ubicación</label>
-                <input type="number" step="0.000001" class="form-input" id="latitud" name="latitud" placeholder="-16.5" value="-16.5" />
-                <p class="small-text">Opcional: Ayuda a localizar el problema geográficamente</p>
-              </div>
-              <div class="form-group">
-                <label class="form-label" for="longitud">Longitud de Ubicación</label>
-                <input type="number" step="0.000001" class="form-input" id="longitud" name="longitud" placeholder="-68.15" value="-68.15" />
-                <p class="small-text">Opcional: Puede obtener las coordenadas desde Google Maps</p>
-              </div>
-            </div>
-          </div>
+            }, function(error){
+                // Manejo de errores mejorado
+                var errorMsg = "No se pudo obtener la ubicación. ";
+                if (error.code === error.TIMEOUT) {
+                    // ⭐ CORRECCIÓN 2: Mensaje de timeout. Ocurre si la señal es débil.
+                    errorMsg += "La búsqueda de ubicación tardó demasiado (señal débil). Intente de nuevo.";
+                } else if (error.code === error.PERMISSION_DENIED) {
+                    errorMsg += "Acceso denegado. Debe permitir la ubicación en la configuración del navegador.";
+                } else {
+                    errorMsg += "Error desconocido: " + error.message;
+                }
+                alert(errorMsg);
 
-          <div class="alert">
-            <svg class="alert-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <circle cx="12" cy="12" r="10"/>
-              <line x1="12" y1="8" x2="12" y2="12"/>
-              <line x1="12" y1="16" x2="12.01" y2="16"/>
-            </svg>
-            <span>Nexora Bolivia garantiza que toda la información proporcionada será tratada de manera confidencial y utilizada únicamente para dar seguimiento a tu reclamo conforme a las leyes bolivianas de protección de datos.</span>
-          </div>
+            // ⭐ CORRECCIÓN 3: Aumentar el timeout a 30 segundos (30000ms) para mejorar la fiabilidad
+            }, { enableHighAccuracy:true, timeout:30000, maximumAge:0 });
+        } else {
+            alert("Geolocalización no soportada en este navegador.");
+        }
+    }
 
-          <button type="submit" class="btn-submit">Enviar Reclamo</button>
-        </form>
-      </div>
-    </div>
-    @endauth
+    // Botón fuerza actualización
+    btnActualizar.addEventListener('click', actualizarUbicacion);
 
-    @guest('web')
-    <!-- Mensaje para usuarios no autenticados -->
-    <div class="card" id="guestMessage" style="max-width: 600px; margin: 40px auto; text-align: center; padding: 40px;">
-      <div class="card-header">
-        <h2 class="card-title">Acceso Requerido</h2>
-      </div>
-      <div class="card-content">
-        <p style="font-size: 16px; margin-bottom: 20px; color: #666;">
-          Para presentar un reclamo, primero debes iniciar sesión con tu cuenta de usuario.
-        </p>
-        <p style="font-size: 14px; color: #999; margin-bottom: 30px;">
-          Si aún no tienes una cuenta, puedes crear una desde la página de login.
-        </p>
-        <a href="{{ route('login') }}" class="btn-submit" style="display: inline-block; text-decoration: none; padding: 10px 30px;">
-          Iniciar Sesión
-        </a>
-      </div>
-    </div>
-    @endguest
-
-    <!-- Mensaje de Éxito -->
-    @if(session('success'))
-    <div class="success-message">
-      <h2>¡Reclamo registrado exitosamente!</h2>
-      <p>{{ session('success') }}</p>
-    </div>
-    @endif
-  </div>
+    // Evitar mapa en blanco (se llama después de un breve retraso para asegurar que el DOM cargó)
+    setTimeout(()=>{ map.invalidateSize(); },300);
+});
+</script>
 
 </body>
 </html>
