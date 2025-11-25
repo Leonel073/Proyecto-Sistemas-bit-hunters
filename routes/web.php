@@ -118,13 +118,33 @@ Route::middleware(['auth:empleado', 'role:Operador,SupervisorOperador,Gerente'])
     Route::post('/reclamo/asignar-tecnico/{reclamo}', [OperadorController::class, 'asignarTecnico'])->name('reclamo.asignarTecnico');
 });
 
-// 5. ÁREA TÉCNICA (DASHBOARD TÉCNICO)
+/// 5. ÁREA TÉCNICA (DASHBOARD TÉCNICO)
 // Acceso: Tecnico, SupervisorTecnico y Gerente
 // (El operador NO puede entrar aquí, ni el SupervisorOperador)
 Route::middleware(['auth:empleado', 'role:Tecnico,SupervisorTecnico,Gerente'])
     ->prefix('tecnico')->name('tecnico.')->group(function () {
     
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
     Route::get('/dashboard', [TecnicoDashboardController::class, 'index'])->name('dashboard');
     Route::post('/estado/actualizar', [TecnicoDashboardController::class, 'actualizarEstadoDisponibilidad'])->name('estado.update');
     Route::post('/reclamo/{reclamo}/resolver', [ReclamoResolucionController::class, 'resolver'])->name('reclamo.resolver');
+=======
+=======
+>>>>>>> Stashed changes
+    // Dashboard del técnico
+    Route::get('/dashboard', [TecnicoController::class, 'panel'])->name('dashboard');
+    
+    // CORREGIDO: Cambiar a PUT y ruta consistente
+    Route::put('/estado', [TecnicoController::class, 'actualizarEstado'])->name('actualizar.estado');
+    
+    // CORREGIDO: Cambiar a PUT y ruta en plural
+    Route::put('/reclamos/{reclamo}/aceptar', [TecnicoController::class, 'aceptarReclamo'])->name('reclamos.aceptar');
+    
+    // CORREGIDO: Cambiar a PUT y ruta en plural
+    Route::put('/reclamos/{reclamo}/resolver', [TecnicoController::class, 'resolverReclamo'])->name('reclamos.resolver');
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
+>>>>>>> Stashed changes
 });
