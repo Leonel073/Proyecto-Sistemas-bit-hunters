@@ -130,14 +130,22 @@ class OperadorController extends Controller
     {
         // 1. Validar datos
         $data = $request->validate([
-            'idTecnico' => 'required|integer',
+            'idTecnico' => 'required|integer', // El nombre del input en el HTML sigue siendo idTecnico
             'comentario' => 'required|string'
         ]);
 
         try {
-            // 2. Preparar el comentario (Asumiendo que 'comentarios' es un campo JSON en la BD)
-            // Si es una tabla aparte, deberías usar ReclamoComentario::create(...)
-            $comentarios = $reclamo->comentarios ?? [];
+            // 2. Preparar el comentario
+            // Obtenemos los comentarios actuales (si existen)
+            $comentarios = $reclamo->comentarios;
+
+            // Asegurarnos de que sea un array (por si viene null o string)
+            if (is_string($comentarios)) {
+                $comentarios = json_decode($comentarios, true);
+            }
+            if (!is_array($comentarios)) {
+                $comentarios = [];
+            }
             
             $nuevoComentario = [
                 'id' => now()->timestamp,
@@ -146,21 +154,22 @@ class OperadorController extends Controller
                 'fecha' => now()->toDateTimeString()
             ];
 
-            // Si es JSON, decodificar si viene como string, o añadir al array
-            if (is_string($comentarios)) {
-                $comentarios = json_decode($comentarios, true) ?? [];
-            }
+            // Añadir el nuevo comentario al array
             $comentarios[] = $nuevoComentario;
 
             // 3. Actualizar el reclamo
-            $reclamo->comentarios = $comentarios; // Laravel se encarga de convertir a JSON si está casteado en el modelo
-            $reclamo->idTecnico = $data['idTecnico']; // Asegúrate que el campo en BD sea idTecnico o idTecnicoAsignado
-            $reclamo->estado = 'Asignado'; // Cambiar estado
+            $reclamo->comentarios = $comentarios; 
+            
+            // ✅ CORRECCIÓN AQUÍ: Usamos el nombre real de la columna en la BD
+            $reclamo->idTecnicoAsignado = $data['idTecnico']; 
+            
+            $reclamo->estado = 'Asignado'; 
             $reclamo->save();
 
             return response()->json(['message' => 'Técnico asignado correctamente']);
 
         } catch (\Exception $e) {
+            // Esto te ayudará a ver el error real si algo más falla
             return response()->json(['message' => 'Error al asignar técnico: ' . $e->getMessage()], 500);
         }
     }

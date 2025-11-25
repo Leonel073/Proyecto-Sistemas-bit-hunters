@@ -123,14 +123,15 @@ Route::middleware(['auth:empleado', 'role:Operador,SupervisorOperador,Gerente'])
 Route::middleware(['auth:empleado', 'role:Tecnico,SupervisorTecnico,Gerente'])
     ->prefix('tecnico')->name('tecnico.')->group(function () {
     
-    // CORRECCIÓN 2: Usamos TecnicoController para el panel.
+    // Dashboard del técnico
     Route::get('/dashboard', [TecnicoController::class, 'panel'])->name('dashboard');
-    // CORRECCIÓN 3: Usamos TecnicoController para actualizar estado.
-    Route::post('/estado/update', [TecnicoController::class, 'actualizarEstado'])->name('estado.update');
-
-    // RUTA FALTANTE (DEBE EXISTIR para la lógica en el dashboard)
-    Route::post('/reclamo/{reclamo}/aceptar', [TecnicoController::class, 'aceptarReclamo'])->name('reclamo.aceptar');
     
-    // CORRECCIÓN 4: Usamos TecnicoController para resolver reclamo.
-    Route::post('/reclamo/{reclamo}/resolver', [TecnicoController::class, 'resolverReclamo'])->name('reclamo.resolver');
+    // CORREGIDO: Cambiar a PUT y ruta consistente
+    Route::put('/estado', [TecnicoController::class, 'actualizarEstado'])->name('actualizar.estado');
+    
+    // CORREGIDO: Cambiar a PUT y ruta en plural
+    Route::put('/reclamos/{reclamo}/aceptar', [TecnicoController::class, 'aceptarReclamo'])->name('reclamos.aceptar');
+    
+    // CORREGIDO: Cambiar a PUT y ruta en plural
+    Route::put('/reclamos/{reclamo}/resolver', [TecnicoController::class, 'resolverReclamo'])->name('reclamos.resolver');
 });

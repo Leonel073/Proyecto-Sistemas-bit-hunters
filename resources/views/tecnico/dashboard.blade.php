@@ -31,8 +31,10 @@ $prioridadColor = function($prioridad) {
     };
 };
 
-
 @endphp
+
+<!-- Incluir Leaflet CSS -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 
 <div class="container mx-auto px-4 py-4">
 
@@ -82,8 +84,10 @@ $prioridadColor = function($prioridad) {
                 </span>
             </div>
             
-            <form action="{{ route('tecnico.estado.update') }}" method="POST" class="flex flex-col gap-4 border-t pt-4">
+            {{-- CORREGIDO: Ruta actualizada --}}
+            <form action="{{ route('tecnico.actualizar.estado') }}" method="POST" class="flex flex-col gap-4 border-t pt-4">
                 @csrf
+                @method('PUT')
                 
                 {{-- Dropdown para seleccionar el estado --}}
                 <div>
@@ -163,6 +167,30 @@ $prioridadColor = function($prioridad) {
                                 </div>
                             </div>
 
+                            {{-- MAPA DE UBICACIÓN --}}
+                            <div class="mb-4">
+                                <p class="text-md font-semibold text-gray-800 mb-2">Ubicación del Incidente</p>
+                                <div class="bg-white p-3 rounded-lg border border-gray-200">
+                                    <div class="grid grid-cols-2 gap-3 mb-3 text-sm">
+                                        <div>
+                                            <span class="font-medium">Latitud:</span> 
+                                            <span class="text-gray-600">{{ $reclamo->latitudIncidente }}</span>
+                                        </div>
+                                        <div>
+                                            <span class="font-medium">Longitud:</span> 
+                                            <span class="text-gray-600">{{ $reclamo->longitudIncidente }}</span>
+                                        </div>
+                                    </div>
+                                    <div id="map-{{ $reclamo->idReclamo }}" class="reclamo-map" 
+                                         data-lat="{{ $reclamo->latitudIncidente }}" 
+                                         data-lng="{{ $reclamo->longitudIncidente }}"
+                                         style="height: 250px; width: 100%; border-radius: 0.375rem; border: 1px solid #e5e7eb;">
+                                    </div>
+                                    <small class="text-muted text-center d-block mt-2">
+                                        Ubicación exacta del incidente reportado
+                                    </small>
+                                </div>
+                            </div>
 
                             {{-- LÓGICA DE ACCIÓN: ACEPTAR O RESOLVER --}}
                             <div class="mt-4 pt-4 border-t border-gray-300">
@@ -175,10 +203,11 @@ $prioridadColor = function($prioridad) {
                                         Estado: {{ $reclamo->estado }}
                                     </span>
 
-                                    @if ($reclamo->estado === 'Asignado' || $reclamo->estado === 'Pendiente')
-                                        {{-- FORMULARIO PARA ACEPTAR Y PONER EN PROCESO --}}
-                                        <form action="{{ route('tecnico.reclamo.aceptar', $reclamo->idReclamo) }}" method="POST">
+                                    @if ($reclamo->estado === 'Asignado' || $reclamo->estado === 'Nuevo')
+                                        {{-- CORREGIDO: Formulario para aceptar reclamo --}}
+                                        <form action="{{ route('tecnico.reclamos.aceptar', $reclamo) }}" method="POST">
                                             @csrf
+                                            @method('PUT')
                                             <button type="submit" class="px-5 py-2 rounded-lg font-semibold text-white bg-blue-600 hover:bg-blue-700 transition duration-200 shadow-lg text-sm">
                                                 <svg class="w-4 h-4 inline-block mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
                                                 Aceptar y Poner En Proceso
@@ -196,8 +225,10 @@ $prioridadColor = function($prioridad) {
 
                                 {{-- FORMULARIO PARA REGISTRAR SOLUCIÓN Y MARCAR COMO RESUELTO (Oculto por defecto) --}}
                                 @if ($reclamo->estado === 'En Proceso')
-                                    <form id="form-resolver-{{ $reclamo->idReclamo }}" action="{{ route('tecnico.reclamo.resolver', $reclamo->idReclamo) }}" method="POST" class="mt-4 pt-4 border-t border-gray-200 hidden bg-white p-4 rounded-lg shadow-inner">
+                                    {{-- CORREGIDO: Ruta para resolver reclamo --}}
+                                    <form id="form-resolver-{{ $reclamo->idReclamo }}" action="{{ route('tecnico.reclamos.resolver', $reclamo) }}" method="POST" class="mt-4 pt-4 border-t border-gray-200 hidden bg-white p-4 rounded-lg shadow-inner">
                                         @csrf
+                                        @method('PUT')
                                         
                                         <div class="form-group mb-4">
                                             <label for="solucionTecnica-{{ $reclamo->idReclamo }}" class="block text-md font-medium text-gray-700 mb-2">
@@ -235,7 +266,47 @@ $prioridadColor = function($prioridad) {
     </div>
 </div>
 
-
 </div>
+
+<!-- Incluir Leaflet JS -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    // Inicializar mapas para cada reclamo
+    document.querySelectorAll('.reclamo-map').forEach(function(mapElement) {
+        var lat = parseFloat(mapElement.getAttribute('data-lat'));
+        var lng = parseFloat(mapElement.getAttribute('data-lng'));
+        var reclamoId = mapElement.id.split('-')[1];
+        
+        // Inicializar mapa
+        var map = L.map(mapElement.id).setView([lat, lng], 15);
+        
+        // TileLayer
+        L.tileLayer('//{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '© OpenStreetMap contributors'
+        }).addTo(map);
+        
+        // Marcador en la ubicación del incidente
+        var marker = L.marker([lat, lng]).addTo(map);
+        
+        // Popup con información del reclamo
+        marker.bindPopup(`
+            <div class="p-2">
+                <strong>Reclamo #${reclamoId}</strong><br>
+                <small>Ubicación del incidente</small><br>
+                <small>Lat: ${lat.toFixed(6)}</small><br>
+                <small>Lng: ${lng.toFixed(6)}</small>
+            </div>
+        `).openPopup();
+        
+        // Asegurar que el mapa se redibuje correctamente
+        setTimeout(() => {
+            map.invalidateSize();
+        }, 100);
+    });
+});
+</script>
 
 @endsection
