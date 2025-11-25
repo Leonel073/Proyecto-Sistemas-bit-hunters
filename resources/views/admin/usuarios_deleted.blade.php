@@ -11,51 +11,33 @@
       'resources/css/nav.css',
       'resources/css/footer.css',
       'resources/css/users-management.css',
+      'resources/css/admin.css',
       'resources/js/nav.js'
   ])
 </head>
 <body class="bg-gray-100">
+  
 
-  <!-- NAV -->
-  <nav>
-    <div class="container">
-      <div class="logo" onclick="window.location.href='{{ route('home') }}'">
-        <div class="logo-icon">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M12 20h.01M2 8.82a15.91 15.91 0 0 1 20 0M5.17 12.25a10.91 10.91 0 0 1 13.66 0M8.31 15.68a5.91 5.91 0 0 1 7.38 0" />
-          </svg>
-        </div>
-        <div class="logo-text">
-          <div class="title">Nexora Bolivia</div>
-          <div class="subtitle">Apoyo al Usuario</div>
-        </div>
-      </div>
-
-      <div class="nav-links" id="navLinks">
-        <button onclick="window.location.href='{{ route('home') }}'">Inicio</button>
-        <!-- ✅ CORREGIDO: admin.empleados.index -->
-        <button onclick="window.location.href='{{ route('admin.empleados.index') }}'">Gestión de Usuarios</button>
-      </div>
-    </div>
-  </nav>
+  @include('admin._nav')
 
   <section class="users-management">
     <div class="users-container">
       <h1 class="users-title">Usuarios y Empleados Eliminados</h1>
 
-      <div class="action-buttons">
-        <!-- ✅ CORREGIDO: admin.empleados.index -->
-        <a href="{{ route('admin.empleados.index') }}" class="btn-action">← Volver a gestión</a>
-      </div>
-
-      <!-- Barra de búsqueda -->
-      <div class="search-filters">
-        <div class="search-input">
-          <input type="text" id="searchInput" placeholder="Buscar por nombre o correo...">
-          <i class="fas fa-search"></i>
+      <div class="action-buttons" style="display:flex; justify-content:space-between; align-items:center; gap:12px;">
+        <div>
+          <!-- ✅ CORREGIDO: admin.empleados.index -->
+          <a href="{{ route('admin.empleados.index') }}" class="btn-action">← Volver a gestión</a>
+        </div>
+        <div class="search-filters">
+          <div class="search-input">
+            <input type="text" id="searchInput" placeholder="Buscar por nombre o correo..." aria-label="Buscar usuarios eliminados">
+            <i class="fas fa-search" aria-hidden="true"></i>
+          </div>
         </div>
       </div>
 
+      <!-- Barra de búsqueda -->
       <table class="users-table" id="deletedTable">
         <thead>
           <tr>
@@ -113,14 +95,17 @@
   </section>
 
   <script>
-    // 🔍 Filtro de búsqueda en tiempo real
-    document.getElementById('searchInput').addEventListener('keyup', function() {
-      const filter = this.value.toLowerCase();
-      document.querySelectorAll('#deletedTable tbody tr').forEach(row => {
-        const text = row.textContent.toLowerCase();
-        row.classList.toggle('hidden', !text.includes(filter));
+    // 🔍 Filtro de búsqueda en tiempo real (safe)
+    const searchInput = document.getElementById('searchInput');
+    if (searchInput) {
+      searchInput.addEventListener('keyup', function() {
+        const filter = this.value.toLowerCase();
+        document.querySelectorAll('#deletedTable tbody tr').forEach(row => {
+          const text = row.textContent.toLowerCase();
+          row.classList.toggle('hidden', !text.includes(filter));
+        });
       });
-    });
+    }
   </script>
 </body>
 </html>

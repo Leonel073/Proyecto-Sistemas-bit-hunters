@@ -7,16 +7,16 @@
 
   @vite([
       'resources/css/app.css',
-      'resources/css/hero.css',
       'resources/css/nav.css',
       'resources/css/footer.css',
-      'resources/css/index.css',
       'resources/css/btns.css',
+      'resources/css/index.css',
+      'resources/css/hero.css',
       'resources/js/nav.js'
   ])
 
-  <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
 
+  <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
 
 </head>
 <body>
@@ -59,27 +59,31 @@
     </div>
   </nav>
 
-  <!-- HERO -->
+  <!-- HERO SECTION -->
   <section class="hero">
-    <div class="hero-overlay"></div>
-    <img 
-      src="https://images.unsplash.com/photo-1679068008949-12852e5fca5a?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080" 
-      alt="Torre de internet rural" 
-      class="hero-bg"
-    />
+    <!-- Fondo animado con patrón -->
+    <div class="hero-bg-animated">
+      <div class="hero-circle-1"></div>
+      <div class="hero-circle-2"></div>
+    </div>
 
     <div class="hero-content">
       <div class="hero-badge">✨ Nexora Bolivia - Tu Aliado Digital</div>
-      <h1>Apoyo para Reclamos de Internet en Zonas Rurales</h1>
+      
+      <h1>
+        Apoyo para Reclamos de Internet en <span>Zonas Rurales</span>
+      </h1>
+      
       <p>
         En Nexora Bolivia te ayudamos a defender tu derecho a un servicio de internet de calidad. 
         Registra tu reclamo, conoce tus derechos y obtén el apoyo profesional que necesitas.
       </p>
+      
       <div class="hero-buttons">
-        <button class="btn btn-primary" onclick="showAuthModal('formulario')">
+        <button class="hero-btn hero-btn-primary" onclick="showAuthModal('formulario')">
           <i class="fas fa-pencil-alt"></i> Presentar Reclamo
         </button>
-        <button class="btn btn-outline" onclick="showAuthModal('seguimiento')">
+        <button class="hero-btn hero-btn-outline" onclick="showAuthModal('seguimiento')">
           <i class="fas fa-search"></i> Seguimiento
         </button>
       </div>
@@ -106,25 +110,25 @@
 
   <!-- ESTADÍSTICAS -->
   <section class="stats-section">
-    <div class="container">
+    <div class="stats-container">
       <h2>Impacto de Nexora Bolivia</h2>
       <div class="stats-grid">
-        <div class="stat-item animate-fade-in">
+        <div class="stat-item">
           <div class="stat-number">1,250+</div>
           <div class="stat-label">Reclamos Resueltos</div>
           <p>En los últimos 12 meses</p>
         </div>
-        <div class="stat-item animate-fade-in" style="animation-delay: 0.1s">
+        <div class="stat-item">
           <div class="stat-number">98%</div>
           <div class="stat-label">Satisfacción</div>
           <p>De nuestros usuarios</p>
         </div>
-        <div class="stat-item animate-fade-in" style="animation-delay: 0.2s">
+        <div class="stat-item">
           <div class="stat-number">24hrs</div>
           <div class="stat-label">Respuesta Rápida</div>
           <p>Atención prioritaria</p>
         </div>
-        <div class="stat-item animate-fade-in" style="animation-delay: 0.3s">
+        <div class="stat-item">
           <div class="stat-number">La Paz</div>
           <div class="stat-label">Departamento</div>
           <p>Cobertura en zonas rurales</p>
@@ -135,48 +139,38 @@
 
   <!-- BENEFICIOS -->
   <section class="benefits-section" id="beneficios">
-    <div class="container">
+    <div class="benefits-container">
       <h2>¿Por qué elegir Nexora Bolivia?</h2>
+      <p class="benefits-subtitle">Somos el aliado confiable en tu defensa de derechos</p>
+      
       <div class="benefits-grid">
         <div class="benefit-card">
-          <div class="benefit-icon">
-            <i class="fas fa-shield-alt"></i>
-          </div>
+          <div class="benefit-icon"><i class="fas fa-shield-alt"></i></div>
           <h3>Protección de Derechos</h3>
           <p>Te ayudamos a ejercer tus derechos como consumidor y a reclamar un servicio de calidad.</p>
         </div>
         <div class="benefit-card">
-          <div class="benefit-icon">
-            <i class="fas fa-clock"></i>
-          </div>
+          <div class="benefit-icon"><i class="fas fa-clock"></i></div>
           <h3>Seguimiento Transparente</h3>
           <p>Monitorea el estado de tu reclamo en tiempo real con actualizaciones constantes.</p>
         </div>
         <div class="benefit-card">
-          <div class="benefit-icon">
-            <i class="fas fa-users"></i>
-          </div>
+          <div class="benefit-icon"><i class="fas fa-users"></i></div>
           <h3>Equipo Especializado</h3>
           <p>Técnicos y abogados listos para resolver tu problema de forma eficiente.</p>
         </div>
         <div class="benefit-card">
-          <div class="benefit-icon">
-            <i class="fas fa-map-marker-alt"></i>
-          </div>
+          <div class="benefit-icon"><i class="fas fa-map-marker-alt"></i></div>
           <h3>Cobertura Rural</h3>
           <p>Nos enfocamos en zonas rurales donde más se necesita apoyo en conectividad.</p>
         </div>
         <div class="benefit-card">
-          <div class="benefit-icon">
-            <i class="fas fa-dollar-sign"></i>
-          </div>
+          <div class="benefit-icon"><i class="fas fa-dollar-sign"></i></div>
           <h3>100% Gratuito</h3>
           <p>Nuestros servicios son completamente gratuitos para todos los usuarios.</p>
         </div>
         <div class="benefit-card">
-          <div class="benefit-icon">
-            <i class="fas fa-lock"></i>
-          </div>
+          <div class="benefit-icon"><i class="fas fa-lock"></i></div>
           <h3>Datos Seguros</h3>
           <p>Protegemos tu información con los más altos estándares de seguridad.</p>
         </div>
@@ -222,20 +216,18 @@
 
   <!-- CTA SECTION -->
   <section class="cta-section">
-    <div class="container">
-      <div class="cta-content">
-        <h2>¿Tu internet no funciona correctamente?</h2>
-        <p>No esperes más. Inicia tu reclamo ahora y nosotros nos encargaremos del resto.</p>
-        <button class="btn btn-primary btn-large" onclick="showAuthModal('formulario')">
-          <i class="fas fa-bolt"></i> Empezar Ahora
-        </button>
-      </div>
+    <div class="cta-content">
+      <h2>¿Tu internet no funciona correctamente?</h2>
+      <p>No esperes más. Inicia tu reclamo ahora y nosotros nos encargaremos del resto.</p>
+      <button class="cta-btn" onclick="showAuthModal('formulario')">
+        <i class="fas fa-bolt"></i> Empezar Ahora
+      </button>
     </div>
   </section>
 
   <!-- FAQ SECTION -->
   <section class="faq-section">
-    <div class="container">
+    <div class="faq-container">
       <h2>Preguntas Frecuentes</h2>
       <div class="faq-grid">
         <div class="faq-item">
@@ -247,6 +239,7 @@
             Sí, 100% gratuito. Nexora Bolivia es una iniciativa para proteger los derechos de usuarios de internet en zonas rurales.
           </div>
         </div>
+        
         <div class="faq-item">
           <div class="faq-question">
             <h4>¿Cuánto tiempo tarda en resolverse?</h4>
@@ -256,6 +249,7 @@
             Depende de la complejidad del caso, pero la mayoría se resuelven dentro de 24 a 48 horas de presentado el reclamo.
           </div>
         </div>
+        
         <div class="faq-item">
           <div class="faq-question">
             <h4>¿Necesito documentos especiales?</h4>
@@ -265,6 +259,7 @@
             No necesitas documentos especiales. Solo información básica del problema y tus datos de contacto.
           </div>
         </div>
+        
         <div class="faq-item">
           <div class="faq-question">
             <h4>¿Cómo puedo seguir mi reclamo?</h4>
@@ -399,25 +394,152 @@
 
   </footer>
 
-  <!-- MODAL Y JS (Se mantienen igual) -->
+
+  <script>
+    // ========== Variables Globales ==========
+    let authModal = null;
+    const isAuthenticated = {{ auth()->check() ? 'true' : 'false' }};
+
+    // ========== Funciones de Navegación ==========
+    function navigateTo(page) {
+      const routes = { inicio: '/', recursos: '/recursos' };
+      if (routes[page]) window.location.href = routes[page];
+    }
+
+    function scrollToSection(section) {
+      const element = document.getElementById(section);
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth' });
+      }
+    }
+
+    function showAuthModal(target) {
+      if (isAuthenticated) {
+        // Si está autenticado, navegar directamente
+        const routes = { 'formulario': '/formulario', 'seguimiento': '/seguimiento' };
+        if (routes[target]) {
+          window.location.href = routes[target];
+        }
+      } else {
+        // Si no está autenticado, mostrar modal
+        if (authModal) {
+          authModal.classList.remove('hidden');
+          document.body.style.overflow = 'hidden';
+          console.log('✅ Modal mostrado');
+        } else {
+          console.error('❌ Modal no encontrado');
+        }
+      }
+    }
+
+    function closeAuthModal() {
+      if (authModal) {
+        authModal.classList.add('hidden');
+        document.body.style.overflow = 'auto';
+        console.log('✅ Modal cerrado');
+      }
+    }
+
+    // ========== Inicialización al Cargar el DOM ==========
+    document.addEventListener('DOMContentLoaded', function() {
+      console.log('📄 DOM cargado, inicializando...');
+
+      // Obtener el modal del DOM
+      authModal = document.getElementById('authModal');
+      console.log('🔍 authModal encontrado:', authModal ? '✅ SÍ' : '❌ NO');
+
+      // Cerrar modal al hacer click fuera (en el overlay)
+      if (authModal) {
+        authModal.addEventListener('click', function(e) {
+          if (e.target === this) {
+            closeAuthModal();
+          }
+        });
+
+        // Botones del modal
+        const loginBtn = authModal.querySelector('.modal-btn-login');
+        const registerBtn = authModal.querySelector('.modal-btn-register');
+
+        if (loginBtn) {
+          loginBtn.addEventListener('click', function(e) {
+            window.location.href = this.href;
+          });
+        }
+
+        if (registerBtn) {
+          registerBtn.addEventListener('click', function(e) {
+            window.location.href = this.href;
+          });
+        }
+      }
+
+      // Cerrar modal con tecla Escape
+      document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && authModal && !authModal.classList.contains('hidden')) {
+          closeAuthModal();
+        }
+      });
+
+      // ========== Control del Menú Móvil ==========
+      const menuToggle = document.getElementById('menuToggle');
+      const mobileMenu = document.getElementById('mobileMenu');
+      
+      if (menuToggle && mobileMenu) {
+        menuToggle.addEventListener('click', function() {
+          mobileMenu.classList.toggle('show');
+        });
+
+        document.querySelectorAll('.mobile-link').forEach(link => {
+          link.addEventListener('click', function() {
+            mobileMenu.classList.remove('show');
+          });
+        });
+      }
+
+      // ========== FAQ Interactivo ==========
+      document.querySelectorAll('.faq-question').forEach(question => {
+        question.addEventListener('click', function() {
+          const item = this.parentElement;
+          const answer = item.querySelector('.faq-answer');
+          const icon = this.querySelector('i');
+
+          document.querySelectorAll('.faq-item').forEach(el => {
+            if (el !== item && el.classList.contains('active')) {
+              el.classList.remove('active');
+              el.querySelector('.faq-answer').style.display = 'none';
+              el.querySelector('i').style.transform = 'rotate(0deg)';
+              el.style.background = '#f9f9f9';
+            }
+          });
+
+          item.classList.toggle('active');
+          const isActive = item.classList.contains('active');
+          
+          answer.style.display = isActive ? 'block' : 'none';
+          icon.style.transform = isActive ? 'rotate(180deg)' : 'rotate(0deg)';
+          item.style.background = isActive ? '#f0f4ff' : '#f9f9f9';
+        });
+      });
+
+      console.log('✅ Inicialización completada - Modal listo - Autenticado:', isAuthenticated);
+    });
+  </script>
+
+  <!-- MODAL - POSICIONADO AL FINAL COMO OVERLAY GLOBAL FIJO -->
   <div id="authModal" class="modal hidden">
     <div class="modal-content">
-      <h3 class="text-lg font-bold text-gray-900">Autenticación Requerida</h3>
-      <p class="text-gray-600 mt-2">Debes iniciar sesión o registrarte para continuar.</p>
+      <h3>🔐 Autenticación Requerida</h3>
+      <p>Debes iniciar sesión o registrarte para continuar con esta acción.</p>
       <div class="modal-buttons">
-        <a href="{{ route('login') }}" class="btn-floating modal-btn-login">Iniciar Sesión</a>
-        <a href="{{ route('register') }}" class="btn-floating modal-btn-register">Registrarse</a>
+        <a href="{{ route('login') }}" class="modal-btn-login">
+          <i class="fas fa-sign-in-alt"></i> Iniciar Sesión
+        </a>
+        <a href="{{ route('register') }}" class="modal-btn-register">
+          <i class="fas fa-user-plus"></i> Registrarse
+        </a>
       </div>
     </div>
   </div>
 
-  <script>
-    function navigateTo(page) { const routes = { inicio: '/', recursos: '/recursos' }; if (routes[page]) window.location.href = routes[page]; }
-    function scrollToSection(section) { const element = document.getElementById(section); if (element) element.scrollIntoView({ behavior: 'smooth' }); }
-    function showAuthModal(target) { @auth const routes = { 'formulario': '/formulario', 'seguimiento': '/seguimiento' }; if (routes[target]) window.location.href = routes[target]; @else document.getElementById('authModal').classList.remove('hidden'); @endauth }
-    document.getElementById('authModal')?.addEventListener('click', (e) => { if (e.target === e.currentTarget) e.currentTarget.classList.add('hidden'); });
-    document.getElementById('menuToggle')?.addEventListener('click', () => { document.getElementById('mobileMenu').classList.toggle('show'); });
-    document.querySelectorAll('.faq-question').forEach(question => { question.addEventListener('click', function() { this.parentElement.classList.toggle('active'); }); });
-  </script>
 </body>
 </html>
