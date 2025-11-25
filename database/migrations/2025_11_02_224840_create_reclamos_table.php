@@ -39,7 +39,7 @@ return new class extends Migration {
             $table->foreign('idPoliticaSLA')->references('idPoliticaSLA')->on('sla_politicas')->restrictOnDelete()->cascadeOnUpdate();
             $table->foreign('idTipoIncidente')->references('idTipoIncidente')->on('cat_tipo_incidente')->restrictOnDelete()->cascadeOnUpdate();
             $table->foreign('idCausaRaiz')->references('idCausaRaiz')->on('cat_causa_raiz')->nullOnDelete()->cascadeOnUpdate();
-
+            $table->timestamps();
             $table->index('estado', 'idx_reclamo_estado');
             $table->index('prioridad', 'idx_reclamo_prioridad');
         });
