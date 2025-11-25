@@ -14,7 +14,7 @@ class OperadorPruebaSeeder extends Seeder
         $now = Carbon::now();
         
         // CONTRASEÑA SEGURA: Cumple con Mayúscula, Minúscula, Número y Caracter
-        $passwordSegura = Hash::make('Operador.2025!'); 
+        $passwordSegura = Hash::make('Operador.2025!');  
         
         $email = 'operador.prueba@nexora.com';
 
