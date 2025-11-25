@@ -16,15 +16,15 @@ class TecnicoController extends Controller
     public function panel()
     {
         $empleadoId = Auth::guard('empleado')->id();
-        
-        // 1. Obtener el modelo del Técnico para el estado actual
+       
+        // Obtener el perfil del técnico
         $tecnico = Tecnico::where('idEmpleado', $empleadoId)->firstOrFail();
         $estadoActual = $tecnico->estadoDisponibilidad;
 
-        // 2. Obtener los reclamos asignados a este técnico
-        $reclamos = Reclamo::where('idtecnicoasignado', $empleadoId) // Usamos el nombre de columna correcto
+        // CORREGIDO: Usar el nombre correcto de la columna
+        $reclamos = Reclamo::where('idTecnicoAsignado', $empleadoId)
             ->whereNotIn('estado', ['Cerrado', 'Resuelto', 'Completado'])
-            ->with(['usuario', 'operador']) // ¡Esta línea ahora funciona!
+            ->with(['usuario', 'operador'])
             ->orderBy('prioridad', 'desc')
             ->orderBy('fechaCreacion', 'asc')
             ->get();
@@ -37,12 +37,14 @@ class TecnicoController extends Controller
      */
     public function actualizarEstado(Request $request)
     {
-        $request->validate(['estadoDisponibilidad' => 'required|string']);
+        $request->validate([
+            'estadoDisponibilidad' => 'required|string|in:Disponible,En Ruta,Ocupado'
+        ]);
 
         try {
             $empleadoId = Auth::guard('empleado')->id();
             $tecnico = Tecnico::where('idEmpleado', $empleadoId)->firstOrFail();
-            
+           
             $tecnico->estadoDisponibilidad = $request->estadoDisponibilidad;
             $tecnico->save();
 
@@ -54,41 +56,28 @@ class TecnicoController extends Controller
 
     /**
      * El técnico acepta el reclamo y lo pone en estado "En Proceso".
-     *
-     * @param \App\Models\Reclamo $reclamo
      */
     public function aceptarReclamo(Reclamo $reclamo)
     {
         $empleadoId = Auth::guard('empleado')->id();
-        
-        // Forzamos la recarga del modelo desde la BD para asegurar que los datos no estén "stale"
+       
+        // Recargar el modelo para asegurar datos actualizados
         $reclamo->refresh();
 
-        // Obtenemos los IDs. No necesitamos forzar a entero si usamos comparación no estricta, 
-        // pero lo mantenemos para claridad.
-        $tecnicoAsignadoId = $reclamo->idtecnicoasignado; // Puede ser NULL o un número (string/int)
-        $empleadoIdNumerico = (int) $empleadoId;
-
         try {
-            // 1. Verificar si el reclamo está asignado a este técnico.
-            // Usamos comparación NO ESTRICTA (!=) para evitar problemas de tipo (string vs int).
-            if ($tecnicoAsignadoId != $empleadoIdNumerico) { 
-                
-                // Si es NULL, se compara como 0, lo que causaba el error original.
-                // Si tu ID es 3 y la BD tiene NULL, la comparación falla (NULL != 3).
-                $motivo = 'No está asignado a tu cuenta (Reclamo ID #' . $reclamo->idReclamo . ': ' . ($tecnicoAsignadoId ?? 'NULL') . ' vs Tu ID Autenticado: ' . $empleadoIdNumerico . ')';
-                
-                return redirect()->back()->with('error', 'El reclamo no puede ser aceptado. Motivo: ' . $motivo);
+            // CORREGIDO: Verificación simplificada
+            if ($reclamo->idTecnicoAsignado != $empleadoId) {
+                return redirect()->back()->with('error', 'Este reclamo no está asignado a tu cuenta.');
             }
-            
-            // 2. Verificar que el estado sea el correcto para la transición
-            if (!in_array($reclamo->estado, ['Asignado', 'Pendiente'])) {
-                $motivo = 'El estado actual del reclamo (' . $reclamo->estado . ') no permite la acción de Aceptar.';
-                return redirect()->back()->with('error', 'El reclamo no puede ser aceptado. Motivo: ' . $motivo);
+           
+            // CORREGIDO: Verificación de estado
+            if (!in_array($reclamo->estado, ['Asignado', 'Nuevo'])) {
+                return redirect()->back()->with('error', 'El estado actual del reclamo (' . $reclamo->estado . ') no permite la acción de Aceptar.');
             }
 
-            // Si pasa las validaciones, actualizamos
+            // Actualizar estado
             $reclamo->estado = 'En Proceso';
+            $reclamo->fechaActualizacion = now();
             $reclamo->save();
 
             return redirect()->route('tecnico.dashboard')->with('success', "Reclamo #{$reclamo->idReclamo} ha sido puesto en 'En Proceso'.");
@@ -100,28 +89,26 @@ class TecnicoController extends Controller
 
     /**
      * El técnico registra la solución y marca el reclamo como "Resuelto".
-     *
-     * @param \App\Models\Reclamo $reclamo
      */
     public function resolverReclamo(Request $request, Reclamo $reclamo)
     {
         $request->validate([
             'solucionTecnica' => 'required|string|min:10',
         ]);
-        
+       
         $empleadoId = Auth::guard('empleado')->id();
 
         try {
-            // Usamos comparación NO ESTRICTA (!=) para consistencia
-            if ($reclamo->idtecnicoasignado != $empleadoId || $reclamo->estado !== 'En Proceso') {
+            // Verificar asignación y estado
+            if ($reclamo->idTecnicoAsignado != $empleadoId || $reclamo->estado !== 'En Proceso') {
                  return redirect()->back()->with('error', 'El reclamo no está en el estado o asignación correcta para ser resuelto.');
             }
 
-            // Guardar la solución técnica y la fecha de resolución
-            $reclamo->solucionTecnica = $request->solucionTecnica; 
-            
+            // Guardar la solución
+            $reclamo->solucionTecnica = $request->solucionTecnica;
             $reclamo->estado = 'Resuelto';
-            $reclamo->fechaResolucion = now(); // Agregar fecha de resolución
+            $reclamo->fechaResolucion = now();
+            $reclamo->fechaActualizacion = now();
             $reclamo->save();
 
             return redirect()->route('tecnico.dashboard')->with('success', "Reclamo #{$reclamo->idReclamo} ha sido marcado como 'Resuelto'.");
