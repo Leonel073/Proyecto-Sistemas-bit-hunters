@@ -55,7 +55,7 @@
 
 
       {{-- Formulario --}}
-      <form action="{{ route('usuarios.update', $usuario->idUsuario) }}" method="POST" class="space-y-4">
+      <form action="{{ route('admin.usuarios.update', $usuario->idUsuario) }}" method="POST" class="space-y-4">
         @csrf
         @method('PUT')
 

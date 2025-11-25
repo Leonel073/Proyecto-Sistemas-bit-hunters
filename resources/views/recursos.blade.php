@@ -9,10 +9,9 @@
   @vite([
       'resources/css/app.css',
       'resources/css/nav.css',
-      'resources/css/recursos.css',
+      'resources/css/recursos-new.css',
       'resources/css/btns.css',
-      'resources/js/nav.js',
-      'resources/js/recursos.js'
+      'resources/js/nav.js'
   ])
 
   <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
@@ -61,149 +60,192 @@
   </nav>
 
   <!-- CONTENIDO PRINCIPAL -->
-  <div class="main-container max-w-6xl mx-auto px-4 py-8 space-y-12">
+  <div class="recursos-main">
 
-    <!-- Sección: Derechos -->
-    <section class="derechos">
-      <h2 class="text-3xl font-bold text-gray-900 mb-4">Conoce Tus Derechos</h2>
-      <p class="descripcion text-gray-600 mb-8">
-        Como usuario de servicios de internet en zonas rurales, cuentas con derechos específicos que te protegen.
-      </p>
-      <div class="cards grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <div class="card p-6 bg-white rounded-lg shadow-sm border">
-          <h3 class="text-xl font-semibold text-indigo-600 mb-2">Derecho a un Servicio de Calidad</h3>
-          <p class="text-gray-600">Los proveedores deben garantizar la velocidad contratada y estabilidad del servicio.</p>
-        </div>
-        <div class="card p-6 bg-white rounded-lg shadow-sm border">
-          <h3 class="text-xl font-semibold text-indigo-600 mb-2">Derecho a Información Clara</h3>
-          <p class="text-gray-600">Debes recibir información transparente sobre las condiciones del servicio y facturación.</p>
-        </div>
-        <div class="card p-6 bg-white rounded-lg shadow-sm border">
-          <h3 class="text-xl font-semibold text-indigo-600 mb-2">Derecho a Presentar Reclamos</h3>
-          <p class="text-gray-600">Puedes reclamar cuando el servicio no cumpla con lo contratado, sin represalias.</p>
-        </div>
-        <div class="card p-6 bg-white rounded-lg shadow-sm border">
-          <h3 class="text-xl font-semibold text-indigo-600 mb-2">Derecho a Compensación</h3>
-          <p class="text-gray-600">En caso de incumplimiento prolongado, tienes derecho a compensaciones o devoluciones.</p>
-        </div>
+    <!-- HERO SECTION -->
+    <section class="recursos-hero">
+      <div class="hero-content">
+        <h1>Centro de Recursos</h1>
+        <p>Todo lo que necesitas para defender tus derechos como usuario de internet</p>
       </div>
     </section>
 
-    <!-- Sección: Recursos -->
-    <section class="recursos">
-      <h2 class="text-3xl font-bold text-gray-900 mb-4">Recursos y Guías</h2>
-      <p class="descripcion text-gray-600 mb-8">
-        Descarga materiales útiles para fortalecer tu reclamo y conocer tus opciones.
-      </p>
-      <div class="cards grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <div class="card recurso p-6 bg-white rounded-lg shadow-sm border text-center">
-          <div class="icon text-4xl mb-3">Document</div>
-          <h3 class="text-lg font-semibold text-gray-900 mb-2">Modelo de Carta de Reclamo</h3>
-          <p class="text-gray-600 mb-4">Formato oficial para presentar reclamos ante tu proveedor.</p>
-          <button class="btn w-full">Descargar PDF</button>
-        </div>
-        <div class="card recurso p-6 bg-white rounded-lg shadow-sm border text-center">
-          <div class="icon text-4xl mb-3">Guide</div>
-          <h3 class="text-lg font-semibold text-gray-900 mb-2">Guía de Medición de Velocidad</h3>
-          <p class="text-gray-600 mb-4">Aprende a medir correctamente la velocidad de tu conexión.</p>
-          <button class="btn w-full">Descargar PDF</button>
-        </div>
-        <div class="card recurso p-6 bg-white rounded-lg shadow-sm border text-center">
-          <div class="icon text-4xl mb-3">Scale</div>
-          <h3 class="text-lg font-semibold text-gray-900 mb-2">Marco Legal en Bolivia</h3>
-          <p class="text-gray-600 mb-4">Información sobre leyes bolivianas y regulaciones que te protegen.</p>
-          <button class="btn w-full">Descargar PDF</button>
-        </div>
-        <div class="card recurso p-6 bg-white rounded-lg shadow-sm border text-center">
-          <div class="icon text-4xl mb-3">Phone</div>
-          <h3 class="text-lg font-semibold text-gray-900 mb-2">Directorio de Organismos</h3>
-          <p class="text-gray-600 mb-4">Contactos de ATT y defensa del consumidor.</p>
-          <button class="btn w-full">Descargar PDF</button>
-        </div>
-      </div>
-    </section>
-
-    <!-- Sección: Preguntas Frecuentes -->
-    <section class="faq">
-      <h2 class="text-3xl font-bold text-gray-900 mb-4">Preguntas Frecuentes</h2>
-      <p class="descripcion text-gray-600 mb-8">
-        Respuestas a las dudas más comunes sobre reclamos de internet.
-      </p>
-
-      <div class="accordion space-y-4">
-        <div class="accordion-item border rounded-lg overflow-hidden">
-          <button class="accordion-header w-full text-left p-4 bg-gray-50 hover:bg-gray-100 flex justify-between items-center font-medium">
-            ¿Cuánto tiempo tiene el proveedor para responder mi reclamo?
-            <span class="ml-4 transition-transform">Down Arrow</span>
-          </button>
-          <div class="accordion-content p-4 bg-white" style="display: none;">
-            El proveedor tiene un plazo máximo de 10 días hábiles para responder tu reclamo. Si no lo hace, puedes escalarlo ante la ATT o Nexora Bolivia.
+    <!-- SECCIÓN: DERECHOS -->
+    <section class="recursos-section derechos-section">
+      <div class="container">
+        <h2>Conoce Tus Derechos</h2>
+        <p class="section-subtitle">Como usuario de servicios de internet, cuentas con derechos específicos que te protegen</p>
+        
+        <div class="cards-grid">
+          <div class="derecho-card">
+            <div class="card-icon"><i class="fas fa-shield-alt"></i></div>
+            <h3>Derecho a Servicio de Calidad</h3>
+            <p>Los proveedores deben garantizar la velocidad contratada y estabilidad del servicio en todo momento.</p>
           </div>
-        </div>
-
-        <div class="accordion-item border rounded-lg overflow-hidden">
-          <button class="accordion-header w-full text-left p-4 bg-gray-50 hover:bg-gray-100 flex justify-between items-center font-medium">
-            ¿Qué hago si mi velocidad de internet es muy inferior a la contratada?
-            <span class="ml-4 transition-transform">Down Arrow</span>
-          </button>
-          <div class="accordion-content p-4 bg-white" style="display: none;">
-            Realiza mediciones de velocidad certificadas, guarda la evidencia y presenta un reclamo formal. Si persiste, puedes pedir compensación o cancelar sin penalidad.
+          <div class="derecho-card">
+            <div class="card-icon"><i class="fas fa-file-alt"></i></div>
+            <h3>Derecho a Información Clara</h3>
+            <p>Debes recibir información transparente sobre condiciones, tarifas y términos de tu contrato.</p>
           </div>
-        </div>
-
-        <div class="accordion-item border rounded-lg overflow-hidden">
-          <button class="accordion-header w-full text-left p-4 bg-gray-50 hover:bg-gray-100 flex justify-between items-center font-medium">
-            ¿Puedo cancelar mi contrato por mal servicio?
-            <span class="ml-4 transition-transform">Down Arrow</
-
-</span>
-          </button>
-          <div class="accordion-content p-4 bg-white" style="display: none;">
-            Sí, si el proveedor incumple reiteradamente y tienes pruebas, puedes rescindir el contrato sin penalidades.
+          <div class="derecho-card">
+            <div class="card-icon"><i class="fas fa-comments"></i></div>
+            <h3>Derecho a Presentar Reclamos</h3>
+            <p>Puedes reclamar sin represalias cuando el servicio no cumpla con lo contratado.</p>
           </div>
-        </div>
-
-        <div class="accordion-item border rounded-lg overflow-hidden">
-          <button class="accordion-header w-full text-left p-4 bg-gray-50 hover:bg-gray-100 flex justify-between items-center font-medium">
-            ¿Dónde puedo escalar mi reclamo si el proveedor no responde?
-            <span class="ml-4 transition-transform">Down Arrow</span>
-          </button>
-          <div class="accordion-content p-4 bg-white" style="display: none;">
-            Puedes acudir a la ATT, Defensa del Consumidor o Nexora Bolivia para recibir asesoría personalizada.
+          <div class="derecho-card">
+            <div class="card-icon"><i class="fas fa-hand-holding-usd"></i></div>
+            <h3>Derecho a Compensación</h3>
+            <p>En caso de incumplimiento prolongado, tienes derecho a compensaciones o devoluciones.</p>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- Banner de Apoyo -->
-    <section class="banner bg-linear-to-r from-indigo-600 to-purple-700 text-white rounded-2xl p-8 md:p-12 flex flex-col md:flex-row items-center justify-between gap-8">
-      <div class="banner-text text-center md:text-left">
-        <h2 class="text-2xl md:text-3xl font-bold mb-4">¿Necesitas Ayuda Personalizada?</h2>
-        <p class="mb-6">
-          El equipo de Nexora Bolivia está disponible para ayudarte con tu caso. Ofrecemos orientación profesional sobre cómo proceder con tu reclamo.
-        </p>
-        <div class="banner-buttons flex flex-col sm:flex-row gap-4 justify-center md:justify-start">
-          <button class="btn btn-secundario bg-white text-indigo-600 hover:bg-gray-100">
-            Contactar Asesor
+    <!-- SECCIÓN: DESCARGAS -->
+    <section class="recursos-section descargas-section">
+      <div class="container">
+        <h2>Recursos para Descargar</h2>
+        <p class="section-subtitle">Materiales útiles para fortalecer tu reclamo y proteger tus derechos</p>
+        
+        <div class="recursos-grid">
+          <div class="recurso-card">
+            <div class="card-icon-big"><i class="fas fa-file-pdf"></i></div>
+            <h3>Modelo de Carta de Reclamo</h3>
+            <p>Formato oficial y efectivo para presentar reclamos ante tu proveedor con documentación correcta.</p>
+            <button class="btn-download" onclick="alert('Descarga iniciada')" title="Descargar PDF">
+              <i class="fas fa-download"></i> Descargar
+            </button>
+          </div>
+          
+          <div class="recurso-card">
+            <div class="card-icon-big"><i class="fas fa-wifi"></i></div>
+            <h3>Guía de Medición de Velocidad</h3>
+            <p>Aprende a medir correctamente tu velocidad de conexión con herramientas certificadas.</p>
+            <button class="btn-download" onclick="alert('Descarga iniciada')" title="Descargar PDF">
+              <i class="fas fa-download"></i> Descargar
+            </button>
+          </div>
+          
+          <div class="recurso-card">
+            <div class="card-icon-big"><i class="fas fa-gavel"></i></div>
+            <h3>Marco Legal en Bolivia</h3>
+            <p>Información detallada sobre leyes bolivianas y regulaciones que te protegen como usuario.</p>
+            <button class="btn-download" onclick="alert('Descarga iniciada')" title="Descargar PDF">
+              <i class="fas fa-download"></i> Descargar
+            </button>
+          </div>
+          
+          <div class="recurso-card">
+            <div class="card-icon-big"><i class="fas fa-phone-alt"></i></div>
+            <h3>Directorio de Organismos</h3>
+            <p>Contactos de ATT, Defensa del Consumidor y otras instituciones de apoyo.</p>
+            <button class="btn-download" onclick="alert('Descarga iniciada')" title="Descargar PDF">
+              <i class="fas fa-download"></i> Descargar
+            </button>
+          </div>
+          
+          <div class="recurso-card">
+            <div class="card-icon-big"><i class="fas fa-book"></i></div>
+            <h3>Guía de Derechos del Consumidor</h3>
+            <p>Manual completo sobre tus derechos como consumidor de servicios de telecomunicaciones.</p>
+            <button class="btn-download" onclick="alert('Descarga iniciada')" title="Descargar PDF">
+              <i class="fas fa-download"></i> Descargar
+            </button>
+          </div>
+          
+          <div class="recurso-card">
+            <div class="card-icon-big"><i class="fas fa-lightbulb"></i></div>
+            <h3>Tips para Resolver Problemas</h3>
+            <p>Soluciones prácticas para los problemas más comunes de conexión a internet.</p>
+            <button class="btn-download" onclick="alert('Descarga iniciada')" title="Descargar PDF">
+              <i class="fas fa-download"></i> Descargar
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SECCIÓN: FAQ -->
+    <section class="recursos-section faq-section">
+      <div class="container">
+        <h2>Preguntas Frecuentes</h2>
+        <p class="section-subtitle">Respuestas a tus dudas más comunes sobre reclamos de internet</p>
+        
+        <div class="faq-container">
+          <div class="faq-accordion">
+            <div class="faq-item">
+              <button class="faq-header">
+                <span>¿Cuánto tiempo tiene el proveedor para responder mi reclamo?</span>
+                <i class="fas fa-chevron-down"></i>
+              </button>
+              <div class="faq-body">
+                <p>El proveedor tiene un plazo máximo de 10 días hábiles para responder tu reclamo. Si no lo hace, puedes escalarlo ante la ATT o Nexora Bolivia para recibir apoyo.</p>
+              </div>
+            </div>
+
+            <div class="faq-item">
+              <button class="faq-header">
+                <span>¿Qué hago si mi velocidad es muy inferior a la contratada?</span>
+                <i class="fas fa-chevron-down"></i>
+              </button>
+              <div class="faq-body">
+                <p>Realiza mediciones de velocidad certificadas, guarda la evidencia y presenta un reclamo formal. Si persiste, puedes pedir compensación o cancelar sin penalidad.</p>
+              </div>
+            </div>
+
+            <div class="faq-item">
+              <button class="faq-header">
+                <span>¿Puedo cancelar mi contrato por mal servicio?</span>
+                <i class="fas fa-chevron-down"></i>
+              </button>
+              <div class="faq-body">
+                <p>Sí, si el proveedor incumple reiteradamente y tienes pruebas documentadas, puedes rescindir el contrato sin penalidades.</p>
+              </div>
+            </div>
+
+            <div class="faq-item">
+              <button class="faq-header">
+                <span>¿Dónde escalo mi reclamo si no responden?</span>
+                <i class="fas fa-chevron-down"></i>
+              </button>
+              <div class="faq-body">
+                <p>Puedes acudir a la ATT, Defensa del Consumidor, o Nexora Bolivia para recibir asesoría personalizada y apoyo legal.</p>
+              </div>
+            </div>
+
+            <div class="faq-item">
+              <button class="faq-header">
+                <span>¿Es realmente gratuito el servicio de Nexora Bolivia?</span>
+                <i class="fas fa-chevron-down"></i>
+              </button>
+              <div class="faq-body">
+                <p>Sí, 100% gratuito. Nexora Bolivia es una iniciativa sin fines de lucro para proteger los derechos de usuarios de internet en zonas rurales.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA SECTION -->
+    <section class="recursos-cta">
+      <div class="cta-content">
+        <h2>¿Necesitas Ayuda Personalizada?</h2>
+        <p>El equipo de Nexora Bolivia está disponible para brindarte asesoría profesional sobre tu caso específico</p>
+        <div class="cta-buttons">
+          <button class="btn-cta btn-primary" onclick="alert('Contactando asesor...')">
+            <i class="fas fa-headset"></i> Contactar Asesor
           </button>
-          <button class="btn btn-transparente border border-white text-white hover:bg-white hover:text-indigo-600">
-            Chat en Vivo
+          <button class="btn-cta btn-secondary" onclick="alert('Iniciando chat...')">
+            <i class="fas fa-comments"></i> Chat en Vivo
           </button>
         </div>
       </div>
-      <div class="banner-img w-32 h-32 bg-white bg-opacity-20 rounded-full flex items-center justify-center">
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="w-16 h-16">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z" />
-        </svg>
-      </div>
     </section>
+
   </div>
 
-  <!-- Botones flotantes -->
-  <div class="fixed-buttons">
-    <a href="{{ route('login') }}" class="btn-floating">Iniciar Sesión</a>
-    <a href="{{ route('register') }}" class="btn-floating btn-register">Registrarse</a>
-  </div>
+  
 
   <!-- SCRIPTS -->
   <script>
@@ -233,19 +275,23 @@
     });
 
     // FAQ Accordion
-    document.querySelectorAll('.accordion-header').forEach(header => {
+    document.querySelectorAll('.faq-header').forEach(header => {
       header.addEventListener('click', function() {
         const item = this.parentElement;
-        const content = item.querySelector('.accordion-content');
-        const isOpen = content.style.display === 'block';
+        const body = item.querySelector('.faq-body');
+        const isOpen = body.style.display === 'block';
         
         // Cerrar todos los demás
-        document.querySelectorAll('.accordion-content').forEach(c => {
+        document.querySelectorAll('.faq-body').forEach(c => {
           c.style.display = 'none';
+        });
+        document.querySelectorAll('.faq-header').forEach(h => {
+          h.querySelector('i').style.transform = 'rotate(0deg)';
         });
         
         // Abrir o cerrar el actual
-        content.style.display = isOpen ? 'none' : 'block';
+        body.style.display = isOpen ? 'none' : 'block';
+        this.querySelector('i').style.transform = isOpen ? 'rotate(0deg)' : 'rotate(180deg)';
       });
     });
   </script>
