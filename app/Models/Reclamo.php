@@ -12,7 +12,9 @@ class Reclamo extends Model
     protected $table = 'reclamos';
     protected $primaryKey = 'idReclamo';
     
-    // Indicamos que los timestamps existen (created_at, updated_at)
+    // Mapeo de timestamps personalizados según las migraciones
+    public const CREATED_AT = 'fechaCreacion';
+    public const UPDATED_AT = 'fechaActualizacion';
     public $timestamps = true;
 
     // Los campos que se pueden llenar masivamente

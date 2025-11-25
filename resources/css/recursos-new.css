@@ -1,0 +1,668 @@
+/* ==========================================
+   NEXORA BOLIVIA - PÁGINA DE RECURSOS
+   ========================================== */
+
+:root {
+  --primary: #667eea;
+  --secondary: #764ba2;
+  --accent: #ffed4e;
+  --dark: #1a1a2e;
+  --light: #f8f9ff;
+  --white: #ffffff;
+  --text: #333;
+  --shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 20px 50px rgba(0, 0, 0, 0.15);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  line-height: 1.6;
+  color: var(--text);
+  background: white;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+/* ==========================================
+   HERO SECTION - RECURSOS
+   ========================================== */
+
+.recursos-hero {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 80px 20px;
+  text-align: center;
+  color: white;
+  position: relative;
+  overflow: hidden;
+  min-height: 350px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.recursos-hero::before {
+  content: '';
+  position: absolute;
+  width: 300px;
+  height: 300px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 50%;
+  top: -100px;
+  right: -50px;
+}
+
+.recursos-hero::after {
+  content: '';
+  position: absolute;
+  width: 200px;
+  height: 200px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 50%;
+  bottom: -50px;
+  left: -50px;
+}
+
+.hero-content {
+  position: relative;
+  z-index: 2;
+  max-width: 700px;
+  animation: fadeInUp 0.8s ease;
+}
+
+.recursos-hero h1 {
+  font-size: clamp(2.5rem, 5vw, 3.5rem);
+  font-weight: 800;
+  margin-bottom: 20px;
+  letter-spacing: -0.5px;
+}
+
+.recursos-hero p {
+  font-size: 1.2rem;
+  opacity: 0.95;
+  line-height: 1.7;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ==========================================
+   SECCIONES GENERALES
+   ========================================== */
+
+.recursos-main {
+  width: 100%;
+}
+
+.recursos-section {
+  padding: 80px 20px;
+}
+
+.recursos-section h2 {
+  font-size: clamp(2rem, 4vw, 2.8rem);
+  font-weight: 800;
+  color: var(--dark);
+  margin-bottom: 15px;
+  text-align: center;
+  letter-spacing: -0.5px;
+}
+
+.section-subtitle {
+  text-align: center;
+  font-size: 1.1rem;
+  color: #666;
+  margin-bottom: 60px;
+  max-width: 700px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* ==========================================
+   SECCIÓN DERECHOS
+   ========================================== */
+
+.derechos-section {
+  background: linear-gradient(135deg, #f8f9ff 0%, #f0f4ff 100%);
+}
+
+.cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 30px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.derecho-card {
+  background: white;
+  padding: 40px 30px;
+  border-radius: 15px;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+  border-top: 4px solid var(--primary);
+  text-align: center;
+}
+
+.derecho-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.12);
+  border-top-color: var(--accent);
+}
+
+.derecho-card .card-icon {
+  font-size: 2.5rem;
+  color: var(--primary);
+  margin-bottom: 20px;
+  display: inline-block;
+}
+
+.derecho-card:hover .card-icon {
+  color: var(--accent);
+  transform: scale(1.1);
+}
+
+.derecho-card h3 {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--dark);
+  margin-bottom: 15px;
+}
+
+.derecho-card p {
+  color: #666;
+  font-size: 0.95rem;
+  line-height: 1.7;
+}
+
+/* ==========================================
+   SECCIÓN DESCARGAS
+   ========================================== */
+
+.descargas-section {
+  background: white;
+}
+
+.recursos-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 30px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.recurso-card {
+  background: white;
+  padding: 40px 30px;
+  border-radius: 15px;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+  border: 1px solid #f0f0f0;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.recurso-card:hover {
+  transform: translateY(-10px);
+  box-shadow: 0 20px 50px rgba(102, 126, 234, 0.15);
+  border-color: var(--primary);
+}
+
+.card-icon-big {
+  font-size: 3.5rem;
+  color: var(--primary);
+  margin-bottom: 20px;
+  display: inline-block;
+}
+
+.recurso-card:hover .card-icon-big {
+  color: var(--accent);
+  transform: scale(1.15) rotate(-5deg);
+}
+
+.recurso-card h3 {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--dark);
+  margin-bottom: 12px;
+}
+
+.recurso-card p {
+  color: #666;
+  font-size: 0.95rem;
+  line-height: 1.7;
+  margin-bottom: 25px;
+  flex-grow: 1;
+}
+
+.btn-download {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: white;
+  border: none;
+  padding: 12px 30px;
+  border-radius: 25px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+}
+
+.btn-download:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+}
+
+/* ==========================================
+   SECCIÓN FAQ
+   ========================================== */
+
+.faq-section {
+  background: linear-gradient(135deg, #f8f9ff 0%, #f0f4ff 100%);
+}
+
+.faq-container {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.faq-accordion {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.faq-item {
+  background: white;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+  border-left: 5px solid var(--primary);
+  transition: all 0.3s ease;
+}
+
+.faq-item:hover {
+  box-shadow: 0 10px 30px rgba(102, 126, 234, 0.15);
+}
+
+.faq-header {
+  width: 100%;
+  padding: 25px;
+  background: white;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--dark);
+  transition: all 0.3s ease;
+  text-align: left;
+}
+
+.faq-header:hover {
+  background: #f8f9ff;
+}
+
+.faq-header i {
+  color: var(--primary);
+  transition: transform 0.3s ease;
+  font-size: 0.9rem;
+}
+
+.faq-body {
+  padding: 0 25px;
+  background: white;
+  color: #666;
+  font-size: 0.95rem;
+  line-height: 1.8;
+  display: none;
+  animation: slideDown 0.3s ease;
+  max-height: 0;
+  overflow: hidden;
+}
+
+.faq-item.active .faq-body {
+  display: block;
+  padding: 0 25px 25px 25px;
+  max-height: 500px;
+}
+
+.faq-item.active .faq-header {
+  background: #f8f9ff;
+}
+
+.faq-item.active .faq-header i {
+  transform: rotate(180deg);
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    max-height: 0;
+  }
+  to {
+    opacity: 1;
+    max-height: 500px;
+  }
+}
+
+/* ==========================================
+   SECCIÓN CTA
+   ========================================== */
+
+.recursos-cta {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 80px 20px;
+  text-align: center;
+  color: white;
+  position: relative;
+  overflow: hidden;
+}
+
+.recursos-cta::before {
+  content: '';
+  position: absolute;
+  width: 300px;
+  height: 300px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 50%;
+  top: -100px;
+  right: -100px;
+}
+
+.recursos-cta::after {
+  content: '';
+  position: absolute;
+  width: 200px;
+  height: 200px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 50%;
+  bottom: -50px;
+  left: -50px;
+}
+
+.cta-content {
+  max-width: 700px;
+  margin: 0 auto;
+  position: relative;
+  z-index: 2;
+}
+
+.cta-content h2 {
+  font-size: clamp(2rem, 4vw, 2.8rem);
+  font-weight: 800;
+  margin-bottom: 20px;
+  letter-spacing: -0.5px;
+}
+
+.cta-content p {
+  font-size: 1.15rem;
+  margin-bottom: 40px;
+  opacity: 0.95;
+  line-height: 1.7;
+}
+
+.cta-buttons {
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.btn-cta {
+  padding: 14px 30px;
+  font-size: 1rem;
+  font-weight: 600;
+  border: none;
+  border-radius: 25px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #ffed4e, #ffc107);
+  color: var(--dark);
+  box-shadow: 0 10px 25px rgba(255, 237, 74, 0.3);
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 15px 35px rgba(255, 237, 74, 0.4);
+}
+
+.btn-secondary {
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  border: 2px solid rgba(255, 255, 255, 0.5);
+  backdrop-filter: blur(10px);
+}
+
+.btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.3);
+  border-color: white;
+  transform: translateY(-2px);
+}
+
+/* ==========================================
+   MEDIA QUERIES
+   ========================================== */
+
+@media (max-width: 1024px) {
+  .recursos-section {
+    padding: 60px 20px;
+  }
+
+  .cards-grid,
+  .recursos-grid {
+    gap: 20px;
+  }
+}
+
+@media (max-width: 768px) {
+  .recursos-hero {
+    padding: 50px 20px;
+    min-height: 280px;
+  }
+
+  .recursos-hero h1 {
+    font-size: 2rem;
+  }
+
+  .recursos-hero p {
+    font-size: 1rem;
+  }
+
+  .recursos-section {
+    padding: 50px 20px;
+  }
+
+  .recursos-section h2 {
+    font-size: 1.8rem;
+    margin-bottom: 30px;
+  }
+
+  .section-subtitle {
+    font-size: 1rem;
+    margin-bottom: 40px;
+  }
+
+  .cards-grid {
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+  }
+
+  .derecho-card {
+    padding: 25px 20px;
+  }
+
+  .derecho-card .card-icon {
+    font-size: 2rem;
+  }
+
+  .recursos-grid {
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 15px;
+  }
+
+  .recurso-card {
+    padding: 30px 20px;
+  }
+
+  .card-icon-big {
+    font-size: 2.5rem;
+  }
+
+  .faq-container {
+    max-width: 100%;
+  }
+
+  .faq-header {
+    padding: 20px;
+    font-size: 0.95rem;
+  }
+
+  .faq-body {
+    padding: 0 20px;
+  }
+
+  .faq-item.active .faq-body {
+    padding: 0 20px 20px 20px;
+  }
+
+  .cta-buttons {
+    gap: 10px;
+  }
+
+  .btn-cta {
+    padding: 12px 25px;
+    font-size: 0.95rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .recursos-hero {
+    padding: 40px 15px;
+    min-height: 240px;
+  }
+
+  .recursos-hero h1 {
+    font-size: 1.5rem;
+    margin-bottom: 15px;
+  }
+
+  .recursos-hero p {
+    font-size: 0.9rem;
+  }
+
+  .recursos-section {
+    padding: 40px 15px;
+  }
+
+  .recursos-section h2 {
+    font-size: 1.5rem;
+    margin-bottom: 20px;
+  }
+
+  .section-subtitle {
+    font-size: 0.9rem;
+    margin-bottom: 30px;
+  }
+
+  .cards-grid,
+  .recursos-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .derecho-card,
+  .recurso-card {
+    padding: 20px 15px;
+  }
+
+  .derecho-card .card-icon,
+  .card-icon-big {
+    font-size: 2rem;
+    margin-bottom: 15px;
+  }
+
+  .derecho-card h3,
+  .recurso-card h3 {
+    font-size: 1rem;
+  }
+
+  .derecho-card p,
+  .recurso-card p {
+    font-size: 0.85rem;
+  }
+
+  .btn-download {
+    padding: 10px 20px;
+    font-size: 0.85rem;
+  }
+
+  .faq-header {
+    padding: 15px;
+    font-size: 0.85rem;
+  }
+
+  .faq-body {
+    padding: 0 15px;
+    font-size: 0.85rem;
+  }
+
+  .faq-item.active .faq-body {
+    padding: 0 15px 15px 15px;
+  }
+
+  .recursos-cta {
+    padding: 50px 15px;
+  }
+
+  .cta-content h2 {
+    font-size: 1.5rem;
+    margin-bottom: 15px;
+  }
+
+  .cta-content p {
+    font-size: 0.95rem;
+    margin-bottom: 25px;
+  }
+
+  .cta-buttons {
+    flex-direction: column;
+  }
+
+  .btn-cta {
+    width: 100%;
+    padding: 11px 20px;
+    font-size: 0.85rem;
+    justify-content: center;
+  }
+}

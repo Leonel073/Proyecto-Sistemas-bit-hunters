@@ -7,39 +7,13 @@
 
   @vite([
       'resources/css/app.css',
-      'resources/css/hero.css',
-      'resources/css/nav.css',
-      'resources/css/footer.css',
-      'resources/css/users-management.css',
-      'resources/js/nav.js'
+      'resources/css/admin.css',
+      'resources/css/users-management.css'
   ])
 </head>
 <body>
 
-  <nav>
-    <div class="container">
-      <div class="logo" onclick="window.location.href='{{ route('home') }}'">
-        <div class="logo-icon">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M12 20h.01M2 8.82a15.91 15.91 0 0 1 20 0M5.17 12.25a10.91 10.91 0 0 1 13.66 0M8.31 15.68a5.91 5.91 0 0 1 7.38 0" />
-          </svg>
-        </div>
-        <div class="logo-text">
-          <div class="title">Nexora Bolivia</div>
-          <div class="subtitle">Apoyo al Usuario</div>
-        </div>
-      </div>
-
-      <div class="nav-links" id="navLinks">
-        <button onclick="window.location.href='{{ route('home') }}'">Inicio</button>
-        <button class="active">Gestión de Usuarios</button>
-        <form action="{{ route('logout') }}" method="POST" style="display: inline;">
-            @csrf
-            <button type="submit" style="background:none; border:none; color:white; cursor:pointer;">Salir</button>
-        </form>
-      </div>
-    </div>
-  </nav>
+  @include('admin._nav')
 
   <section class="users-management">
     <div class="users-container">
