@@ -15,6 +15,9 @@ class Reclamo extends Model
     // Indicamos que los timestamps existen (created_at, updated_at)
     public $timestamps = true;
 
+    const CREATED_AT = 'fechaCreacion';
+    const UPDATED_AT = 'fechaActualizacion';
+
     // Los campos que se pueden llenar masivamente
     protected $fillable = [
         'idUsuario',
