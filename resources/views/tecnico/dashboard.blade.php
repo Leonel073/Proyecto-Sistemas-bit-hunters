@@ -20,13 +20,11 @@
 </head>
 <body class="bg-gray-100">
 
-<<<<<<< Updated upstream
     {{-- Usamos tu clase .form-container para centrar el contenido --}}
     <div class="form-container">
         <h1 class="form-title">Panel del Técnico</h1>
         <h2 class="form-subtitle">¡Bienvenido, {{ Auth::user()->primerNombre }}!</h2>
 
-<<<<<<< Updated upstream
         {{-- 1. SALUDO Y ESTADO DE DISPONIBILIDAD --}}
         {{-- Usamos tu clase .form-card para el diseño de tarjeta --}}
         <div class="form-card">
@@ -42,94 +40,57 @@
                         <option value="Disponible" {{ $estadoActual == 'Disponible' ? 'selected' : '' }}>Disponible</option>
                         <option value="En Ruta" {{ $estadoActual == 'En Ruta' ? 'selected' : '' }}>En Ruta</option>
                         <option value="Ocupado" {{ $estadoActual == 'Ocupado' ? 'selected' : '' }}>Ocupado</option>
-=======
-=======
->>>>>>> Stashed changes
-@endphp
-
-<!-- Incluir Leaflet CSS -->
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
-
-<div class="container mx-auto px-4 py-4">
-
-{{-- Mensajes de Sesión (Éxito/Error) --}}
-@if (session('success'))
-    <div class="alert-success mb-6 shadow-md bg-green-100 border-l-4 border-green-500 text-green-700 p-4 rounded-lg" role="alert">
-        <p class="font-bold">¡Éxito!</p>
-        <p class="text-sm">{{ session('success') }}</p>
-    </div>
-@endif
-@if (session('error'))
-    <div class="alert-error mb-6 shadow-md bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded-lg" role="alert">
-        <p class="font-bold">Error</p>
-        <p class="text-sm">{{ session('error') }}</p>
-    </div>
-@endif
-@if ($errors->any())
-    {{-- Mensaje genérico de error de validación --}}
-    <div class="alert-error mb-6 shadow-md bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded-lg" role="alert">
-        <p class="font-bold">Error de Validación</p>
-        <p class="text-sm">Por favor, revisa el formulario en la sección de Reclamos.</p>
-    </div>
-@endif
-
-{{-- TÍTULO PRINCIPAL DEL PANEL --}}
-<h2 class="text-3xl font-extrabold text-gray-900 mb-8 pb-3 border-b-4 border-indigo-200">
-    Panel del Técnico: <span class="text-indigo-600">{{ $tecnico->primerNombre }} {{ $tecnico->apellidoPaterno }}</span>
-</h2>
-
-{{-- CONTENIDO PRINCIPAL DIVIDIDO EN 2 COLUMNAS (Estatus a la izquierda, Reclamos a la derecha) --}}
-<div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-    
-    {{-- COLUMNA LATERAL (Control de Estado - Col 1) --}}
-    <div class="lg:col-span-1 order-last lg:order-first">
-        
-        {{-- 1. CONTROL DE ESTATUS DE DISPONIBILIDAD --}}
-        <div class="bg-white p-6 rounded-xl shadow-xl sticky top-4">
-            <h3 class="text-xl font-bold text-gray-700 mb-4 border-b pb-2 flex items-center">
-                <svg class="w-6 h-6 mr-2 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 4a2 2 0 100 4m-4-2a2 2 0 100 4m12 0a2 2 0 100 4m-4-2a2 2 0 100 4M8 10a2 2 0 11-4 0 2 2 0 014 0zM12 18h.01M16 4h.01M16 16h.01"></path></svg>
-                Mi Estatus
-            </h3>
-            
-            <div class="mb-4 text-center">
-                <p class="text-sm font-medium text-gray-500">Estado Actual:</p>
-                <span class="inline-block text-lg font-bold px-4 py-2 rounded-xl shadow-lg mt-2 {{ $color[$estadoActual] ?? 'bg-gray-500 text-white' }}">
-                    {{ $estadoActual }}
-                </span>
-            </div>
-            
-            {{-- CORREGIDO: Ruta actualizada --}}
-            <form action="{{ route('tecnico.actualizar.estado') }}" method="POST" class="flex flex-col gap-4 border-t pt-4">
-                @csrf
-                @method('PUT')
-                
-                {{-- Dropdown para seleccionar el estado --}}
-                <div>
-                    <label for="estadoDisponibilidad" class="block text-sm font-medium text-gray-700 mb-1">Cambiar a:</label>
-                    <select name="estadoDisponibilidad" id="estadoDisponibilidad" required class="w-full p-2 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 transition">
-                        <option value="" disabled>Selecciona tu nuevo estado</option>
-                        @foreach ($opcionesEstado as $opcion)
-                            <option value="{{ $opcion }}" @if($opcion === $estadoActual) selected @endif>
-                                {{ $opcion }}
-                            </option>
-                        @endforeach
->>>>>>> Stashed changes
                     </select>
                 </div>
-                
-                {{-- Usamos tu clase .btn-primary --}}
-                <div class="form-actions">
-                    <button type="submit" class="btn-primary">Actualizar estado</button>
-                </div>
+
+                <button type="submit" class="w-full px-6 py-2 rounded-lg font-semibold text-white bg-indigo-600 hover:bg-indigo-700 transition duration-200 shadow-md">
+                    Actualizar Estado
+                </button>
             </form>
 
-<<<<<<< Updated upstream
             {{-- Mostrar mensajes de éxito (ej. "Estado actualizado") --}}
             @if (session('success'))
                 {{-- Usamos la clase CSS que definimos en el paso 1 --}}
                 <div class="alert-success">
                     {{ session('success') }}
-=======
+                </div>
+            @endif
+        </div>
+
+
+        {{-- 2. LISTA DE RECLAMOS ASIGNADOS --}}
+        <h2 class="form-title" style="margin-top: 2rem;">Mis Reclamos Asignados</h2>
+
+        @forelse ($reclamos as $reclamo)
+            {{-- Usamos .form-card para cada reclamo --}}
+            <div class="form-card reclamo-card">
+                <h3 class="form-title" style="font-size: 1.25rem;">Reclamo #R-{{ $reclamo->idReclamo }}: {{ $reclamo->titulo }}</h3>
+                
+                <div class="form-group">
+                    <strong>Estado Actual:</strong> 
+                    {{-- Usamos la clase .badge-warning que definimos --}}
+                    <span class="badge-warning">{{ $reclamo->estado }}</span>
+                </div>
+            @else
+                <div class="space-y-6">
+                    @foreach ($reclamos as $reclamo)
+                        {{-- Tarjeta de Reclamo Mejorada --}}
+                        <div class="reclamo-card border-l-8 rounded-xl p-5 shadow-md hover:shadow-lg transition duration-300 bg-gray-50" style="border-color: 
+                            @if($reclamo->prioridad == 'Alta') #ef4444 /* red-500 */
+                            @elseif($reclamo->prioridad == 'Media') #f59e0b /* yellow-500 */
+                            @else #3b82f6 /* blue-500 */ @endif;">
+                            
+                            {{-- Encabezado y Prioridad --}}
+                            <div class="flex justify-between items-start mb-3">
+                                <div>
+                                    <p class="text-sm font-medium text-indigo-600">Reclamo #{{ $reclamo->idReclamo }}</p>
+                                    <h4 class="text-xl font-bold text-gray-900">{{ $reclamo->titulo }}</h4>
+                                </div>
+                                <span class="text-xs font-bold px-3 py-1 rounded-full uppercase shadow-sm {{ $prioridadColor($reclamo->prioridad) }}">
+                                    {{ $reclamo->prioridad }}
+                                </span>
+                            </div>
+
                             {{-- Descripción --}}
                             <p class="text-gray-600 mb-4 text-sm border-b pb-4">{{ $reclamo->descripcionDetallada }}</p>
                             
@@ -245,77 +206,44 @@
                             </div>
                         </div>
                     @endforeach
->>>>>>> Stashed changes
                 </div>
             @endif
         </div>
+    </div>
+</div>
 
-<<<<<<< Updated upstream
+</div>
 
-        {{-- 2. LISTA DE RECLAMOS ASIGNADOS --}}
-        <h2 class="form-title" style="margin-top: 2rem;">Mis Reclamos Asignados</h2>
+<!-- Incluir Leaflet JS -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
-        @forelse ($reclamos as $reclamo)
-            {{-- Usamos .form-card para cada reclamo --}}
-            <div class="form-card reclamo-card">
-                <h3 class="form-title" style="font-size: 1.25rem;">Reclamo #R-{{ $reclamo->idReclamo }}: {{ $reclamo->titulo }}</h3>
-                
-                <div class="form-group">
-                    <strong>Estado Actual:</strong> 
-                    {{-- Usamos la clase .badge-warning que definimos --}}
-                    <span class="badge-warning">{{ $reclamo->estado }}</span>
-                </div>
-                
-                <div class="form-group">
-                    <strong>Descripción del Cliente:</strong>
-                    <p>{{ $reclamo->descripcionDetallada }}</p>
-                </div>
-
-                <div class="form-group">
-                    <strong>Cliente:</strong>
-                    <p>{{ $reclamo->usuario->primerNombre }} {{ $reclamo->usuario->apellidoPaterno }} (Cel: {{ $reclamo->usuario->numeroCelular }})</p>
-                </div>
-
-                <div class="form-group">
-                    <strong>Dirección:</strong>
-                    <p>{{ $reclamo->usuario->direccionTexto ?? 'No especificada' }}</p>
-                </div>
-
-                <hr style="margin: 1.5rem 0;">
-
-                {{-- Formulario para RESOLVER el reclamo --}}
-                <form action="{{ route('tecnico.reclamo.resolver', $reclamo->idReclamo) }}" method="POST">
-                    @csrf
-                    <div class="form-group">
-                        <label for="solucionTecnica-{{ $reclamo->idReclamo }}"><strong>Registrar Solución Técnica:</strong></label>
-                        {{-- Asumo que tienes una clase para textareas --}}
-                        <textarea name="solucionTecnica" id="solucionTecnica-{{ $reclamo->idReclamo }}" 
-                                  class="textarea-input" rows="3" required>{{ old('solucionTecnica') }}</textarea>
-                        
-                        {{-- Mostrar error de validación --}}
-                        @error('solucionTecnica')
-                            <div class="alert-errors" style="margin-top: 1rem;">
-                                {{ $message }}
-                            </div>
-                        @enderror
-                    </div>
-
-                    <div class="form-actions">
-                        <button type="submit" class="btn-primary" style="background-color: #28a745; border-color: #28a745;">Marcar como Resuelto</button>
-                    </div>
-                </form>
-            </div>
-            
-            <div class="card-footer">
-                Registrado el: {{ $reclamo->fechaCreacion->format('d/m/Y \a \l\a\s H:i') }}
-            </div>
-
-        @empty
-            {{-- Esto se muestra si $reclamos está vacío --}}
-            <div class="form-card">
-                <div class="alert-info">
-                    No tienes reclamos pendientes asignados en este momento.
-                </div>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    // Inicializar mapas para cada reclamo
+    document.querySelectorAll('.reclamo-map').forEach(function(mapElement) {
+        var lat = parseFloat(mapElement.getAttribute('data-lat'));
+        var lng = parseFloat(mapElement.getAttribute('data-lng'));
+        var reclamoId = mapElement.id.split('-')[1];
+        
+        // Inicializar mapa
+        var map = L.map(mapElement.id).setView([lat, lng], 15);
+        
+        // TileLayer
+        L.tileLayer('//{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '© OpenStreetMap contributors'
+        }).addTo(map);
+        
+        // Marcador en la ubicación del incidente
+        var marker = L.marker([lat, lng]).addTo(map);
+        
+        // Popup con información del reclamo
+        marker.bindPopup(`
+            <div class="p-2">
+                <strong>Reclamo #${reclamoId}</strong><br>
+                <small>Ubicación del incidente</small><br>
+                <small>Lat: ${lat.toFixed(6)}</small><br>
+                <small>Lng: ${lng.toFixed(6)}</small>
             </div>
         @endforelse
 
@@ -328,96 +256,3 @@
     </p>
 </body>
 </html>
-=======
-</div>
-
-<<<<<<< Updated upstream
-<!-- Incluir Leaflet JS -->
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-
-<script>
-document.addEventListener("DOMContentLoaded", function () {
-    // Inicializar mapas para cada reclamo
-    document.querySelectorAll('.reclamo-map').forEach(function(mapElement) {
-        var lat = parseFloat(mapElement.getAttribute('data-lat'));
-        var lng = parseFloat(mapElement.getAttribute('data-lng'));
-        var reclamoId = mapElement.id.split('-')[1];
-        
-        // Inicializar mapa
-        var map = L.map(mapElement.id).setView([lat, lng], 15);
-        
-        // TileLayer
-        L.tileLayer('//{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            maxZoom: 19,
-            attribution: '© OpenStreetMap contributors'
-        }).addTo(map);
-        
-        // Marcador en la ubicación del incidente
-        var marker = L.marker([lat, lng]).addTo(map);
-        
-        // Popup con información del reclamo
-        marker.bindPopup(`
-            <div class="p-2">
-                <strong>Reclamo #${reclamoId}</strong><br>
-                <small>Ubicación del incidente</small><br>
-                <small>Lat: ${lat.toFixed(6)}</small><br>
-                <small>Lng: ${lng.toFixed(6)}</small>
-            </div>
-        `).openPopup();
-        
-        // Asegurar que el mapa se redibuje correctamente
-        setTimeout(() => {
-            map.invalidateSize();
-        }, 100);
-    });
-});
-</script>
-
-@endsection
->>>>>>> Stashed changes
-=======
-</div>
-
-<!-- Incluir Leaflet JS -->
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-
-<script>
-document.addEventListener("DOMContentLoaded", function () {
-    // Inicializar mapas para cada reclamo
-    document.querySelectorAll('.reclamo-map').forEach(function(mapElement) {
-        var lat = parseFloat(mapElement.getAttribute('data-lat'));
-        var lng = parseFloat(mapElement.getAttribute('data-lng'));
-        var reclamoId = mapElement.id.split('-')[1];
-        
-        // Inicializar mapa
-        var map = L.map(mapElement.id).setView([lat, lng], 15);
-        
-        // TileLayer
-        L.tileLayer('//{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            maxZoom: 19,
-            attribution: '© OpenStreetMap contributors'
-        }).addTo(map);
-        
-        // Marcador en la ubicación del incidente
-        var marker = L.marker([lat, lng]).addTo(map);
-        
-        // Popup con información del reclamo
-        marker.bindPopup(`
-            <div class="p-2">
-                <strong>Reclamo #${reclamoId}</strong><br>
-                <small>Ubicación del incidente</small><br>
-                <small>Lat: ${lat.toFixed(6)}</small><br>
-                <small>Lng: ${lng.toFixed(6)}</small>
-            </div>
-        `).openPopup();
-        
-        // Asegurar que el mapa se redibuje correctamente
-        setTimeout(() => {
-            map.invalidateSize();
-        }, 100);
-    });
-});
-</script>
-
-@endsection
->>>>>>> Stashed changes
