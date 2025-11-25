@@ -20,6 +20,7 @@
 </head>
 <body class="bg-gray-100">
 
+<<<<<<< Updated upstream
     {{-- Usamos tu clase .form-container para centrar el contenido --}}
     <div class="form-container">
         <h1 class="form-title">Panel del Técnico</h1>
@@ -42,6 +43,8 @@
                         <option value="En Ruta" {{ $estadoActual == 'En Ruta' ? 'selected' : '' }}>En Ruta</option>
                         <option value="Ocupado" {{ $estadoActual == 'Ocupado' ? 'selected' : '' }}>Ocupado</option>
 =======
+=======
+>>>>>>> Stashed changes
 @endphp
 
 <!-- Incluir Leaflet CSS -->
@@ -325,6 +328,53 @@
     </p>
 </body>
 </html>
+=======
+</div>
+
+<<<<<<< Updated upstream
+<!-- Incluir Leaflet JS -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    // Inicializar mapas para cada reclamo
+    document.querySelectorAll('.reclamo-map').forEach(function(mapElement) {
+        var lat = parseFloat(mapElement.getAttribute('data-lat'));
+        var lng = parseFloat(mapElement.getAttribute('data-lng'));
+        var reclamoId = mapElement.id.split('-')[1];
+        
+        // Inicializar mapa
+        var map = L.map(mapElement.id).setView([lat, lng], 15);
+        
+        // TileLayer
+        L.tileLayer('//{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '© OpenStreetMap contributors'
+        }).addTo(map);
+        
+        // Marcador en la ubicación del incidente
+        var marker = L.marker([lat, lng]).addTo(map);
+        
+        // Popup con información del reclamo
+        marker.bindPopup(`
+            <div class="p-2">
+                <strong>Reclamo #${reclamoId}</strong><br>
+                <small>Ubicación del incidente</small><br>
+                <small>Lat: ${lat.toFixed(6)}</small><br>
+                <small>Lng: ${lng.toFixed(6)}</small>
+            </div>
+        `).openPopup();
+        
+        // Asegurar que el mapa se redibuje correctamente
+        setTimeout(() => {
+            map.invalidateSize();
+        }, 100);
+    });
+});
+</script>
+
+@endsection
+>>>>>>> Stashed changes
 =======
 </div>
 

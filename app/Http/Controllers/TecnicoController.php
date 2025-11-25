@@ -99,10 +99,13 @@ class TecnicoController extends Controller
             'estadoDisponibilidad' => 'nullable|string'
         ]);
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 
         $tecnico = Tecnico::create($request->all());
         return response()->json(['message' => 'Técnico registrado correctamente', 'data' => $tecnico]);
 =======
+=======
+>>>>>>> Stashed changes
        
         $empleadoId = Auth::guard('empleado')->id();
 

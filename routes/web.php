@@ -125,10 +125,13 @@ Route::middleware(['auth:empleado', 'role:Tecnico,SupervisorTecnico,Gerente'])
     ->prefix('tecnico')->name('tecnico.')->group(function () {
     
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
     Route::get('/dashboard', [TecnicoDashboardController::class, 'index'])->name('dashboard');
     Route::post('/estado/actualizar', [TecnicoDashboardController::class, 'actualizarEstadoDisponibilidad'])->name('estado.update');
     Route::post('/reclamo/{reclamo}/resolver', [ReclamoResolucionController::class, 'resolver'])->name('reclamo.resolver');
 =======
+=======
+>>>>>>> Stashed changes
     // Dashboard del técnico
     Route::get('/dashboard', [TecnicoController::class, 'panel'])->name('dashboard');
     
@@ -140,5 +143,8 @@ Route::middleware(['auth:empleado', 'role:Tecnico,SupervisorTecnico,Gerente'])
     
     // CORREGIDO: Cambiar a PUT y ruta en plural
     Route::put('/reclamos/{reclamo}/resolver', [TecnicoController::class, 'resolverReclamo'])->name('reclamos.resolver');
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
 });
