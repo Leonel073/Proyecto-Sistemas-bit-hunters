@@ -35,6 +35,9 @@ $prioridadBorder = function($prioridad) {
 };
 @endphp
 
+<!-- Leaflet (estilos y scripts) -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
 <div class="container mx-auto px-4 py-6 bg-gray-50 min-h-screen">
 
     {{-- ALERTAS --}}
@@ -51,12 +54,45 @@ $prioridadBorder = function($prioridad) {
         </div>
     @endif
 
-    {{-- ENCABEZADO CON SALUDO --}}
+    {{-- ENCABEZADO CON SALUDO Y METRICS --}}
     <div class="mb-8">
-        <h1 class="text-4xl font-extrabold text-gray-900 mb-2">
-            👨‍🔧 Bienvenido, <span class="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600">{{ $tecnico->primerNombre }} {{ $tecnico->apellidoPaterno }}</span>
-        </h1>
-        <p class="text-gray-600 text-lg">Gestiona tus reclamos asignados y actualiza tu estado de disponibilidad</p>
+        @vite('resources/css/tecnico.css')
+
+        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+            <div class="flex items-center gap-4">
+                <div class="tech-avatar bg-gradient-to-br from-indigo-600 to-purple-600 text-white flex items-center justify-center font-extrabold text-xl shadow-md">
+                    {{ strtoupper(substr($tecnico->primerNombre,0,1) . substr($tecnico->apellidoPaterno,0,1)) }}
+                </div>
+                <div>
+                    <h1 class="text-3xl md:text-4xl font-extrabold text-gray-900 leading-tight">
+                        👨 Hola, <span class="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600">{{ $tecnico->primerNombre }} {{ $tecnico->apellidoPaterno }}</span>
+                    </h1>
+                    <p class="text-sm small-muted mt-1">Gestiona tus reclamos asignados • Actualiza tu disponibilidad</p>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-4 overflow-auto">
+                <div class="metric-card bg-white rounded-xl shadow p-3 flex flex-col items-center">
+                    <span class="text-xs small-muted">Pendientes</span>
+                    <span class="text-xl font-bold text-blue-600">{{ count($reclamos->where('estado', 'Asignado')) }}</span>
+                </div>
+                <div class="metric-card bg-white rounded-xl shadow p-3 flex flex-col items-center">
+                    <span class="text-xs small-muted">En Proceso</span>
+                    <span class="text-xl font-bold text-yellow-600">{{ count($reclamos->where('estado', 'En Proceso')) }}</span>
+                </div>
+                <div class="metric-card bg-white rounded-xl shadow p-3 flex flex-col items-center">
+                    <span class="text-xs small-muted">Resueltos</span>
+                    <span class="text-xl font-bold text-green-600">{{ count($reclamos->where('estado', 'Resuelto')) }}</span>
+                </div>
+                <div class="bg-white rounded-xl shadow p-2 flex items-center">
+                    @if (Route::has('tecnico.reclamos.nuevos'))
+                        <a href="{{ route('tecnico.reclamos.nuevos') }}" class="px-3 py-2 bg-indigo-600 text-white rounded-lg font-semibold hover:opacity-95 transition">Ver Nuevos</a>
+                    @else
+                        <a href="#" onclick="alert('No hay una ruta configurada para "Ver Nuevos".'); return false;" class="px-3 py-2 bg-indigo-600 text-white rounded-lg font-semibold hover:opacity-95 transition">Ver Nuevos</a>
+                    @endif
+                </div>
+            </div>
+        </div>
     </div>
 
     {{-- GRID PRINCIPAL: ESTATUS A LA IZQUIERDA, RECLAMOS A LA DERECHA --}}
@@ -212,6 +248,15 @@ $prioridadBorder = function($prioridad) {
                                         <span class="text-gray-600">Dirección:</span>
                                         <span class="font-medium text-gray-900 truncate">{{ $reclamo->usuario->direccionTexto ?? 'No especificada' }}</span>
                                     </div>
+
+                                    {{-- Pequeño mapa con la ubicación del reclamo (si hay coordenadas) --}}
+                                    <div class="col-span-2 mt-3">
+                                        @if(!empty($reclamo->latitudIncidente) && !empty($reclamo->longitudIncidente))
+                                            <div id="map-{{ $reclamo->idReclamo }}" class="small-map reclamo-map" data-lat="{{ $reclamo->latitudIncidente }}" data-lng="{{ $reclamo->longitudIncidente }}" style="height:180px; border-radius:8px; border:1px solid #e5e7eb; overflow:hidden;"></div>
+                                        @else
+                                            <p class="text-xs text-gray-500">Ubicación no disponible</p>
+                                        @endif
+                                    </div>
                                 </div>
                             </div>
 
@@ -289,3 +334,31 @@ $prioridadBorder = function($prioridad) {
 </div>
 
 @endsection
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const maps = document.querySelectorAll('.reclamo-map');
+            if (!maps || maps.length === 0) return;
+
+            maps.forEach(function(el) {
+                const lat = parseFloat(el.dataset.lat);
+                const lng = parseFloat(el.dataset.lng);
+                if (Number.isFinite(lat) && Number.isFinite(lng)) {
+                    try {
+                        const map = L.map(el.id, { attributionControl:false, zoomControl:true }).setView([lat, lng], 14);
+                        L.tileLayer('//{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                            maxZoom: 19,
+                            attribution: '© OpenStreetMap contributors'
+                        }).addTo(map);
+
+                        const marker = L.marker([lat, lng]).addTo(map);
+                        // evitar problemas de renderizado en contenedores dinámicos
+                        setTimeout(function(){ map.invalidateSize(); }, 250);
+                    } catch (e) {
+                        console.error('Leaflet init error:', e);
+                    }
+                }
+            });
+        });
+    </script>
