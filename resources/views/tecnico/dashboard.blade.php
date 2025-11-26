@@ -3,25 +3,19 @@
 @section('title', 'Panel de Técnico - Reclamos')
 
 @section('content')
-{{--
-Recuperación de datos del técnico (asumiendo que $tecnico es el modelo de Empleado autenticado)
-y aseguramos que $estadoActual esté definido.
---}}
 @php
 $estadoActual = $estadoActual ?? 'No Disponible';
 
-// Colores base para cada estado (usando clases de Tailwind)
+// Colores modernos para cada estado
 $color = [
-    'Disponible' => 'bg-green-600 text-white',
-    'En Ruta' => 'bg-yellow-400 text-gray-800',
-    'Ocupado' => 'bg-red-600 text-white',
-    'No Disponible' => 'bg-gray-500 text-white',
+    'Disponible' => 'bg-gradient-to-r from-green-400 to-emerald-500 text-white',
+    'En Ruta' => 'bg-gradient-to-r from-blue-400 to-cyan-500 text-white',
+    'Ocupado' => 'bg-gradient-to-r from-orange-400 to-red-500 text-white',
+    'No Disponible' => 'bg-gradient-to-r from-gray-400 to-slate-500 text-white',
 ];
 
-// Definimos los posibles estados que el técnico puede elegir
 $opcionesEstado = ['Disponible', 'En Ruta', 'Ocupado'];
 
-// Función de ayuda para la prioridad (Asegúrate de que esta esté definida)
 $prioridadColor = function($prioridad) {
     return match ($prioridad) {
         'Alta' => 'bg-red-500 text-white',
@@ -31,201 +25,260 @@ $prioridadColor = function($prioridad) {
     };
 };
 
-
+$prioridadBorder = function($prioridad) {
+    return match ($prioridad) {
+        'Alta' => 'border-l-4 border-red-500',
+        'Media' => 'border-l-4 border-yellow-500',
+        'Baja' => 'border-l-4 border-blue-500',
+        default => 'border-l-4 border-gray-400',
+    };
+};
 @endphp
 
-<div class="container mx-auto px-4 py-4">
+<div class="container mx-auto px-4 py-6 bg-gray-50 min-h-screen">
 
-{{-- Mensajes de Sesión (Éxito/Error) --}}
-@if (session('success'))
-    <div class="alert-success mb-6 shadow-md bg-green-100 border-l-4 border-green-500 text-green-700 p-4 rounded-lg" role="alert">
-        <p class="font-bold">¡Éxito!</p>
-        <p class="text-sm">{{ session('success') }}</p>
-    </div>
-@endif
-@if (session('error'))
-    <div class="alert-error mb-6 shadow-md bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded-lg" role="alert">
-        <p class="font-bold">Error</p>
-        <p class="text-sm">{{ session('error') }}</p>
-    </div>
-@endif
-@if ($errors->any())
-    {{-- Mensaje genérico de error de validación --}}
-    <div class="alert-error mb-6 shadow-md bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded-lg" role="alert">
-        <p class="font-bold">Error de Validación</p>
-        <p class="text-sm">Por favor, revisa el formulario en la sección de Reclamos.</p>
-    </div>
-@endif
+    {{-- ALERTAS --}}
+    @if (session('success'))
+        <div class="mb-6 p-4 bg-green-100 border-l-4 border-green-500 text-green-700 rounded-lg shadow-md" role="alert">
+            <p class="font-bold text-lg">✓ ¡Éxito!</p>
+            <p class="text-sm">{{ session('success') }}</p>
+        </div>
+    @endif
+    @if (session('error'))
+        <div class="mb-6 p-4 bg-red-100 border-l-4 border-red-500 text-red-700 rounded-lg shadow-md" role="alert">
+            <p class="font-bold text-lg">✕ Error</p>
+            <p class="text-sm">{{ session('error') }}</p>
+        </div>
+    @endif
 
-{{-- TÍTULO PRINCIPAL DEL PANEL --}}
-<h2 class="text-3xl font-extrabold text-gray-900 mb-8 pb-3 border-b-4 border-indigo-200">
-    Panel del Técnico: <span class="text-indigo-600">{{ $tecnico->primerNombre }} {{ $tecnico->apellidoPaterno }}</span>
-</h2>
+    {{-- ENCABEZADO CON SALUDO --}}
+    <div class="mb-8">
+        <h1 class="text-4xl font-extrabold text-gray-900 mb-2">
+            👨‍🔧 Bienvenido, <span class="text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600">{{ $tecnico->primerNombre }} {{ $tecnico->apellidoPaterno }}</span>
+        </h1>
+        <p class="text-gray-600 text-lg">Gestiona tus reclamos asignados y actualiza tu estado de disponibilidad</p>
+    </div>
 
-{{-- CONTENIDO PRINCIPAL DIVIDIDO EN 2 COLUMNAS (Estatus a la izquierda, Reclamos a la derecha) --}}
-<div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-    
-    {{-- COLUMNA LATERAL (Control de Estado - Col 1) --}}
-    <div class="lg:col-span-1 order-last lg:order-first">
+    {{-- GRID PRINCIPAL: ESTATUS A LA IZQUIERDA, RECLAMOS A LA DERECHA --}}
+    <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
         
-        {{-- 1. CONTROL DE ESTATUS DE DISPONIBILIDAD --}}
-        <div class="bg-white p-6 rounded-xl shadow-xl sticky top-4">
-            <h3 class="text-xl font-bold text-gray-700 mb-4 border-b pb-2 flex items-center">
-                <svg class="w-6 h-6 mr-2 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 4a2 2 0 100 4m-4-2a2 2 0 100 4m12 0a2 2 0 100 4m-4-2a2 2 0 100 4M8 10a2 2 0 11-4 0 2 2 0 014 0zM12 18h.01M16 4h.01M16 16h.01"></path></svg>
-                Mi Estatus
-            </h3>
+        {{-- COLUMNA LATERAL: CONTROL DE ESTADO (1 COLUMNA) --}}
+        <div class="lg:col-span-1">
             
-            <div class="mb-4 text-center">
-                <p class="text-sm font-medium text-gray-500">Estado Actual:</p>
-                <span class="inline-block text-lg font-bold px-4 py-2 rounded-xl shadow-lg mt-2 {{ $color[$estadoActual] ?? 'bg-gray-500 text-white' }}">
-                    {{ $estadoActual }}
-                </span>
-            </div>
-            
-            <form action="{{ route('tecnico.estado.update') }}" method="POST" class="flex flex-col gap-4 border-t pt-4">
-                @csrf
+            {{-- TARJETA DE ESTATUS --}}
+            <div class="bg-white rounded-2xl shadow-lg p-6 sticky top-6 hover:shadow-2xl transition-shadow duration-300">
+                <div class="flex items-center mb-4">
+                    <div class="w-12 h-12 bg-indigo-100 rounded-full flex items-center justify-center mr-3">
+                        <svg class="w-6 h-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 10h-2m0 0H8m4 0v2m0-2v-2m0 0h2m0 0l1.414-1.414M12 20a8 8 0 100-16 8 8 0 000 16z"></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-800">Mi Estado</h3>
+                </div>
                 
-                {{-- Dropdown para seleccionar el estado --}}
-                <div>
-                    <label for="estadoDisponibilidad" class="block text-sm font-medium text-gray-700 mb-1">Cambiar a:</label>
-                    <select name="estadoDisponibilidad" id="estadoDisponibilidad" required class="w-full p-2 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 transition">
-                        <option value="" disabled>Selecciona tu nuevo estado</option>
-                        @foreach ($opcionesEstado as $opcion)
-                            <option value="{{ $opcion }}" @if($opcion === $estadoActual) selected @endif>
-                                {{ $opcion }}
-                            </option>
-                        @endforeach
-                    </select>
+                {{-- ESTADO ACTUAL CON INDICADOR --}}
+                <div class="mb-6 p-4 bg-gray-50 rounded-xl text-center">
+                    <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Estado Actual:</p>
+                    <div class="flex items-center justify-center gap-2 mb-3">
+                        <span class="w-3 h-3 rounded-full animate-pulse {{ 
+                            $estadoActual === 'Disponible' ? 'bg-green-500' : 
+                            ($estadoActual === 'En Ruta' ? 'bg-blue-500' : 
+                            ($estadoActual === 'Ocupado' ? 'bg-orange-500' : 'bg-gray-500')) 
+                        }}"></span>
+                        <span class="inline-block text-2xl font-bold px-4 py-2 rounded-xl {{ $color[$estadoActual] ?? 'bg-gray-500 text-white' }}">
+                            {{ $estadoActual }}
+                        </span>
+                    </div>
                 </div>
 
-                <button type="submit" class="w-full px-6 py-2 rounded-lg font-semibold text-white bg-indigo-600 hover:bg-indigo-700 transition duration-200 shadow-md">
-                    Actualizar Estado
-                </button>
-            </form>
-        </div>
+                {{-- FORMULARIO DE CAMBIO DE ESTADO --}}
+                <form action="{{ route('tecnico.estado.update') }}" method="POST" class="space-y-4 border-t pt-4">
+                    @csrf
+                    
+                    <div>
+                        <label for="estadoDisponibilidad" class="block text-sm font-semibold text-gray-700 mb-2">Cambiar a:</label>
+                        <select name="estadoDisponibilidad" id="estadoDisponibilidad" required 
+                                class="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition font-medium">
+                            <option value="" disabled selected>Selecciona tu nuevo estado</option>
+                            @foreach ($opcionesEstado as $opcion)
+                                <option value="{{ $opcion }}" @if($opcion === $estadoActual) selected @endif>
+                                    {{ $opcion }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
 
-    </div>
-    
-    {{-- COLUMNA PRINCIPAL DE RECLAMOS (Cols 2 y 3) --}}
-    <div class="lg:col-span-2 order-first lg:order-last">
+                    <button type="submit" class="w-full px-4 py-3 rounded-lg font-bold text-white bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 transition duration-300 shadow-md hover:shadow-lg">
+                        ↻ Actualizar Estado
+                    </button>
+                </form>
+
+                {{-- ESTADÍSTICAS RÁPIDAS --}}
+                <div class="mt-6 pt-6 border-t border-gray-200">
+                    <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">Resumen</p>
+                    <div class="space-y-2 text-sm">
+                        <div class="flex justify-between items-center p-2 bg-blue-50 rounded-lg">
+                            <span class="font-medium text-gray-700">Pendientes:</span>
+                            <span class="font-bold text-blue-600">{{ count($reclamos->where('estado', 'Asignado')) }}</span>
+                        </div>
+                        <div class="flex justify-between items-center p-2 bg-yellow-50 rounded-lg">
+                            <span class="font-medium text-gray-700">En Proceso:</span>
+                            <span class="font-bold text-yellow-600">{{ count($reclamos->where('estado', 'En Proceso')) }}</span>
+                        </div>
+                        <div class="flex justify-between items-center p-2 bg-green-50 rounded-lg">
+                            <span class="font-medium text-gray-700">Resueltos:</span>
+                            <span class="font-bold text-green-600">{{ count($reclamos->where('estado', 'Resuelto')) }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
         
-        {{-- 2. RECLAMOS ASIGNADOS --}}
-        <div class="bg-white p-6 rounded-xl shadow-lg">
-            <h3 class="text-2xl font-bold text-gray-800 mb-6 border-b pb-3 flex items-center">
-                <svg class="w-6 h-6 mr-2 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path></svg>
-                Mis Reclamos Pendientes ({{ count($reclamos) }})
-            </h3>
+        {{-- COLUMNA PRINCIPAL: RECLAMOS (3 COLUMNAS) --}}
+        <div class="lg:col-span-3">
             
+            {{-- ENCABEZADO DE RECLAMOS --}}
+            <div class="mb-6">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <div class="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center">
+                            <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4v.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                        </div>
+                        <div>
+                            <h2 class="text-2xl font-bold text-gray-900">Mis Reclamos</h2>
+                            <p class="text-sm text-gray-600">{{ count($reclamos) }} reclamo(s) asignado(s)</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {{-- MENSAJE SI NO HAY RECLAMOS --}}
             @if ($reclamos->isEmpty())
-                <div class="text-center py-10 text-gray-500 border-2 border-dashed border-gray-300 rounded-xl bg-gray-50">
-                    <p class="text-xl font-semibold">¡Todo Despejado!</p>
-                    <p class="text-sm mt-2">No tienes reclamos activos asignados en este momento.</p>
+                <div class="bg-white rounded-2xl shadow-lg p-12 text-center">
+                    <div class="inline-block w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mb-4">
+                        <svg class="w-10 h-10 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                    </div>
+                    <h3 class="text-2xl font-bold text-gray-900 mb-2">¡Todo Despejado!</h3>
+                    <p class="text-gray-600 mb-6">No tienes reclamos activos asignados en este momento.</p>
+                    <p class="text-sm text-gray-500">Cuando se asigne un nuevo reclamo, aparecerá aquí.</p>
                 </div>
             @else
+                {{-- LISTA DE RECLAMOS --}}
                 <div class="space-y-6">
                     @foreach ($reclamos as $reclamo)
-                        {{-- Tarjeta de Reclamo Mejorada --}}
-                        <div class="reclamo-card border-l-8 rounded-xl p-5 shadow-md hover:shadow-lg transition duration-300 bg-gray-50" style="border-color: 
-                            @if($reclamo->prioridad == 'Alta') #ef4444 /* red-500 */
-                            @elseif($reclamo->prioridad == 'Media') #f59e0b /* yellow-500 */
-                            @else #3b82f6 /* blue-500 */ @endif;">
+                        <div class="bg-white rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden {{ $prioridadBorder($reclamo->prioridad) }}">
                             
-                            {{-- Encabezado y Prioridad --}}
-                            <div class="flex justify-between items-start mb-3">
-                                <div>
-                                    <p class="text-sm font-medium text-indigo-600">Reclamo #{{ $reclamo->idReclamo }}</p>
-                                    <h4 class="text-xl font-bold text-gray-900">{{ $reclamo->titulo }}</h4>
-                                </div>
-                                <span class="text-xs font-bold px-3 py-1 rounded-full uppercase shadow-sm {{ $prioridadColor($reclamo->prioridad) }}">
-                                    {{ $reclamo->prioridad }}
-                                </span>
-                            </div>
-
-                            {{-- Descripción --}}
-                            <p class="text-gray-600 mb-4 text-sm border-b pb-4">{{ $reclamo->descripcionDetallada }}</p>
-                            
-                            {{-- Información del Cliente --}}
-                            <div class="mb-4 p-3 bg-white rounded-lg border border-gray-200">
-                                <p class="text-md font-semibold text-gray-800 mb-2">Detalles del Cliente</p>
-                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm text-gray-700">
-                                    <div class="flex items-center space-x-2">
-                                        <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
-                                        <span class="font-medium">Cliente:</span> <span>{{ $reclamo->usuario->primerNombre ?? 'N/A' }} {{ $reclamo->usuario->apellidoPaterno ?? '' }}</span>
+                            {{-- ENCABEZADO DE LA TARJETA --}}
+                            <div class="p-6 pb-4">
+                                <div class="flex justify-between items-start mb-3 gap-4">
+                                    <div class="flex-1">
+                                        <p class="text-xs font-semibold text-indigo-600 uppercase tracking-wider">Reclamo #{{ $reclamo->idReclamo }}</p>
+                                        <h3 class="text-xl font-bold text-gray-900 mt-1">{{ $reclamo->titulo }}</h3>
                                     </div>
-                                    <div class="flex items-center space-x-2">
-                                        <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path></svg>
-                                        <span class="font-medium">Teléfono:</span> <span>{{ $reclamo->usuario->numeroCelular ?? 'N/A' }}</span>
-                                    </div>
-                                    <div class="flex items-center space-x-2 col-span-2">
-                                        <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
-                                        <span class="font-medium">Dirección:</span> <span class="truncate">{{ $reclamo->usuario->direccionTexto ?? 'No especificada' }}</span>
+                                    <div class="flex gap-2">
+                                        <span class="inline-block text-xs font-bold px-3 py-1 rounded-full shadow-sm {{ $prioridadColor($reclamo->prioridad) }}">
+                                            🔴 {{ $reclamo->prioridad }}
+                                        </span>
+                                        <span class="inline-block text-xs font-bold px-3 py-1 rounded-full shadow-sm
+                                            @if($reclamo->estado == 'Resuelto' || $reclamo->estado == 'Cerrado') bg-green-100 text-green-800 
+                                            @elseif($reclamo->estado == 'En Proceso') bg-blue-100 text-blue-800
+                                            @else bg-yellow-100 text-yellow-800 @endif">
+                                            {{ $reclamo->estado }}
+                                        </span>
                                     </div>
                                 </div>
+
+                                {{-- DESCRIPCIÓN --}}
+                                <p class="text-gray-700 text-sm leading-relaxed">{{ $reclamo->descripcionDetallada }}</p>
                             </div>
 
+                            {{-- INFORMACIÓN DEL CLIENTE --}}
+                            <div class="px-6 py-4 bg-gradient-to-r from-gray-50 to-gray-100 border-t border-gray-200">
+                                <p class="text-sm font-semibold text-gray-900 mb-3">👤 Detalles del Cliente</p>
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                    <div class="flex items-center gap-2 text-sm">
+                                        <span class="text-gray-600">Nombre:</span>
+                                        <span class="font-medium text-gray-900">{{ $reclamo->usuario->primerNombre ?? 'N/A' }} {{ $reclamo->usuario->apellidoPaterno ?? '' }}</span>
+                                    </div>
+                                    <div class="flex items-center gap-2 text-sm">
+                                        <span class="text-gray-600">Teléfono:</span>
+                                        <span class="font-medium text-gray-900">{{ $reclamo->usuario->numeroCelular ?? 'N/A' }}</span>
+                                    </div>
+                                    <div class="flex items-center gap-2 text-sm col-span-2">
+                                        <span class="text-gray-600">Dirección:</span>
+                                        <span class="font-medium text-gray-900 truncate">{{ $reclamo->usuario->direccionTexto ?? 'No especificada' }}</span>
+                                    </div>
+                                </div>
+                            </div>
 
-                            {{-- LÓGICA DE ACCIÓN: ACEPTAR O RESOLVER --}}
-                            <div class="mt-4 pt-4 border-t border-gray-300">
-                                <div class="flex justify-between items-center flex-wrap gap-3">
-                                    {{-- Estado actual del reclamo --}}
-                                    <span class="text-sm font-semibold px-3 py-1 rounded-full shadow-sm
-                                        @if($reclamo->estado == 'Resuelto' || $reclamo->estado == 'Cerrado') bg-green-100 text-green-800 
-                                        @elseif($reclamo->estado == 'En Proceso') bg-blue-100 text-blue-800 border border-blue-300
-                                        @else bg-yellow-100 text-yellow-800 border border-yellow-300 @endif">
-                                        Estado: {{ $reclamo->estado }}
-                                    </span>
-
-                                    @if ($reclamo->estado === 'Asignado' || $reclamo->estado === 'Pendiente')
-                                        {{-- FORMULARIO PARA ACEPTAR Y PONER EN PROCESO --}}
-                                        <form action="{{ route('tecnico.reclamo.aceptar', $reclamo->idReclamo) }}" method="POST">
-                                            @csrf
-                                            <button type="submit" class="px-5 py-2 rounded-lg font-semibold text-white bg-blue-600 hover:bg-blue-700 transition duration-200 shadow-lg text-sm">
-                                                <svg class="w-4 h-4 inline-block mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-                                                Aceptar y Poner En Proceso
-                                            </button>
-                                        </form>
-                                    @elseif ($reclamo->estado === 'En Proceso')
-                                        {{-- Botón para abrir/cerrar el formulario de solución --}}
-                                        <button type="button" class="px-5 py-2 rounded-lg font-semibold text-white bg-green-600 hover:bg-green-700 transition duration-200 shadow-lg text-sm"
-                                                onclick="document.getElementById('form-resolver-{{ $reclamo->idReclamo }}').classList.toggle('hidden')">
-                                            <svg class="w-4 h-4 inline-block mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                                            Registrar Solución
+                            {{-- ACCIONES --}}
+                            <div class="px-6 py-4 border-t border-gray-200">
+                                @if ($reclamo->estado === 'Asignado' || $reclamo->estado === 'Pendiente')
+                                    <form action="{{ route('tecnico.reclamo.aceptar', $reclamo->idReclamo) }}" method="POST" class="flex gap-3">
+                                        @csrf
+                                        <button type="submit" class="flex-1 px-4 py-3 rounded-lg font-bold text-white bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 transition duration-300 shadow-md hover:shadow-lg">
+                                            <svg class="w-4 h-4 inline-block mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                                            Aceptar y Poner En Proceso
                                         </button>
-                                    @endif
-                                </div>
+                                    </form>
+                                @elseif ($reclamo->estado === 'En Proceso')
+                                    <button type="button" 
+                                            class="w-full px-4 py-3 rounded-lg font-bold text-white bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 transition duration-300 shadow-md hover:shadow-lg"
+                                            onclick="document.getElementById('form-resolver-{{ $reclamo->idReclamo }}').classList.toggle('hidden')">
+                                        <svg class="w-4 h-4 inline-block mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                        Registrar Solución
+                                    </button>
+                                @else
+                                    <div class="px-4 py-3 bg-green-50 rounded-lg text-center">
+                                        <p class="text-sm font-semibold text-green-700">✓ Reclamo Resuelto</p>
+                                    </div>
+                                @endif
+                            </div>
 
-                                {{-- FORMULARIO PARA REGISTRAR SOLUCIÓN Y MARCAR COMO RESUELTO (Oculto por defecto) --}}
-                                @if ($reclamo->estado === 'En Proceso')
-                                    <form id="form-resolver-{{ $reclamo->idReclamo }}" action="{{ route('tecnico.reclamo.resolver', $reclamo->idReclamo) }}" method="POST" class="mt-4 pt-4 border-t border-gray-200 hidden bg-white p-4 rounded-lg shadow-inner">
+                            {{-- FORMULARIO DE SOLUCIÓN (OCULTO POR DEFECTO) --}}
+                            @if ($reclamo->estado === 'En Proceso')
+                                <div id="form-resolver-{{ $reclamo->idReclamo }}" class="hidden px-6 py-4 bg-blue-50 border-t border-blue-200">
+                                    <form action="{{ route('tecnico.reclamo.resolver', $reclamo->idReclamo) }}" method="POST" class="space-y-4">
                                         @csrf
                                         
-                                        <div class="form-group mb-4">
-                                            <label for="solucionTecnica-{{ $reclamo->idReclamo }}" class="block text-md font-medium text-gray-700 mb-2">
-                                                <strong>Solución Técnica:</strong>
+                                        <div>
+                                            <label for="solucionTecnica-{{ $reclamo->idReclamo }}" class="block text-sm font-bold text-gray-800 mb-2">
+                                                Descripción de la Solución *
                                             </label>
-                                            <textarea name="solucionTecnica" id="solucionTecnica-{{ $reclamo->idReclamo }}" 
-                                                    rows="4" placeholder="Describe detalladamente las acciones tomadas para resolver el problema (Mínimo 10 caracteres)." required
-                                                    class="w-full p-3 border border-gray-300 rounded-md shadow-sm focus:border-green-500 focus:ring-green-500 transition">{{ old('solucionTecnica') }}</textarea>
+                                            <textarea name="solucionTecnica" 
+                                                    id="solucionTecnica-{{ $reclamo->idReclamo }}" 
+                                                    rows="5" 
+                                                    placeholder="Describe detalladamente las acciones tomadas para resolver el problema..." 
+                                                    required
+                                                    class="w-full px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-green-500 focus:ring-2 focus:ring-green-200 transition font-medium">{{ old('solucionTecnica') }}</textarea>
                                             
                                             @error('solucionTecnica')
-                                                <div class="text-red-500 text-sm mt-1 p-2 bg-red-100 rounded-md" role="alert">{{ $message }}</div>
+                                                <p class="text-red-500 text-sm mt-2 font-medium">{{ $message }}</p>
                                             @enderror
                                         </div>
 
-                                        <div class="flex justify-end">
-                                            <button type="submit" class="px-5 py-2 rounded-lg font-semibold text-white bg-green-600 hover:bg-green-700 transition duration-200 shadow-md">
-                                                <svg class="w-4 h-4 inline-block mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                                                Marcar como Resuelto
+                                        <div class="flex gap-3">
+                                            <button type="submit" class="flex-1 px-4 py-3 rounded-lg font-bold text-white bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 transition duration-300 shadow-md hover:shadow-lg">
+                                                ✓ Marcar como Resuelto
+                                            </button>
+                                            <button type="button" 
+                                                    class="flex-1 px-4 py-3 rounded-lg font-bold text-gray-700 bg-white border-2 border-gray-300 hover:bg-gray-50 transition duration-300"
+                                                    onclick="document.getElementById('form-resolver-{{ $reclamo->idReclamo }}').classList.toggle('hidden')">
+                                                Cancelar
                                             </button>
                                         </div>
                                     </form>
-                                @endif
-                            </div>
-                            
-                            {{-- Pie de página de la tarjeta --}}
-                            <div class="text-xs text-gray-500 border-t pt-3 mt-4 flex justify-between">
+                                </div>
+                            @endif
+
+                            {{-- PIE DE LA TARJETA --}}
+                            <div class="px-6 py-3 bg-gray-50 border-t border-gray-200 flex justify-between items-center text-xs text-gray-600">
                                 <p><strong>Asignado por:</strong> {{ $reclamo->operador->primerNombre ?? 'N/A' }}</p>
-                                <p><strong>Fecha Asignación:</strong> {{ \Carbon\Carbon::parse($reclamo->fechaAsignacion)->format('d/m/Y H:i') ?? 'Pendiente' }}</p>
+                                <p><strong>Fecha:</strong> {{ \Carbon\Carbon::parse($reclamo->fechaAsignacion)->format('d/m/Y H:i') ?? 'Pendiente' }}</p>
                             </div>
                         </div>
                     @endforeach
@@ -233,9 +286,6 @@ $prioridadColor = function($prioridad) {
             @endif
         </div>
     </div>
-</div>
-
-
 </div>
 
 @endsection

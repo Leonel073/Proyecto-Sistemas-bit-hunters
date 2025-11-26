@@ -5,44 +5,108 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Registrar Reclamo</title>
 
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    @vite([
+        'resources/css/formulario.css',
+        'resources/css/nav.css',
+        'resources/js/nav.js'
+    ])
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
 
     <style>
         /* Define la altura CRÍTICA para que el mapa se muestre */
         #map {
             height: 350px;
             width: 100%;
-            border-radius: 0.25rem;
-            margin-top: 15px;
-            margin-bottom: 15px;
-            border: 1px solid #ced4da;
+            border-radius: 6px;
+            margin-top: 1rem;
+            margin-bottom: 1rem;
+            border: 1px solid #d1d5db;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+        }
+
+        /* Asegurar que el contenedor fluya correctamente con el mapa */
+        .map-section {
+            margin-bottom: 1.25rem;
+        }
+
+        .map-helper-text {
+            font-size: 0.75rem;
+            color: #6b7280;
+            text-align: center;
+            display: block;
+            margin-top: -0.75rem;
+            margin-bottom: 1rem;
         }
     </style>
 </head>
-<body class="bg-light">
+<body>
 
-<div class="container mt-5">
-    <div class="row justify-content-center">
-        <div class="col-md-8">
-            <div class="card shadow">
-                <div class="card-header bg-primary text-white">
-                    <h3 class="mb-0">Nuevo Reclamo</h3>
-                </div>
-                <div class="card-body">
+<!-- NAV -->
+<nav>
+    <div class="nav-container">
+        <!-- LOGO -->
+        <div class="logo" role="button" tabindex="0" onclick="navigateTo('inicio')" aria-label="Ir al inicio">
+            <div class="logo-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                        d="M12 20h.01M2 8.82a15.91 15.91 0 0 1 20 0M5.17 12.25a10.91 10.91 0 0 1 13.66 0M8.31 15.68a5.91 5.91 0 0 1 7.38 0" />
+                </svg>
+            </div>
+            <div class="logo-text">
+                <div class="title">Nexora Bolivia</div>
+                <div class="subtitle">Apoyo al Usuario</div>
+            </div>
+        </div>
 
-                    <form action="{{ route('reclamo.store') }}" method="POST">
-                        @csrf
+        <!-- LINKS DESKTOP -->
+        <div class="nav-links" id="navLinks">
+            <button class="nav-link" onclick="navigateTo('inicio')">Inicio</button>
+            <button class="nav-link" onclick="scrollToSection('beneficios')">Beneficios</button>
+            <button class="nav-link" onclick="navigateTo('seguimiento')">Seguimiento</button>
+            <button class="nav-link active" onclick="navigateTo('reclamo')">Reclamo</button>
+        </div>
 
-                        <div class="mb-3">
-                            <label class="form-label">Título *</label>
-                            <input type="text" name="titulo" class="form-control" required>
-                        </div>
+        <!-- MENÚ MÓVIL -->
+        <button class="menu-button" id="menuToggle" aria-label="Menú de navegación">
+            <svg id="menuIcon" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+        </button>
+    </div>
 
-                        <div class="mb-3">
+    <div class="mobile-menu" id="mobileMenu">
+        <button class="mobile-link" onclick="navigateTo('inicio')">Inicio</button>
+        <button class="mobile-link" onclick="scrollToSection('beneficios')">Beneficios</button>
+        <button class="mobile-link" onclick="navigateTo('seguimiento')">Seguimiento</button>
+        <button class="mobile-link active" onclick="navigateTo('reclamo')">Reclamo</button>
+    </div>
+</nav>
+
+<div class="main-container">
+    <div class="card">
+        <div class="card-header">
+            <h1 class="card-title">Nuevo Reclamo</h1>
+            <p class="card-description">Complete el formulario y seleccione su ubicación en el mapa</p>
+        </div>
+        <div class="card-content">
+
+            <form action="{{ route('reclamo.store') }}" method="POST">
+                @csrf
+
+                <div class="form-section">
+                    <h3 class="section-title">Información General</h3>
+
+                    <div class="form-group">
+                        <label class="form-label">Título del Reclamo *</label>
+                        <input type="text" name="titulo" class="form-input" placeholder="Describe brevemente el problema" required>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
                             <label class="form-label">Tipo de Incidente *</label>
                             <select name="idTipoIncidente" class="form-select" required>
-                                <option value="">Seleccione...</option>
+                                <option value="">Seleccione una opción...</option>
                                 <option value="1">Falla de Conexión</option>
                                 <option value="2">Lentitud</option>
                                 <option value="3">Facturación</option>
@@ -50,7 +114,7 @@
                             </select>
                         </div>
 
-                        <div class="mb-3">
+                        <div class="form-group">
                             <label class="form-label">Prioridad *</label>
                             <select name="prioridad" class="form-select" required>
                                 <option value="Baja">Baja</option>
@@ -59,36 +123,46 @@
                                 <option value="Urgente">Urgente</option>
                             </select>
                         </div>
+                    </div>
 
-                        <div class="mb-3">
-                            <label class="form-label">Descripción *</label>
-                            <textarea name="descripcionDetallada" class="form-control" required></textarea>
-                        </div>
-
-                        <div class="row mb-3">
-                            <div class="col">
-                                <label>Latitud</label>
-                                <input type="text" id="latitudIncidente" name="latitudIncidente" class="form-control" readonly required value="-16.5000">
-                            </div>
-                            <div class="col">
-                                <label>Longitud</label>
-                                <input type="text" id="longitudIncidente" name="longitudIncidente" class="form-control" readonly required value="-68.1500">
-                            </div>
-                        </div>
-
-                        <button type="button" id="btnActualizar" class="btn btn-warning mb-3 w-100">
-                            Actualizar a mi Ubicación Actual
-                        </button>
-
-                        <div id="map"></div>
-                        <small class="text-muted text-center d-block mb-3">
-                            Haga clic en el mapa o mueva el marcador para seleccionar la ubicación.
-                        </small>
-
-                        <button type="submit" class="btn btn-success btn-lg w-100">Enviar Reclamo</button>
-                    </form>
+                    <div class="form-group">
+                        <label class="form-label">Descripción Detallada *</label>
+                        <textarea name="descripcionDetallada" class="form-textarea" placeholder="Proporcione los detalles del problema..." required></textarea>
+                    </div>
                 </div>
-            </div>
+
+                <div class="form-section">
+                    <h3 class="section-title">Ubicación del Incidente</h3>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Latitud</label>
+                            <input type="text" id="latitudIncidente" name="latitudIncidente" class="form-input" readonly required value="-16.5000">
+                            <span class="small-text">Se actualiza automáticamente</span>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Longitud</label>
+                            <input type="text" id="longitudIncidente" name="longitudIncidente" class="form-input" readonly required value="-68.1500">
+                            <span class="small-text">Se actualiza automáticamente</span>
+                        </div>
+                    </div>
+
+                    <button type="button" id="btnActualizar" class="btn-submit" style="margin-bottom: 1rem; background: linear-gradient(to right, #f59e0b, #ec4899);">
+                        📍 Actualizar a mi Ubicación Actual
+                    </button>
+
+                    <div class="map-section">
+                        <div id="map"></div>
+                        <small class="map-helper-text">
+                            Haga clic en el mapa o mueva el marcador para seleccionar la ubicación del incidente
+                        </small>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-submit">
+                    ✓ Enviar Reclamo
+                </button>
+            </form>
         </div>
     </div>
 </div>

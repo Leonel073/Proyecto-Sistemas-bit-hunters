@@ -4,9 +4,15 @@ let operadorNombreEl;
 let statsContainer;
 let nuevosReclamosTable;
 let misCasosTable;
+let nuevosCasosContainer;
+let misCasosContainer;
 let modal;
 let modalTitle;
 let modalBody;
+let countNuevosEl;
+let countMisCasosEl;
+let countNuevosSmallEl;
+let countMisCasosSmallEl;
 
 let selectedReclamo = null;
 
@@ -15,9 +21,15 @@ function initializeDOM() {
   statsContainer = document.getElementById('statsContainer');
   nuevosReclamosTable = document.getElementById('nuevosReclamosTable');
   misCasosTable = document.getElementById('misCasosTable');
+  nuevosCasosContainer = document.getElementById('nuevosCasosContainer');
+  misCasosContainer = document.getElementById('misCasosContainer');
   modal = document.getElementById('modal');
   modalTitle = document.getElementById('modalTitle');
   modalBody = document.getElementById('modalBody');
+  countNuevosEl = document.getElementById('countNuevos');
+  countMisCasosEl = document.getElementById('countMisCasos');
+  countNuevosSmallEl = document.getElementById('countNuevosSmall');
+  countMisCasosSmallEl = document.getElementById('countMisCasosSmall');
   
   console.log('✅ DOM elements initialized');
 }
@@ -36,11 +48,103 @@ async function fetchJson(url, opts = {}) {
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', async () => {
     initializeDOM();
+    setupNavHandlers();
     await renderDashboard();
+    // permitir cerrar modal con Escape
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && modal && !modal.classList.contains('hidden')) closeModal();
+    });
   });
 } else {
   initializeDOM();
-  renderDashboard().catch(console.error);
+  setupNavHandlers();
+  renderDashboard().catch(console.error).then(() => {
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && modal && !modal.classList.contains('hidden')) closeModal();
+    });
+  });
+}
+
+function setupNavHandlers() {
+  // Detectar elementos de nav que usan .nav-item o .nav-link
+  const items = Array.from(document.querySelectorAll('.nav-item[data-section], .nav-link[data-section]'));
+  items.forEach(a => {
+    a.addEventListener('click', async (e) => {
+      e.preventDefault();
+      const section = a.getAttribute('data-section');
+      switchSection(section);
+    });
+  });
+}
+
+async function switchSection(name) {
+  // Toggle active class
+  document.querySelectorAll('.nav-item, .nav-link').forEach(n => n.classList.remove('active'));
+  const active = document.querySelector('[data-section="' + name + '"]');
+  if (active) active.classList.add('active');
+
+  // Sections
+  const sections = ['dashboard', 'casos', 'reportes'];
+  sections.forEach(s => {
+    const el = document.getElementById(s + 'Section');
+    if (!el) return;
+    if (s === name) el.classList.remove('hidden'); else el.classList.add('hidden');
+  });
+
+  // Cargar datos según la sección
+  if (name === 'dashboard') {
+    await renderDashboard();
+  } else if (name === 'casos') {
+    await loadCasosView();
+  } else if (name === 'reportes') {
+    // por ahora placeholder
+    console.log('Sección reportes');
+  }
+}
+
+async function loadCasosView() {
+  try {
+    const [nuevos, mis] = await Promise.all([
+      fetchJson('/operador/reclamos/nuevos'),
+      fetchJson('/operador/reclamos/mis')
+    ]);
+
+    // Render simple listas en los contenedores específicos
+    if (nuevosCasosContainer) {
+      if (!nuevos || nuevos.length === 0) {
+        nuevosCasosContainer.innerHTML = '<div class="empty-state"><p>No hay casos nuevos</p></div>';
+      } else {
+        nuevosCasosContainer.innerHTML = '';
+        nuevos.forEach(r => {
+          const div = document.createElement('div');
+          div.className = 'reclamo-row';
+          div.innerHTML = `<h4>R-${r.idReclamo} — ${r.titulo}</h4><p>${r.descripcionDetallada?.substring(0,150) ?? ''}</p><p>${getPrioridadBadge(r.prioridad)} ${getEstadoBadge(r.estado)}</p><div style="margin-top:.5rem"><button class="btn btn-primary" onclick="tomarCaso(${r.idReclamo})">Tomar</button></div>`;
+          nuevosCasosContainer.appendChild(div);
+        });
+      }
+    }
+
+    if (misCasosContainer) {
+      if (!mis || mis.length === 0) {
+        misCasosContainer.innerHTML = '<div class="empty-state"><p>No tienes casos asignados</p></div>';
+      } else {
+        misCasosContainer.innerHTML = '';
+        mis.forEach(r => {
+          const div = document.createElement('div');
+          div.className = 'reclamo-row';
+          div.innerHTML = `<h4>R-${r.idReclamo} — ${r.titulo}</h4><p>${r.descripcionDetallada?.substring(0,150) ?? ''}</p><p>${getPrioridadBadge(r.prioridad)} ${getEstadoBadge(r.estado)}</p><div style="margin-top:.5rem"><button class="btn btn-primary" onclick="abrirModal(${r.idReclamo})">Ver / Asignar</button></div>`;
+          misCasosContainer.appendChild(div);
+        });
+      }
+    }
+
+    // actualizar contadores pequeños si existen
+    if (countNuevosSmallEl) countNuevosSmallEl.textContent = (nuevos || []).length;
+    if (countMisCasosSmallEl) countMisCasosSmallEl.textContent = (mis || []).length;
+
+  } catch (e) {
+    console.error('Error loadCasosView:', e);
+  }
 }
 
 async function renderDashboard() {
@@ -52,6 +156,13 @@ async function renderDashboard() {
     ]);
 
     console.log('✅ Datos obtenidos:', { nuevos: nuevos.length, mis: mis.length });
+    
+    // Actualizar contadores
+    if (countNuevosEl) countNuevosEl.textContent = nuevos.length;
+    if (countMisCasosEl) countMisCasosEl.textContent = mis.length;
+    if (countNuevosSmallEl) countNuevosSmallEl.textContent = nuevos.length;
+    if (countMisCasosSmallEl) countMisCasosSmallEl.textContent = mis.length;
+    
     renderStats(nuevos, mis);
     renderNuevosReclamos(nuevos);
     renderMisCasos(mis);
@@ -64,20 +175,26 @@ function renderStats(nuevos, mis) {
   const pendientes = mis.filter(c => c.estado === 'Abierto' && !c.idTecnicoAsignado).length;
   const urgentes = nuevos.filter(r => r.prioridad === 'Urgente').length + mis.filter(r => r.prioridad === 'Urgente').length;
 
+  if (!statsContainer) return;
+
   statsContainer.innerHTML = `
     <div class="stat-card">
+      <div class="stat-icon"><i class="fas fa-envelope-open"></i></div>
       <span class="label">Casos Nuevos</span>
       <div class="value">${nuevos.length}</div>
     </div>
     <div class="stat-card">
+      <div class="stat-icon"><i class="fas fa-tasks"></i></div>
       <span class="label">Mis Casos</span>
-      <div class="value" style="color:#2563eb">${mis.length}</div>
+      <div class="value" style="color:#4f46e5">${mis.length}</div>
     </div>
     <div class="stat-card">
+      <div class="stat-icon"><i class="fas fa-hourglass-half"></i></div>
       <span class="label">Pendientes Asignar</span>
       <div class="value" style="color:#ea580c">${pendientes}</div>
     </div>
     <div class="stat-card">
+      <div class="stat-icon"><i class="fas fa-exclamation-circle"></i></div>
       <span class="label">Urgentes</span>
       <div class="value" style="color:#dc2626">${urgentes}</div>
     </div>
@@ -113,8 +230,10 @@ function formatDate(dt) {
 
 function renderNuevosReclamos(reclamos) {
   console.log('📋 renderNuevosReclamos:', reclamos.length);
+  if (!nuevosReclamosTable) return;
+  
   if (!reclamos || reclamos.length === 0) {
-    nuevosReclamosTable.innerHTML = `<div class="empty-state"><p>No hay casos nuevos</p></div>`;
+    nuevosReclamosTable.innerHTML = `<div class="empty-state"><p>✓ No hay casos nuevos</p></div>`;
     return;
   }
 
@@ -122,11 +241,15 @@ function renderNuevosReclamos(reclamos) {
   reclamos.forEach(r => {
     html += `
       <div class="reclamo-row">
-        <h3>R-${r.idReclamo} — ${r.titulo}</h3>
-        <p>${r.descripcionDetallada ? r.descripcionDetallada.substring(0, 200) : '—'}</p>
-        <p><strong>Usuario:</strong> ${r.usuario?.primerNombre ?? r.nombre ?? '—'}</p>
-        <p><strong>Prioridad:</strong> ${getPrioridadBadge(r.prioridad)}</p>
-        <button class="btn btn-primary" onclick="tomarCaso(${r.idReclamo})">Tomar Caso</button>
+        <div class="reclamo-header">
+          <h3>R-${r.idReclamo} — ${r.titulo}</h3>
+          <div>${getPrioridadBadge(r.prioridad)}</div>
+        </div>
+        <p class="reclamo-desc">${r.descripcionDetallada ? r.descripcionDetallada.substring(0, 200) : '—'}</p>
+        <p class="reclamo-meta"><strong>👤 Usuario:</strong> ${r.usuario?.primerNombre ?? r.nombre ?? '—'}</p>
+        <button class="btn btn-primary" onclick="tomarCaso(${r.idReclamo})">
+          <i class="fas fa-hand-paper"></i> Tomar Caso
+        </button>
       </div>
     `;
   });
@@ -135,8 +258,10 @@ function renderNuevosReclamos(reclamos) {
 
 function renderMisCasos(casos) {
   console.log('📋 renderMisCasos:', casos.length);
+  if (!misCasosTable) return;
+  
   if (!casos || casos.length === 0) {
-    misCasosTable.innerHTML = `<div class="empty-state"><p>No tienes casos asignados</p></div>`;
+    misCasosTable.innerHTML = `<div class="empty-state"><p>✓ No tienes casos asignados</p></div>`;
     return;
   }
 
@@ -145,12 +270,19 @@ function renderMisCasos(casos) {
     const tecnicoNombre = r.tecnicoNombre ?? 'Sin asignar';
     html += `
       <div class="reclamo-row">
-        <h3>R-${r.idReclamo} — ${r.titulo}</h3>
-        <p><strong>Estado:</strong> ${r.estado} | <strong>Prioridad:</strong> ${r.prioridad}</p>
-        <p>${r.descripcionDetallada}</p>
-        <p><strong>Usuario:</strong> ${r.usuario?.primerNombre ?? r.nombre ?? '—'}</p>
-        <p><strong>Técnico:</strong> ${tecnicoNombre}</p>
-        <button class="btn btn-primary" onclick="abrirModal(${r.idReclamo})">Ver / Asignar</button>
+        <div class="reclamo-header">
+          <h3>R-${r.idReclamo} — ${r.titulo}</h3>
+          <div>${getPrioridadBadge(r.prioridad)}</div>
+        </div>
+        <p class="reclamo-meta">
+          <strong>📊 Estado:</strong> ${r.estado} | 
+          <strong>👥 Técnico:</strong> <span class="tech-badge">${tecnicoNombre}</span>
+        </p>
+        <p class="reclamo-desc">${r.descripcionDetallada}</p>
+        <p class="reclamo-meta"><strong>👤 Usuario:</strong> ${r.usuario?.primerNombre ?? r.nombre ?? '—'}</p>
+        <button class="btn btn-primary" onclick="abrirModal(${r.idReclamo})">
+          <i class="fas fa-eye"></i> Ver / Asignar
+        </button>
       </div>
     `;
   });
@@ -199,23 +331,68 @@ async function abrirModal(id) {
       console.error('Error al obtener técnicos:', e);
     }
 
-    let infoHtml = `<div class="card"><div class="card-header"><h3 class="card-title">Información del Caso</h3></div><div class="card-content">`;
-    infoHtml += `<div><p class="text-muted">Cliente</p><p>${selectedReclamo.usuario?.primerNombre ?? selectedReclamo.nombre ?? '—'}</p></div>`;
-    infoHtml += `<div><p class="text-muted">Título</p><p>${selectedReclamo.titulo}</p></div>`;
-    infoHtml += `<div><p class="text-muted">Descripción</p><p>${selectedReclamo.descripcionDetallada}</p></div>`;
-    infoHtml += `</div></div>`;
+    let infoHtml = `
+      <div class="modal-section">
+        <h4 class="modal-section-title">📋 Información del Caso</h4>
+        <div class="modal-info-grid">
+          <div class="info-item">
+            <span class="info-label">👤 Cliente</span>
+            <p class="info-value">${selectedReclamo.usuario?.primerNombre ?? selectedReclamo.nombre ?? '—'}</p>
+          </div>
+          <div class="info-item">
+            <span class="info-label">🎯 Título</span>
+            <p class="info-value">${selectedReclamo.titulo}</p>
+          </div>
+          <div class="info-item full-width">
+            <span class="info-label">📝 Descripción</span>
+            <p class="info-value">${selectedReclamo.descripcionDetallada}</p>
+          </div>
+          <div class="info-item">
+            <span class="info-label">⚡ Prioridad</span>
+            <p class="info-value">${getPrioridadBadge(selectedReclamo.prioridad)}</p>
+          </div>
+          <div class="info-item">
+            <span class="info-label">📊 Estado</span>
+            <p class="info-value">${getEstadoBadge(selectedReclamo.estado)}</p>
+          </div>
+        </div>
+      </div>
+    `;
 
     if (!selectedReclamo.idTecnicoAsignado) {
-      let options = `<option value="">Selecciona un técnico</option>`;
+      let options = `<option value="">Selecciona un técnico...</option>`;
       if (tecnicos && tecnicos.length > 0) {
         options += tecnicos.map(t => `<option value="${t.idEmpleado}">${t.primerNombre} ${t.apellidoPaterno}</option>`).join('');
       }
-      infoHtml += `<div class="card"><div class="card-header"><h3 class="card-title">Asignar a Técnico de Campo</h3></div><div class="card-content"><div class="form-group"><label class="form-label">Seleccionar Técnico</label><select id="tecnicoSelect" class="form-select">${options}</select></div><div class="form-group"><label class="form-label">Instrucciones</label><textarea id="comentarioInput" class="form-textarea" placeholder="Agrega instrucciones para el técnico..."></textarea></div><button class="btn btn-primary" onclick="asignarTecnicoBackend(${selectedReclamo.idReclamo})">Asignar Técnico</button></div></div>`;
+      infoHtml += `
+        <div class="modal-section">
+          <h4 class="modal-section-title">🔧 Asignar a Técnico</h4>
+          <div class="form-group">
+            <label class="form-label">Seleccionar Técnico</label>
+            <select id="tecnicoSelect" class="form-select">${options}</select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Instrucciones para el Técnico</label>
+            <textarea id="comentarioInput" class="form-textarea" placeholder="Agrega instrucciones específicas..."></textarea>
+          </div>
+          <button class="btn btn-primary" onclick="asignarTecnicoBackend(${selectedReclamo.idReclamo})" style="width: 100%;">
+            <i class="fas fa-check-circle"></i> Asignar Técnico
+          </button>
+        </div>
+      `;
     } else {
-      infoHtml += `<div class="card"><div class="card-content"><p>Asignado a: ${selectedReclamo.tecnicoNombre}</p></div></div>`;
+      infoHtml += `
+        <div class="modal-section">
+          <h4 class="modal-section-title">✅ Caso Asignado</h4>
+          <p>Asignado a: <strong>${selectedReclamo.tecnicoNombre}</strong></p>
+        </div>
+      `;
     }
 
-    modalTitle.textContent = `Gestionar Caso R-${selectedReclamo.idReclamo}`;
+    modalTitle.textContent = `Caso R-${selectedReclamo.idReclamo}`;
+    if (document.getElementById('modalSubtitle')) {
+      document.getElementById('modalSubtitle').textContent = selectedReclamo.titulo;
+    }
     modalBody.innerHTML = infoHtml;
     modal.classList.remove('hidden');
   } catch (e) { console.error(e); }
@@ -264,5 +441,6 @@ window.abrirModal = abrirModal;
 window.asignarTecnicoBackend = asignarTecnicoBackend;
 window.closeModal = closeModal;
 window.renderDashboard = renderDashboard;
+window.switchSection = switchSection;
 
 export { renderDashboard };

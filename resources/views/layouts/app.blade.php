@@ -31,27 +31,41 @@
 <body class="min-h-screen antialiased">
 
 {{-- BARRA DE NAVEGACIÓN --}}
-<nav class="bg-white shadow-md mb-8">
+<nav class="bg-gradient-to-r from-indigo-600 to-purple-600 shadow-lg mb-8 sticky top-0 z-50">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between items-center h-16">
             {{-- Logo o Nombre de la App --}}
             <div class="flex-shrink-0">
-                <a href="{{ route('home') }}" class="text-2xl font-bold text-indigo-600">Nexora</a>
+                <a href="{{ route('home') }}" class="text-3xl font-black text-white hover:text-gray-100 transition duration-200 flex items-center gap-2">
+                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                    </svg>
+                    Nexora
+                </a>
             </div>
 
             {{-- Botones de Navegación --}}
-            <div class="flex items-center space-x-4">
+            <div class="flex items-center space-x-6">
                 @auth('empleado')
-                    {{-- Botón de Logout --}}
-                    <form method="POST" action="{{ route('logout') }}">
-                        @csrf
-                        <button type="submit" class="text-gray-600 hover:text-red-500 font-medium transition duration-150">
-                            Salir ({{ Auth::user()->primerNombre }})
-                        </button>
-                    </form>
+                    {{-- Botón de Logout Mejorado --}}
+                    <div class="flex items-center space-x-3">
+                        <div class="hidden sm:flex flex-col items-end">
+                            <p class="text-sm font-semibold text-white">{{ Auth::user()->primerNombre }} {{ Auth::user()->apellidoPaterno }}</p>
+                            <p class="text-xs text-indigo-100">{{ Auth::user()->tipo ?? 'Usuario' }}</p>
+                        </div>
+                        <form method="POST" action="{{ route('logout') }}" class="m-0">
+                            @csrf
+                            <button type="submit" class="group relative px-4 py-2 rounded-lg font-bold text-white bg-white bg-opacity-20 hover:bg-opacity-30 border-2 border-white border-opacity-30 hover:border-opacity-50 transition duration-300 flex items-center gap-2 shadow-lg hover:shadow-xl transform hover:scale-105">
+                                <svg class="w-5 h-5 transition-transform group-hover:rotate-180 duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+                                </svg>
+                                <span class="hidden sm:inline">Salir</span>
+                            </button>
+                        </form>
+                    </div>
                 @else
                     {{-- Botón de Login si no hay sesión --}}
-                    <a href="{{ route('login') }}" class="px-4 py-2 text-sm font-medium rounded-lg text-white bg-indigo-600 hover:bg-indigo-700 transition duration-200">
+                    <a href="{{ route('login') }}" class="px-6 py-2 text-sm font-bold rounded-lg text-indigo-600 bg-white hover:bg-gray-50 transition duration-200 shadow-md hover:shadow-lg transform hover:scale-105">
                         Iniciar Sesión
                     </a>
                 @endauth

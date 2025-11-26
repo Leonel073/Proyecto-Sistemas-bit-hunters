@@ -20,7 +20,12 @@
         <button class="active">Gestión de Operadores</button>
         <form action="{{ route('logout') }}" method="POST" style="display: inline;">
             @csrf
-            <button type="submit">Cerrar Sesión</button>
+            <button type="submit" style="background: linear-gradient(to right, #ef4444, #dc2626); color: white; font-weight: bold; border: 2px solid rgba(255,255,255,0.3); padding: 8px 16px; border-radius: 8px; cursor: pointer; transition: all 0.3s; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);" onmouseover="this.style.boxShadow='0 6px 12px rgba(0,0,0,0.2)'; this.style.transform='scale(1.05)';" onmouseout="this.style.boxShadow='0 4px 6px rgba(0,0,0,0.1)'; this.style.transform='scale(1);'">
+                <svg style="width: 16px; height: 16px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+                </svg>
+                <span>Salir</span>
+            </button>
         </form>
       </div>
     </div>
