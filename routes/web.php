@@ -83,8 +83,11 @@ Route::middleware(['auth:empleado', 'role:SupervisorOperador,Gerente'])
     Route::delete('/{id}', [SupervisorOperadorController::class, 'destroy'])->name('destroy');
 
     // Panel del Supervisor (Dashboard específico si existe)
-    Route::get('/panel', [SupervisorOperadorController::class, 'dashboard'])->name('dashboard');
+    Route::get('/dashboard', [SupervisorOperadorController::class, 'dashboard'])->name('dashboard');
     Route::put('/reclamo/{reclamo}/reasignar', [SupervisorOperadorController::class, 'reasignarOperador'])->name('reasignar');
+    
+    // Panel de Mapa de Reclamos (compartido)
+    Route::get('/mapa', [SupervisorTecnicoController::class, 'mapa'])->name('mapa');
 });
 
 // 3. ÁREA DE SUPERVISIÓN TÉCNICOS
@@ -101,6 +104,13 @@ Route::middleware(['auth:empleado', 'role:SupervisorTecnico,Gerente'])
     Route::get('/{id}/edit', [SupervisorTecnicoController::class, 'edit'])->name('edit');
     Route::put('/{id}', [SupervisorTecnicoController::class, 'update'])->name('update');
     Route::delete('/{id}', [SupervisorTecnicoController::class, 'destroy'])->name('destroy');
+
+    // Panel del Supervisor (Dashboard específico para reasignación)
+    Route::get('/dashboard', [SupervisorTecnicoController::class, 'dashboard'])->name('dashboard');
+    Route::put('/reclamo/{reclamo}/reasignar', [SupervisorTecnicoController::class, 'reasignarTecnico'])->name('reasignar');
+    
+    // Panel de Mapa de Reclamos
+    Route::get('/mapa', [SupervisorTecnicoController::class, 'mapa'])->name('mapa');
 });
 
 // 4. ÁREA OPERATIVA (PANEL DE OPERADOR)

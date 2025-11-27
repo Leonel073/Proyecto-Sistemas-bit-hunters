@@ -76,12 +76,19 @@ class OperadorController extends Controller
      */
     public function nuevos()
     {
-        $nuevos = Reclamo::whereNull('idOperador')
-            ->where('estado', 'Nuevo')
+        try {
+        $nuevos = Reclamo::whereNull('idOperador') // Filtra solo los casos sin asignación inicial
+            ->where('estado', 'Nuevo')            // Asegura que estén marcados como Nuevo
             ->with('usuario')
             ->orderBy('fechaCreacion', 'desc')
             ->get();
+        
+        // Si el resultado sigue siendo 0, el problema es en la inserción de datos de prueba.
         return response()->json($nuevos);
+        
+    } catch (\Exception $e) {
+        return response()->json(['message' => 'Error al cargar casos nuevos: ' . $e->getMessage()], 500);
+    }
     }
 
     /**
@@ -131,6 +138,7 @@ class OperadorController extends Controller
         // 1. Validar datos
         $data = $request->validate([
             'idTecnico' => 'required|integer', // El nombre del input en el HTML sigue siendo idTecnico
+            'prioridad' => 'required|string|in:Baja,Media,Alta,Urgente', // Prioridad asignada por el operador
             'comentario' => 'required|string'
         ]);
 
@@ -162,7 +170,7 @@ class OperadorController extends Controller
             
             // ✅ CORRECCIÓN AQUÍ: Usamos el nombre real de la columna en la BD
             $reclamo->idTecnicoAsignado = $data['idTecnico']; 
-            
+            $reclamo->prioridad = $data['prioridad']; // Actualizar prioridad asignada por el operador
             $reclamo->estado = 'Asignado'; 
             $reclamo->save();
 

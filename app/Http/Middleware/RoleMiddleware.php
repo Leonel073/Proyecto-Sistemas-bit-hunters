@@ -13,9 +13,9 @@ class RoleMiddleware
      * Handle an incoming request.
      *
      * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
-     * @param  string  $role  // El rol requerido (ej: 'Gerente')
+     * @param  string  $roles  // El rol o roles requeridos (ej: 'Gerente' o 'SupervisorOperador,Gerente')
      */
-    public function handle(Request $request, Closure $next, string $role): Response
+    public function handle(Request $request, Closure $next, string $roles): Response
     {
         // 1. Definir el guard de empleados
         $guard = 'empleado';
@@ -31,15 +31,17 @@ class RoleMiddleware
         // 3. Obtener el rol del usuario actual
         $userRole = Auth::guard($guard)->user()->rol;
 
-        // 4. Comparar roles
-        // Si el rol NO es el correcto...
-        if ($userRole !== $role) {
+        // 4. Separar los roles permitidos (soporta múltiples roles separados por coma)
+        $allowedRoles = array_map('trim', explode(',', $roles));
+
+        // 5. Verificar si el rol del usuario está en la lista de roles permitidos
+        if (!in_array($userRole, $allowedRoles)) {
             // ... ¡Lanzamos el error 403! 
             // Laravel buscará automáticamente la vista en resources/views/errors/403.blade.php
             abort(403, 'No tienes permisos para acceder a esta sección.');
         }
         
-        // 5. Si todo está bien, pase usted
+        // 6. Si todo está bien, pase usted
         return $next($request);
     }
 }
