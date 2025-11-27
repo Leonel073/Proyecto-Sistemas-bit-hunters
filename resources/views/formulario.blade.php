@@ -18,6 +18,27 @@
             margin-bottom: 15px;
             border: 1px solid #ced4da;
         }
+        /* Estilo para la notificación de éxito */
+        .notification-success {
+            padding: 15px;
+            margin-bottom: 20px;
+            border: 1px solid #c3e6cb;
+            border-radius: 4px;
+            color: #155724;
+            background-color: #d4edda;
+            text-align: center;
+            font-weight: bold;
+        }
+        /* Estilo para errores de validación */
+        .notification-error {
+            padding: 15px;
+            margin-bottom: 20px;
+            border: 1px solid #f5c6cb;
+            border-radius: 4px;
+            color: #721c24;
+            background-color: #f8d7da;
+            text-align: left;
+        }
     </style>
 </head>
 <body class="bg-light">
@@ -29,60 +50,64 @@
                 <div class="card-header bg-primary text-white">
                     <h3 class="mb-0">Nuevo Reclamo</h3>
                 </div>
+                
+                {{-- Bloque de Notificaciones --}}
                 <div class="card-body">
 
+                    @if(session('success'))
+                        <div class="notification-success">
+                            {{ session('success') }}
+                        </div>
+                    @endif
+                    
+                    @if($errors->any())
+                        <div class="notification-error">
+                            <p><strong>Error de Validación:</strong> Por favor, corrige los siguientes campos:</p>
+                            <ul>
+                                @foreach($errors->all() as $error)
+                                    <li>{{ $error }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    @endif
+                    
                     <form action="{{ route('reclamo.store') }}" method="POST">
                         @csrf
 
                         <div class="mb-3">
                             <label class="form-label">Título *</label>
-                            <input type="text" name="titulo" class="form-control" required>
+                            <input type="text" name="titulo" class="form-control" required value="{{ old('titulo') }}">
                         </div>
 
                         <div class="mb-3">
                             <label class="form-label">Tipo de Incidente *</label>
                             <select name="idTipoIncidente" class="form-select" required>
                                 <option value="">Seleccione...</option>
-                                <option value="1">Falla de Conexión</option>
-                                <option value="2">Lentitud</option>
-                                <option value="3">Facturación</option>
-                                <option value="4">Soporte Técnico</option>
+                                <option value="1" {{ old('idTipoIncidente') == 1 ? 'selected' : '' }}>Falla de Conexión</option>
+                                <option value="2" {{ old('idTipoIncidente') == 2 ? 'selected' : '' }}>Lentitud</option>
+                                <option value="3" {{ old('idTipoIncidente') == 3 ? 'selected' : '' }}>Facturación</option>
+                                <option value="4" {{ old('idTipoIncidente') == 4 ? 'selected' : '' }}>Soporte Técnico</option>
                             </select>
                         </div>
 
-                        <div class="mb-3">
-                            <label class="form-label">Prioridad *</label>
-                            <select name="prioridad" class="form-select" required>
-                                <option value="Baja">Baja</option>
-                                <option value="Media" selected>Media</option>
-                                <option value="Alta">Alta</option>
-                                <option value="Urgente">Urgente</option>
-                            </select>
-                        </div>
+                        {{-- PRIORIDAD: Se asigna cuando el operador asigna técnico o el supervisor gestiona --}}
 
                         <div class="mb-3">
                             <label class="form-label">Descripción *</label>
-                            <textarea name="descripcionDetallada" class="form-control" required></textarea>
+                            <textarea name="descripcionDetallada" class="form-control" required>{{ old('descripcionDetallada') }}</textarea>
                         </div>
-
-                        <div class="row mb-3">
-                            <div class="col">
-                                <label>Latitud</label>
-                                <input type="text" id="latitudIncidente" name="latitudIncidente" class="form-control" readonly required value="-16.5000">
-                            </div>
-                            <div class="col">
-                                <label>Longitud</label>
-                                <input type="text" id="longitudIncidente" name="longitudIncidente" class="form-control" readonly required value="-68.1500">
-                            </div>
-                        </div>
-
-                        <button type="button" id="btnActualizar" class="btn btn-warning mb-3 w-100">
-                            Actualizar a mi Ubicación Actual
-                        </button>
-
+                        
+                        <!-- ============================================== -->
+                        <!-- CAMPOS OCULTOS DE GEOLOCALIZACIÓN -->
+                        <!-- ============================================== -->
+                        <input type="hidden" id="latitudIncidente" name="latitudIncidente" value="{{ old('latitudIncidente', '-16.5000') }}">
+                        <input type="hidden" id="longitudIncidente" name="longitudIncidente" value="{{ old('longitudIncidente', '-68.1500') }}">
+                        
+                        <!-- MAPA VISIBLE PARA SELECCIÓN MANUAL -->
+                        <label class="form-label mt-3">Ubicación del Incidente (Seleccione en el mapa)</label>
                         <div id="map"></div>
                         <small class="text-muted text-center d-block mb-3">
-                            Haga clic en el mapa o mueva el marcador para seleccionar la ubicación.
+                            Arrastre el marcador o haga clic en el mapa para especificar la ubicación exacta.
                         </small>
 
                         <button type="submit" class="btn btn-success btn-lg w-100">Enviar Reclamo</button>
@@ -100,21 +125,20 @@ document.addEventListener("DOMContentLoaded", function () {
 
     var latInput = document.getElementById('latitudIncidente');
     var lngInput = document.getElementById('longitudIncidente');
-    var btnActualizar = document.getElementById('btnActualizar');
-
+    
     var initialLat = parseFloat(latInput.value);
     var initialLng = parseFloat(lngInput.value);
 
-    // Inicializar mapa
+    // Inicializar mapa (Vista centrada en La Paz)
     var map = L.map('map').setView([initialLat, initialLng], 14);
-
-    // ⭐ CORRECCIÓN 1: TileLayer con protocolo independiente (compatible con http://127.0.0.1)
+    
+    // Añadir capa de OpenStreetMap
     L.tileLayer('//{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         maxZoom: 19,
         attribution: '© OpenStreetMap contributors'
     }).addTo(map);
 
-    // Marcador arrastrable
+    // Marcador arrastrable (draggable: true)
     var marker = L.marker([initialLat, initialLng], {draggable:true}).addTo(map);
 
     // 1. Escuchar el arrastre del marcador
@@ -130,46 +154,8 @@ document.addEventListener("DOMContentLoaded", function () {
         latInput.value = e.latlng.lat.toFixed(6);
         lngInput.value = e.latlng.lng.toFixed(6);
     });
-
-    // Función para actualizar ubicación por geolocalización
-    function actualizarUbicacion(){
-        if(navigator.geolocation){
-            navigator.geolocation.getCurrentPosition(function(position){
-                var lat = position.coords.latitude;
-                var lng = position.coords.longitude;
-
-                // Mover mapa y marcador
-                map.setView([lat,lng],16);
-                marker.setLatLng([lat,lng]);
-                
-                // Actualizar inputs
-                latInput.value = lat.toFixed(6);
-                lngInput.value = lng.toFixed(6);
-
-            }, function(error){
-                // Manejo de errores mejorado
-                var errorMsg = "No se pudo obtener la ubicación. ";
-                if (error.code === error.TIMEOUT) {
-                    // ⭐ CORRECCIÓN 2: Mensaje de timeout. Ocurre si la señal es débil.
-                    errorMsg += "La búsqueda de ubicación tardó demasiado (señal débil). Intente de nuevo.";
-                } else if (error.code === error.PERMISSION_DENIED) {
-                    errorMsg += "Acceso denegado. Debe permitir la ubicación en la configuración del navegador.";
-                } else {
-                    errorMsg += "Error desconocido: " + error.message;
-                }
-                alert(errorMsg);
-
-            // ⭐ CORRECCIÓN 3: Aumentar el timeout a 30 segundos (30000ms) para mejorar la fiabilidad
-            }, { enableHighAccuracy:true, timeout:30000, maximumAge:0 });
-        } else {
-            alert("Geolocalización no soportada en este navegador.");
-        }
-    }
-
-    // Botón fuerza actualización
-    btnActualizar.addEventListener('click', actualizarUbicacion);
-
-    // Evitar mapa en blanco (se llama después de un breve retraso para asegurar que el DOM cargó)
+    
+    // Forzar el redibujado si la ventana cambia
     setTimeout(()=>{ map.invalidateSize(); },300);
 });
 </script>

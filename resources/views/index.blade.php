@@ -90,17 +90,41 @@
 
       <div class="hero-cards">
         <div class="card">
-          <div class="card-icon"><i class="fas fa-wifi"></i></div>
+          <div class="card-icon">
+            <!-- Wifi SVG (inline, consistente con otros SVGs) -->
+            <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M2.88 8.47a16 16 0 0 1 18.24 0" />
+              <path d="M5.66 11.25a11 11 0 0 1 12.68 0" />
+              <path d="M8.44 14.03a6 6 0 0 1 7.12 0" />
+              <path d="M12 18a1 1 0 1 0 0-2 1 1 0 0 0 0 2z" />
+            </svg>
+          </div>
           <h3>Velocidad Lenta</h3>
           <p>Reporta problemas de velocidad inferior a la contratada</p>
-        </div>    
+        </div>
+
         <div class="card">
-          <div class="card-icon"><i class="fas fa-headset"></i></div>
+          <div class="card-icon">
+            <!-- Headset SVG -->
+            <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M4 15v-1a8 8 0 0 1 16 0v1" />
+              <path d="M4 15a2 2 0 0 0 2 2h1v-4H6a2 2 0 0 0-2 2z" />
+              <path d="M20 15a2 2 0 0 1-2 2h-1v-4h1a2 2 0 0 1 2 2z" />
+            </svg>
+          </div>
           <h3>Asesoría Gratuita</h3>
           <p>Orientación sobre cómo proceder con tu reclamo</p>
         </div>
+
         <div class="card">
-          <div class="card-icon"><i class="fas fa-file-download"></i></div>
+          <div class="card-icon">
+            <!-- File download SVG -->
+            <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+              <polyline points="7 10 12 15 17 10" />
+              <path d="M12 15V3" />
+            </svg>
+          </div>
           <h3>Modelos de Carta</h3>
           <p>Descarga formatos para presentar tu reclamo formalmente</p>
         </div>
@@ -145,32 +169,70 @@
       
       <div class="benefits-grid">
         <div class="benefit-card">
-          <div class="benefit-icon"><i class="fas fa-shield-alt"></i></div>
+          <div class="benefit-icon">
+            <!-- Shield SVG -->
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M12 2l8 4v5c0 5-3.5 9.7-8 11-4.5-1.3-8-6-8-11V6l8-4z" />
+              <path d="M9.5 11.5c.9-1 2.6-1 3.5 0" />
+            </svg>
+          </div>
           <h3>Protección de Derechos</h3>
           <p>Te ayudamos a ejercer tus derechos como consumidor y a reclamar un servicio de calidad.</p>
         </div>
         <div class="benefit-card">
-          <div class="benefit-icon"><i class="fas fa-clock"></i></div>
+          <div class="benefit-icon">
+            <!-- Clock SVG -->
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <circle cx="12" cy="12" r="9" />
+              <path d="M12 7v5l3 2" />
+            </svg>
+          </div>
           <h3>Seguimiento Transparente</h3>
           <p>Monitorea el estado de tu reclamo en tiempo real con actualizaciones constantes.</p>
         </div>
         <div class="benefit-card">
-          <div class="benefit-icon"><i class="fas fa-users"></i></div>
+          <div class="benefit-icon">
+            <!-- Users SVG -->
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M16 11c1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3 1.34 3 3 3z" />
+              <path d="M6 11c1.66 0 3-1.34 3-3S7.66 5 6 5 3 6.34 3 8s1.34 3 3 3z" />
+              <path d="M2 20c0-2.2 3.6-4 8-4s8 1.8 8 4v1H2v-1z" />
+            </svg>
+          </div>
           <h3>Equipo Especializado</h3>
           <p>Técnicos y abogados listos para resolver tu problema de forma eficiente.</p>
         </div>
         <div class="benefit-card">
-          <div class="benefit-icon"><i class="fas fa-map-marker-alt"></i></div>
+          <div class="benefit-icon">
+            <!-- Map Marker SVG -->
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z" />
+              <circle cx="12" cy="9" r="2.5" />
+            </svg>
+          </div>
           <h3>Cobertura Rural</h3>
           <p>Nos enfocamos en zonas rurales donde más se necesita apoyo en conectividad.</p>
         </div>
         <div class="benefit-card">
-          <div class="benefit-icon"><i class="fas fa-dollar-sign"></i></div>
+          <div class="benefit-icon">
+            <!-- Dollar / Free SVG -->
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <circle cx="12" cy="12" r="9" />
+              <path d="M12 8v8" />
+              <path d="M10 9h4a1 1 0 0 1 0 2h-4a1 1 0 0 0 0 2h3" />
+            </svg>
+          </div>
           <h3>100% Gratuito</h3>
           <p>Nuestros servicios son completamente gratuitos para todos los usuarios.</p>
         </div>
         <div class="benefit-card">
-          <div class="benefit-icon"><i class="fas fa-lock"></i></div>
+          <div class="benefit-icon">
+            <!-- Lock SVG -->
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <rect x="3" y="11" width="18" height="10" rx="2" />
+              <path d="M7 11V8a5 5 0 0 1 10 0v3" />
+            </svg>
+          </div>
           <h3>Datos Seguros</h3>
           <p>Protegemos tu información con los más altos estándares de seguridad.</p>
         </div>

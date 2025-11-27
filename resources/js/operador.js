@@ -210,7 +210,15 @@ async function abrirModal(id) {
       if (tecnicos && tecnicos.length > 0) {
         options += tecnicos.map(t => `<option value="${t.idEmpleado}">${t.primerNombre} ${t.apellidoPaterno}</option>`).join('');
       }
-      infoHtml += `<div class="card"><div class="card-header"><h3 class="card-title">Asignar a Técnico de Campo</h3></div><div class="card-content"><div class="form-group"><label class="form-label">Seleccionar Técnico</label><select id="tecnicoSelect" class="form-select">${options}</select></div><div class="form-group"><label class="form-label">Instrucciones</label><textarea id="comentarioInput" class="form-textarea" placeholder="Agrega instrucciones para el técnico..."></textarea></div><button class="btn btn-primary" onclick="asignarTecnicoBackend(${selectedReclamo.idReclamo})">Asignar Técnico</button></div></div>`;
+      
+      // Opciones de prioridad
+      const prioridades = ['Baja', 'Media', 'Alta', 'Urgente'];
+      const prioridadActual = selectedReclamo.prioridad || 'Media';
+      let prioridadOptions = prioridades.map(p => 
+        `<option value="${p}" ${prioridadActual === p ? 'selected' : ''}>${p}</option>`
+      ).join('');
+      
+      infoHtml += `<div class="card"><div class="card-header"><h3 class="card-title">Asignar a Técnico de Campo</h3></div><div class="card-content"><div class="form-group"><label class="form-label">Seleccionar Técnico</label><select id="tecnicoSelect" class="form-select">${options}</select></div><div class="form-group"><label class="form-label">Prioridad *</label><select id="prioridadSelect" class="form-select" required>${prioridadOptions}</select></div><div class="form-group"><label class="form-label">Instrucciones</label><textarea id="comentarioInput" class="form-textarea" placeholder="Agrega instrucciones para el técnico..."></textarea></div><button class="btn btn-primary" onclick="asignarTecnicoBackend(${selectedReclamo.idReclamo})">Asignar Técnico</button></div></div>`;
     } else {
       infoHtml += `<div class="card"><div class="card-content"><p>Asignado a: ${selectedReclamo.tecnicoNombre}</p></div></div>`;
     }
@@ -223,14 +231,22 @@ async function abrirModal(id) {
 
 async function asignarTecnicoBackend(reclamoId) {
   const tecnicoId = document.getElementById('tecnicoSelect').value;
+  const prioridad = document.getElementById('prioridadSelect').value;
   const comentario = document.getElementById('comentarioInput').value.trim();
-  if (!tecnicoId || !comentario) { alert('Selecciona técnico y escribe instrucciones'); return; }
+  if (!tecnicoId || !prioridad || !comentario) { 
+    alert('Selecciona técnico, prioridad y escribe instrucciones'); 
+    return; 
+  }
 
   try {
     const res = await fetch(`/operador/reclamo/asignar-tecnico/${reclamoId}`, {
       method: 'POST',
       headers: { 'X-CSRF-TOKEN': csrf(), 'Content-Type': 'application/json' },
-      body: JSON.stringify({ idTecnico: parseInt(tecnicoId), comentario })
+      body: JSON.stringify({ 
+        idTecnico: parseInt(tecnicoId), 
+        prioridad: prioridad,
+        comentario: comentario 
+      })
     });
     
     if (!res.ok) {

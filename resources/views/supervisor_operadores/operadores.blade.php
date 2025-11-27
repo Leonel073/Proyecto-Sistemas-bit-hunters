@@ -18,6 +18,9 @@
       <div class="nav-links" id="navLinks">
         <button onclick="window.location.href='{{ route('home') }}'">Inicio</button>
         <button class="active">Gestión de Operadores</button>
+        <a href="{{ route('supervisor.operadores.dashboard') }}" class="btn-action" style="background-color: #f7941d;">
+        Ver Reclamos Pendientes (Reasignar)
+        </a>
         <form action="{{ route('logout') }}" method="POST" style="display: inline;">
             @csrf
             <button type="submit">Cerrar Sesión</button>
@@ -76,6 +79,10 @@
       </table>
     </div>
   </section>
+
+  
+
+
 
   <script>
     document.getElementById('searchInput').addEventListener('input', function() {

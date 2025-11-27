@@ -1,0 +1,35 @@
+/* Estilos específicos y ligeros para panel técnico */
+.tech-avatar { width: 64px; height: 64px; border-radius: 12px; }
+.metric-card { min-width: 140px; }
+.small-muted { color: #6b7280; }
+
+/* Tarjetas de reclamo */
+.reclamo-card { border-radius: 1rem; overflow: hidden; }
+.reclamo-card .card-header { padding: 1.25rem; }
+.reclamo-card .card-body { padding: 1rem 1.25rem; }
+.reclamo-card .card-meta { padding: 0.75rem 1.25rem; background: linear-gradient(90deg, #f8fafc, #ffffff); }
+
+/* Badges de prioridad y estado */
+.badge-priority { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.35rem 0.65rem; border-radius: 0.5rem; font-weight: 700; font-size: 0.8rem; }
+.badge-priority.red { background: linear-gradient(90deg,#fee2e2,#fecaca); color:#b91c1c; }
+.badge-priority.yellow { background: linear-gradient(90deg,#fffbeb,#fef3c7); color:#92400e; }
+.badge-priority.blue { background: linear-gradient(90deg,#eff6ff,#dbeafe); color:#1e3a8a; }
+
+/* Botones de acción más compactos y consistentes */
+.tech-action { padding: 0.6rem 0.9rem; border-radius: 0.6rem; font-weight:700; display: inline-flex; align-items:center; gap:0.5rem; }
+.tech-action svg { opacity: 0.95; }
+
+/* Form resolver (animación simple y borde) */
+.resolver-form { border-left: 4px solid rgba(34,197,94,0.12); background: #f7fff9; border-radius: 0.6rem; }
+
+/* Ajustes responsivos */
+@media (max-width: 1024px) {
+    .tech-avatar { width:56px; height:56px; }
+    .metric-card { min-width:120px; }
+}
+@media (max-width: 640px) {
+    .benefit-card, .reclamo-card { text-align: left; }
+}
+
+/* Estilo para el mapa pequeño */
+.small-map { width: 100%; height: 180px; border-radius: 8px; border: 1px solid #e5e7eb; }
