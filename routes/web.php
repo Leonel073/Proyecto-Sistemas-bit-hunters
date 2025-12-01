@@ -1,148 +1,179 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\EmpleadoController;
-use App\Http\Controllers\UsuarioController;
-use App\Http\Controllers\TecnicoController; // Usamos TecnicoController para el panel técnico
-use App\Http\Controllers\ReclamoController; 
 use App\Http\Controllers\OperadorController;
+use App\Http\Controllers\ReclamoController;
 use App\Http\Controllers\SupervisorOperadorController;
 use App\Http\Controllers\SupervisorTecnicoController;
+use App\Http\Controllers\TecnicoController;
+use App\Http\Controllers\UsuarioController;
+use App\Http\Controllers\AdminController; // <--- Importación del nuevo controlador de Admin
+use Illuminate\Support\Facades\Route;
 
 /*
 |--------------------------------------------------------------------------
-| RUTAS PÚBLICAS
+| RUTAS PÚBLICAS Y CLIENTES
 |--------------------------------------------------------------------------
 */
-Route::get('/', function () { return view('index'); })->name('home');
-Route::get('/recursos', fn() => view('recursos'))->name('recursos');
+Route::get('/', function () {
+    return view('public.index');
+})->name('home');
+Route::get('/recursos', fn () => view('public.recursos'))->name('recursos');
 
 // === AUTENTICACIÓN ===
 Route::get('/login', [LoginController::class, 'show'])->name('login');
 Route::post('/login', [LoginController::class, 'login'])->name('login.post');
-Route::post('/logout', [LoginController::class, 'logout'])->name('logout'); // Logout general
+Route::post('/logout', [LoginController::class, 'logout'])->name('logout'); 
 
 Route::get('/sign_up', [RegisterController::class, 'show'])->name('register');
 Route::post('/sign_up', [RegisterController::class, 'store'])->name('register.store');
 
-/*
-|--------------------------------------------------------------------------
-| RUTAS DE CLIENTES (USUARIOS)
-|--------------------------------------------------------------------------
-| Solo para usuarios normales (Guard: web)
-*/
-Route::middleware('auth')->group(function () {
-    Route::view('/formulario', 'formulario')->name('formulario');
-    Route::view('/seguimiento', 'seguimiento')->name('seguimiento');
-    
-    // CORRECCIÓN 1: Cambiamos 'storeFront' a 'store' para solucionar el error de método indefinido.
+// RUTAS DE CLIENTES
+// RUTAS DE CLIENTES (Y ACCESO ADMIN)
+Route::middleware(['auth:web,empleado'])->group(function () {
+    Route::get('/formulario', [ReclamoController::class, 'create'])->name('formulario');
+    Route::get('/seguimiento', [ReclamoController::class, 'seguimiento'])->name('seguimiento');
     Route::post('/reclamo', [ReclamoController::class, 'store'])->name('reclamo.store');
-
-    // Editar Perfil de Usuario
-    Route::get('/perfil/editar', [UsuarioController::class, 'perfil'])->name('perfil.editar');
-    Route::put('/perfil/editar', [UsuarioController::class, 'actualizarPerfil'])->name('perfil.update');
+    
+    // Perfil solo para clientes (web)
+    Route::middleware('auth:web')->group(function() {
+        Route::get('/perfil/editar', [UsuarioController::class, 'perfil'])->name('perfil.editar');
+        Route::put('/perfil/editar', [UsuarioController::class, 'actualizarPerfil'])->name('perfil.update');
+        
+        // Notificaciones
+        Route::get('/notificaciones', [\App\Http\Controllers\NotificacionController::class, 'indexView'])->name('notificaciones.index');
+        Route::post('/notificaciones/marcar-todas', [\App\Http\Controllers\NotificacionController::class, 'marcarTodas'])->name('notificaciones.marcarTodas');
+    });
 });
 
 /*
 |--------------------------------------------------------------------------
-| RUTAS DE EMPLEADOS (JERARQUÍA)
+| RUTAS DE EMPLEADOS (JERARQUÍA CON INCLUSIÓN DE SUPER ADMIN)
 |--------------------------------------------------------------------------
 */
 
-// 1. ÁREA DE GERENCIA (ADMINISTRADOR)
-// Acceso exclusivo: Solo Gerente
-Route::middleware(['auth:empleado', 'role:Gerente'])
+// 0. ÁREA DE SUPER ADMINISTRACIÓN (ROL EXCLUSIVO)
+// Acceso exclusivo: Solo SuperAdmin
+Route::middleware(['auth:empleado', 'role:SuperAdmin'])
     ->prefix('admin')->name('admin.')->group(function () {
-    
-    // CRUD Empleados
-    Route::resource('empleados', EmpleadoController::class);
-    Route::get('empleados-eliminados', [EmpleadoController::class, 'deleted'])->name('empleados.deleted');
-    Route::put('empleados/{id}/restore', [EmpleadoController::class, 'restore'])->name('empleados.restore');
 
-    // CRUD Usuarios
-    Route::resource('usuarios', UsuarioController::class)->except(['create', 'store', 'show']);
-    Route::get('usuarios', [\App\Http\Controllers\UsuarioController::class, 'index'])->name('usuarios.index');
-    Route::put('usuarios/{id}/restore', [UsuarioController::class, 'restore'])->name('usuarios.restore');
-});
+        // Dashboard de Control Técnico (lo que creamos en el paso anterior)
+        Route::get('control', [AdminController::class, 'controlPanel'])->name('control');
+        // Acceso a Registros Internos y Tablas de Configuración
+        Route::get('migrations', [AdminController::class, 'migrations'])->name('migrations');
+        // Herramientas de sistema exclusivas
+    });
+
+
+// 1. ÁREA DE GERENCIA (GERENTE DE SOPORTE)
+// Acceso: Gerente Y SuperAdmin
+Route::middleware(['auth:empleado', 'role:Gerente,SuperAdmin']) // <--- ACTUALIZADO
+    ->prefix('gerente')->name('gerente.')->group(function () {
+
+        // Dashboard Principal
+        Route::get('dashboard', [\App\Http\Controllers\GerenteDashboardController::class, 'index'])->name('dashboard');
+
+        // CRUD Empleados
+        Route::resource('empleados', EmpleadoController::class);
+        Route::get('empleados-eliminados', [EmpleadoController::class, 'deleted'])->name('empleados.deleted');
+        Route::put('empleados/{id}/restore', [EmpleadoController::class, 'restore'])->name('empleados.restore');
+
+        // CRUD Usuarios
+        Route::resource('usuarios', UsuarioController::class)->except(['create', 'store', 'show']);
+        Route::get('usuarios', [\App\Http\Controllers\UsuarioController::class, 'index'])->name('usuarios.index');
+        Route::get('usuarios-eliminados', [\App\Http\Controllers\UsuarioController::class, 'deleted'])->name('usuarios.deleted');
+        Route::put('usuarios/{id}/restore', [UsuarioController::class, 'restore'])->name('usuarios.restore');
+        Route::put('usuarios/{id}/toggle-block', [UsuarioController::class, 'toggleBlock'])->name('usuarios.toggle-block'); // <--- NUEVA RUTA BLOQUEO
+
+        // Auditoría
+        Route::get('auditoria', [\App\Http\Controllers\RegistroAuditoriaController::class, 'index'])->name('auditoria');
+
+        // SLA Políticas (HU-12)
+        Route::get('sla-politicas', [\App\Http\Controllers\SlaPoliticaController::class, 'index'])->name('sla-politicas');
+        Route::post('sla-politicas', [\App\Http\Controllers\SlaPoliticaController::class, 'store'])->name('sla-politicas.store');
+        Route::put('sla-politicas/{id}', [\App\Http\Controllers\SlaPoliticaController::class, 'update'])->name('sla-politicas.update');
+        Route::delete('sla-politicas/{id}', [\App\Http\Controllers\SlaPoliticaController::class, 'destroy'])->name('sla-politicas.destroy');
+
+        // Zonas/Comunidades (HU-6)
+        Route::get('zonas', [\App\Http\Controllers\ZonaController::class, 'index'])->name('zonas');
+        Route::post('zonas', [\App\Http\Controllers\ZonaController::class, 'store'])->name('zonas.store');
+        Route::put('zonas/{id}', [\App\Http\Controllers\ZonaController::class, 'update'])->name('zonas.update');
+        Route::delete('zonas/{id}', [\App\Http\Controllers\ZonaController::class, 'destroy'])->name('zonas.destroy');
+    });
 
 // 2. ÁREA DE SUPERVISIÓN OPERADORES
-// Acceso: SupervisorOperador y Gerente
-Route::middleware(['auth:empleado', 'role:SupervisorOperador,Gerente'])
+// Acceso: SupervisorOperador, Gerente Y SuperAdmin
+Route::middleware(['auth:empleado', 'role:SupervisorOperador,Gerente,SuperAdmin']) // <--- ACTUALIZADO
     ->prefix('supervisor/operadores')->name('supervisor.operadores.')->group(function () {
-    
-    // Gestión de Operadores
-    Route::get('/', [SupervisorOperadorController::class, 'index'])->name('index'); 
-    Route::get('/create', [SupervisorOperadorController::class, 'create'])->name('create');
-    Route::post('/', [SupervisorOperadorController::class, 'store'])->name('store');
-    Route::get('/deleted', [SupervisorOperadorController::class, 'deleted'])->name('deleted');
-    Route::put('/{id}/restore', [SupervisorOperadorController::class, 'restore'])->name('restore');
-    Route::get('/{id}/edit', [SupervisorOperadorController::class, 'edit'])->name('edit');
-    Route::put('/{id}', [SupervisorOperadorController::class, 'update'])->name('update');
-    Route::delete('/{id}', [SupervisorOperadorController::class, 'destroy'])->name('destroy');
 
-    // Panel del Supervisor (Dashboard específico si existe)
-    Route::get('/dashboard', [SupervisorOperadorController::class, 'dashboard'])->name('dashboard');
-    Route::put('/reclamo/{reclamo}/reasignar', [SupervisorOperadorController::class, 'reasignarOperador'])->name('reasignar');
-    
-    // Panel de Mapa de Reclamos (compartido)
-    Route::get('/mapa', [SupervisorTecnicoController::class, 'mapa'])->name('mapa');
-});
+        // Gestión de Operadores (CRUD)
+        Route::get('/', [SupervisorOperadorController::class, 'index'])->name('index');
+        Route::get('/crear', [SupervisorOperadorController::class, 'create'])->name('create');
+        Route::post('/', [SupervisorOperadorController::class, 'store'])->name('store');
+        Route::get('/{id}/editar', [SupervisorOperadorController::class, 'edit'])->name('edit');
+        Route::put('/{id}', [SupervisorOperadorController::class, 'update'])->name('update');
+        Route::delete('/{id}', [SupervisorOperadorController::class, 'destroy'])->name('destroy');
+        
+        // Operadores Eliminados
+        Route::get('/eliminados', [SupervisorOperadorController::class, 'deleted'])->name('deleted');
+        Route::put('/{id}/restaurar', [SupervisorOperadorController::class, 'restore'])->name('restore');
+
+        // Reasignación
+        Route::put('/reclamo/{reclamo}/reasignar', [SupervisorOperadorController::class, 'reasignarOperador'])->name('reasignar');
+
+        // Panel del Supervisor (Dashboard y Mapa)
+        Route::get('/dashboard', [SupervisorOperadorController::class, 'dashboard'])->name('dashboard');
+        Route::get('/mapa', [SupervisorTecnicoController::class, 'mapa'])->name('mapa');
+    });
 
 // 3. ÁREA DE SUPERVISIÓN TÉCNICOS
-// Acceso: SupervisorTecnico y Gerente
-Route::middleware(['auth:empleado', 'role:SupervisorTecnico,Gerente'])
+// Acceso: SupervisorTecnico, Gerente Y SuperAdmin
+Route::middleware(['auth:empleado', 'role:SupervisorTecnico,Gerente,SuperAdmin']) // <--- ACTUALIZADO
     ->prefix('supervisor/tecnicos')->name('supervisor.tecnicos.')->group(function () {
-    
-    // Gestión de Técnicos
-    Route::get('/', [SupervisorTecnicoController::class, 'index'])->name('index');
-    Route::get('/create', [SupervisorTecnicoController::class, 'create'])->name('create');
-    Route::post('/', [SupervisorTecnicoController::class, 'store'])->name('store');
-    Route::get('/deleted', [SupervisorTecnicoController::class, 'deleted'])->name('deleted');
-    Route::put('/{id}/restore', [SupervisorTecnicoController::class, 'restore'])->name('restore');
-    Route::get('/{id}/edit', [SupervisorTecnicoController::class, 'edit'])->name('edit');
-    Route::put('/{id}', [SupervisorTecnicoController::class, 'update'])->name('update');
-    Route::delete('/{id}', [SupervisorTecnicoController::class, 'destroy'])->name('destroy');
 
-    // Panel del Supervisor (Dashboard específico para reasignación)
-    Route::get('/dashboard', [SupervisorTecnicoController::class, 'dashboard'])->name('dashboard');
-    Route::put('/reclamo/{reclamo}/reasignar', [SupervisorTecnicoController::class, 'reasignarTecnico'])->name('reasignar');
-    
-    // Panel de Mapa de Reclamos
-    Route::get('/mapa', [SupervisorTecnicoController::class, 'mapa'])->name('mapa');
-});
+        // Gestión de Técnicos (CRUD)
+        Route::get('/', [SupervisorTecnicoController::class, 'index'])->name('index');
+        Route::get('/crear', [SupervisorTecnicoController::class, 'create'])->name('create');
+        Route::post('/', [SupervisorTecnicoController::class, 'store'])->name('store');
+        Route::get('/{id}/editar', [SupervisorTecnicoController::class, 'edit'])->name('edit');
+        Route::put('/{id}', [SupervisorTecnicoController::class, 'update'])->name('update');
+        Route::delete('/{id}', [SupervisorTecnicoController::class, 'destroy'])->name('destroy');
+
+        // Técnicos Eliminados
+        Route::get('/eliminados', [SupervisorTecnicoController::class, 'deleted'])->name('deleted');
+        Route::put('/{id}/restaurar', [SupervisorTecnicoController::class, 'restore'])->name('restore');
+
+        // Reasignación
+        Route::put('/reclamo/{reclamo}/reasignar', [SupervisorTecnicoController::class, 'reasignarTecnico'])->name('reasignar');
+
+        // Panel del Supervisor (Dashboard y Mapa)
+        Route::get('/dashboard', [SupervisorTecnicoController::class, 'dashboard'])->name('dashboard');
+        Route::get('/mapa', [SupervisorTecnicoController::class, 'mapa'])->name('mapa');
+    });
 
 // 4. ÁREA OPERATIVA (PANEL DE OPERADOR)
-// Acceso: Operador, SupervisorOperador y Gerente
-Route::middleware(['auth:empleado', 'role:Operador,SupervisorOperador,Gerente'])
+// Acceso: Operador, SupervisorOperador, Gerente Y SuperAdmin
+Route::middleware(['auth:empleado', 'role:Operador,SupervisorOperador,Gerente,SuperAdmin']) // <--- ACTUALIZADO
     ->prefix('operador')->name('operador.')->group(function () {
-    
-    Route::get('/panel', [OperadorController::class, 'panel'])->name('panel');
-    // API endpoints internos para el panel
-    Route::get('/reclamos/nuevos', [OperadorController::class, 'nuevos'])->name('reclamos.nuevos');
-    Route::get('/reclamos/mis', [OperadorController::class, 'mis'])->name('reclamos.mis');
-    Route::get('/tecnicos', [OperadorController::class, 'tecnicos'])->name('tecnicos');
-    
-    // Solo el Operador debería ejecutar estas acciones (aunque el supervisor tenga acceso a ver)
-    Route::post('/reclamo/tomar/{reclamo}', [OperadorController::class, 'tomar'])->name('reclamo.tomar');
-    Route::post('/reclamo/asignar-tecnico/{reclamo}', [OperadorController::class, 'asignarTecnico'])->name('reclamo.asignarTecnico');
-});
+
+        Route::get('/panel', [OperadorController::class, 'panel'])->name('panel');
+        // API endpoints internos para el panel
+        Route::post('/reclamo/tomar/{reclamo}', [OperadorController::class, 'tomar'])->name('reclamo.tomar');
+        Route::post('/reclamo/asignar-tecnico/{reclamo}', [OperadorController::class, 'asignarTecnico'])->name('reclamo.asignarTecnico');
+    });
 
 // 5. ÁREA TÉCNICA (DASHBOARD TÉCNICO)
-// Acceso: Tecnico, SupervisorTecnico y Gerente
-Route::middleware(['auth:empleado', 'role:Tecnico,SupervisorTecnico,Gerente'])
+// Acceso: Tecnico, SupervisorTecnico, Gerente Y SuperAdmin
+Route::middleware(['auth:empleado', 'role:Tecnico,SupervisorTecnico,Gerente,SuperAdmin']) // <--- ACTUALIZADO
     ->prefix('tecnico')->name('tecnico.')->group(function () {
-    
-    // Dashboard del técnico
-    Route::get('/dashboard', [TecnicoController::class, 'panel'])->name('dashboard');
-    
-    // CORREGIDO: Cambiar a PUT y ruta consistente
-    Route::put('/estado', [TecnicoController::class, 'actualizarEstado'])->name('actualizar.estado');
-    
-    // CORREGIDO: Cambiar a PUT y ruta en plural
-    Route::put('/reclamos/{reclamo}/aceptar', [TecnicoController::class, 'aceptarReclamo'])->name('reclamos.aceptar');
-    
-    // CORREGIDO: Cambiar a PUT y ruta en plural
-    Route::put('/reclamos/{reclamo}/resolver', [TecnicoController::class, 'resolverReclamo'])->name('reclamos.resolver');
-});
+
+        // Dashboard del técnico
+        Route::get('/dashboard', [TecnicoController::class, 'panel'])->name('dashboard');
+
+        // Workflow
+        Route::put('/estado', [TecnicoController::class, 'actualizarEstado'])->name('actualizar.estado');
+        Route::put('/reclamos/{reclamo}/aceptar', [TecnicoController::class, 'aceptarReclamo'])->name('reclamos.aceptar');
+        Route::put('/reclamos/{reclamo}/resolver', [TecnicoController::class, 'resolverReclamo'])->name('reclamos.resolver');
+    });

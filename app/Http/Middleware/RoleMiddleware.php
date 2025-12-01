@@ -21,9 +21,9 @@ class RoleMiddleware
         $guard = 'empleado';
 
         // 2. Seguridad: Verificar si el usuario está realmente logueado como empleado
-        if (!Auth::guard($guard)->check()) {
+        if (! Auth::guard($guard)->check()) {
             // Si no está logueado, lo mandamos al login o lanzamos error.
-            // Normalmente el middleware 'auth:empleado' ya maneja esto, 
+            // Normalmente el middleware 'auth:empleado' ya maneja esto,
             // pero es bueno tener doble seguridad.
             return redirect()->route('login')->withErrors(['email' => 'Debes iniciar sesión para acceder.']);
         }
@@ -35,12 +35,13 @@ class RoleMiddleware
         $allowedRoles = array_map('trim', explode(',', $roles));
 
         // 5. Verificar si el rol del usuario está en la lista de roles permitidos
-        if (!in_array($userRole, $allowedRoles)) {
-            // ... ¡Lanzamos el error 403! 
+        // FIX: SuperAdmin siempre tiene acceso total
+        if ($userRole !== 'SuperAdmin' && ! in_array($userRole, $allowedRoles)) {
+            // ... ¡Lanzamos el error 403!
             // Laravel buscará automáticamente la vista en resources/views/errors/403.blade.php
             abort(403, 'No tienes permisos para acceder a esta sección.');
         }
-        
+
         // 6. Si todo está bien, pase usted
         return $next($request);
     }

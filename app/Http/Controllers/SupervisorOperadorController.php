@@ -4,13 +4,13 @@ namespace App\Http\Controllers;
 
 use App\Models\Empleado;
 use App\Models\Operador;
-use App\Models\SupervisorOperador; // Lo mantenemos por si lo usas en 'show'
+use App\Models\Reclamo;
+use App\Models\SupervisorOperador;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Password;
-use App\Models\Reclamo;
-use Illuminate\Support\Facades\Auth;
 
 class SupervisorOperadorController extends Controller
 {
@@ -24,7 +24,7 @@ class SupervisorOperadorController extends Controller
             ->where('estado', '!=', 'Eliminado')
             ->whereNull('fechaEliminacion')
             ->get();
-        
+
         return view('supervisor_operadores.operadores', compact('operadores'));
     }
 
@@ -48,7 +48,6 @@ class SupervisorOperadorController extends Controller
             'fechaIngreso' => 'required|date',
             'password' => ['required', 'confirmed', Password::min(8)->mixedCase()->numbers()->symbols()],
         ], [
-            // (Mensajes de error en español)
             'primerNombre.required' => 'El primer nombre es obligatorio.',
             'segundoNombre.required' => 'El segundo nombre es obligatorio.',
             'apellidoPaterno.required' => 'El apellido paterno es obligatorio.',
@@ -74,14 +73,14 @@ class SupervisorOperadorController extends Controller
             'numeroCelular' => $request->numeroCelular,
             'emailCorporativo' => $request->emailCorporativo,
             'passwordHash' => Hash::make($request->password),
-            'rol' => 'Operador', // Rol predeterminado
+            'rol' => 'Operador',
             'estado' => 'Activo',
             'fechaIngreso' => $request->fechaIngreso,
         ]);
 
         Operador::create([
             'idEmpleado' => $empleado->idEmpleado,
-            'turno' => $request->turno ?? 'Mañana' // Asigna turno (si lo añades al form) o usa 'Mañana'
+            'turno' => $request->turno ?? 'Mañana',
         ]);
 
         return redirect()->route('supervisor.operadores.index')->with('success', 'Operador registrado correctamente.');
@@ -91,6 +90,7 @@ class SupervisorOperadorController extends Controller
     public function edit($id)
     {
         $empleado = Empleado::where('idEmpleado', $id)->where('rol', 'Operador')->firstOrFail();
+
         return view('supervisor_operadores.edit', compact('empleado'));
     }
 
@@ -106,7 +106,7 @@ class SupervisorOperadorController extends Controller
             'apellidoMaterno' => ['required', 'string', 'max:100', 'regex:/^[\pL\s\-]+$/u'],
             'emailCorporativo' => [
                 'required', 'email', 'max:150',
-                Rule::unique('empleados')->ignore($empleado->idEmpleado, 'idEmpleado')
+                Rule::unique('empleados')->ignore($empleado->idEmpleado, 'idEmpleado'),
             ],
             'estado' => 'required|string|in:Activo,Bloqueado,Eliminado',
         ]);
@@ -127,8 +127,9 @@ class SupervisorOperadorController extends Controller
     public function deleted()
     {
         $operadores = Empleado::where('rol', 'Operador')
-                            ->where('estado', 'Eliminado')
-                            ->get();
+            ->where('estado', 'Eliminado')
+            ->get();
+
         return view('supervisor_operadores.deleted', compact('operadores'));
     }
 
@@ -161,7 +162,6 @@ class SupervisorOperadorController extends Controller
     /** Devuelve JSON de un supervisor específico (padre) */
     public function show($id)
     {
-        // Esto busca en la tabla 'supervisores_operadores', no en 'empleados'
         return response()->json(SupervisorOperador::findOrFail($id));
     }
     // =========================================================
@@ -176,23 +176,23 @@ class SupervisorOperadorController extends Controller
     {
         // 1. Reclamos que necesitan un operador (Nuevos o Abiertos)
         $reclamosPendientes = Reclamo::whereIn('estado', ['Nuevo', 'Abierto'])
-                                ->with(['usuario', 'operador']) // Cargar relación de operador actual
-                                ->orderBy('fechaCreacion', 'desc')
-                                ->get();
+            ->with(['usuario', 'operador']) // Cargar relación de operador actual
+            ->orderBy('fechaCreacion', 'desc')
+            ->get();
 
         // 2. Lista de Operadores activos para el select (con relación operador para mostrar turno)
         $operadoresActivos = Empleado::where('rol', 'Operador')
-                                    ->where('estado', 'Activo')
-                                    ->with('operador') // Cargar relación para obtener turno
-                                    ->orderBy('apellidoPaterno')
-                                    ->get();
+            ->where('estado', 'Activo')
+            ->with('operador') // Cargar relación para obtener turno
+            ->orderBy('apellidoPaterno')
+            ->get();
 
         // 3. Devolvemos la vista con los datos
         return view('supervisor_operadores.dashboard_reasignar', [
             'reclamos' => $reclamosPendientes,
             'operadores' => $operadoresActivos,
             // Obtenemos el usuario supervisor autenticado
-            'supervisor' => Auth::guard('empleado')->user() 
+            'supervisor' => Auth::guard('empleado')->user(),
         ]);
     }
 
@@ -218,31 +218,32 @@ class SupervisorOperadorController extends Controller
 
         // 3. Actualizar el reclamo
         $reclamo->idOperador = $data['idOperador'];
-        
+
         // Actualizar prioridad si se proporciona
         if (isset($data['prioridad'])) {
             $reclamo->prioridad = $data['prioridad'];
         }
-        
+
         // Actualizar estado si se proporciona, sino usar 'Asignado' por defecto
         $reclamo->estado = $data['estado'] ?? 'Asignado';
-        
+
         // Actualizar SLA si se proporciona
         if (isset($data['idPoliticaSLA'])) {
             $reclamo->idPoliticaSLA = $data['idPoliticaSLA'];
         }
-        
+
         $reclamo->save();
 
         // 4. Redirección final
         return redirect()->route('supervisor.operadores.dashboard')
-                        ->with('success', 'Reclamo #' . $reclamo->idReclamo . ' reasignado correctamente a ' . $operador->primerNombre . '.');
+            ->with('success', 'Reclamo #'.$reclamo->idReclamo.' reasignado correctamente a '.$operador->primerNombre.'.');
     }
+
     public function actualizarGestion(Request $request, Reclamo $reclamo)
     {
         // 1. Validar que los campos de gestión sean correctos y obligatorios
         $request->validate([
-            'prioridad' => ['required', Rule::in(['Baja', 'Media', 'Alta', 'Urgente'])], 
+            'prioridad' => ['required', Rule::in(['Baja', 'Media', 'Alta', 'Urgente'])],
             'estado' => ['required', Rule::in(['Nuevo', 'Abierto', 'Asignado', 'En Proceso', 'Resuelto', 'Cerrado', 'Cancelado'])],
             'idPoliticaSLA' => 'required|integer|exists:sla_politicas,idPoliticaSLA', // Debe existir en la BD
         ]);
@@ -259,7 +260,7 @@ class SupervisorOperadorController extends Controller
 
         } catch (\Exception $e) {
             // Devolver un error JSON si hay problemas de integridad de BD
-            return response()->json(['message' => 'Error al actualizar gestión: ' . $e->getMessage()], 500);
+            return response()->json(['message' => 'Error al actualizar gestión: '.$e->getMessage()], 500);
         }
     }
 }

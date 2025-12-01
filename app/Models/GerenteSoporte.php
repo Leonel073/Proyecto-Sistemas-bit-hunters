@@ -10,11 +10,13 @@ class GerenteSoporte extends Model
     use HasFactory;
 
     protected $table = 'gerentes_soporte';
+
     protected $primaryKey = 'idEmpleado';
+
     public $timestamps = false;
 
     protected $fillable = [
         'idEmpleado',
-        'nivelAutoridad'
+        'nivelAutoridad',
     ];
 }

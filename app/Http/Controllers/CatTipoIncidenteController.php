@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\CatTipoIncidente;
-use App\Models\TipoIncidente;
 use Illuminate\Http\Request;
 
 class CatTipoIncidenteController extends Controller
@@ -17,10 +16,11 @@ class CatTipoIncidenteController extends Controller
     {
         $request->validate([
             'nombreIncidente' => 'required|string|max:255|unique:cat_tipo_incidente,nombreIncidente',
-            'descripcion' => 'nullable|string'
+            'descripcion' => 'nullable|string',
         ]);
 
         $tipo = CatTipoIncidente::create($request->all());
+
         return response()->json(['message' => 'Tipo de incidente creado', 'data' => $tipo]);
     }
 
@@ -33,12 +33,14 @@ class CatTipoIncidenteController extends Controller
     {
         $tipo = CatTipoIncidente::findOrFail($id);
         $tipo->update($request->all());
+
         return response()->json(['message' => 'Tipo de incidente actualizado', 'data' => $tipo]);
     }
 
     public function destroy($id)
     {
         CatTipoIncidente::destroy($id);
+
         return response()->json(['message' => 'Tipo de incidente eliminado']);
     }
 }

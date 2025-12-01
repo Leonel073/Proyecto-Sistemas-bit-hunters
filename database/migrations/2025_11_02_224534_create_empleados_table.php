@@ -4,8 +4,10 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration {
-    public function up(): void {
+return new class extends Migration
+{
+    public function up(): void
+    {
         Schema::create('empleados', function (Blueprint $table) {
             $table->id('idEmpleado');
             $table->string('primerNombre', 100);
@@ -16,7 +18,7 @@ return new class extends Migration {
             $table->string('numeroCelular', 20)->unique();
             $table->string('emailCorporativo', 255)->unique();
             $table->string('passwordHash', 255);
-            $table->enum('rol', ['Gerente', 'SupervisorOperador', 'SupervisorTecnico', 'Operador', 'Tecnico']);
+            $table->enum('rol', ['SuperAdmin','Gerente', 'SupervisorOperador', 'SupervisorTecnico', 'Operador', 'Tecnico']);
             $table->enum('estado', ['Activo', 'Bloqueado', 'Eliminado'])->default('Activo');
             $table->date('fechaIngreso');
             $table->timestamps();
@@ -25,7 +27,9 @@ return new class extends Migration {
             $table->index('estado', 'idx_empleado_estado');
         });
     }
-    public function down(): void {
+
+    public function down(): void
+    {
         Schema::dropIfExists('empleados');
     }
 };

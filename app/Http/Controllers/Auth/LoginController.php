@@ -3,21 +3,21 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Models\Empleado;
+use App\Models\Reclamo;
+use App\Models\RegistroAuditoria;
+use App\Models\Usuario;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
-use App\Models\Usuario;
-use App\Models\Empleado;
-use App\Models\RegistroAuditoria;
-use App\Models\Reclamo; 
 
 class LoginController extends Controller
 {
     public function show()
     {
-        return view('login');
+        return view('auth.login');
     }
 
     public function login(Request $request)
@@ -30,7 +30,7 @@ class LoginController extends Controller
         $usuario = Usuario::where('email', $request->email)->first();
         $empleado = Empleado::where('emailCorporativo', $request->email)->first();
 
-        if (!$usuario && !$empleado) {
+        if (! $usuario && ! $empleado) {
             throw ValidationException::withMessages(['email' => 'Credenciales incorrectas.']);
         }
 
@@ -46,14 +46,14 @@ class LoginController extends Controller
     private function verificarCredenciales($persona, Request $request, $tipo)
     {
         if (in_array($persona->estado, ['Bloqueado', 'Eliminado', 'De Baja'])) {
-            $mensaje = match($persona->estado) {
+            $mensaje = match ($persona->estado) {
                 'Bloqueado' => 'Cuenta bloqueada. Contacte con soporte.',
                 'Eliminado', 'De Baja' => 'Cuenta eliminada del sistema.',
             };
             throw ValidationException::withMessages(['email' => $mensaje]);
         }
 
-        if (!Hash::check($request->password, $persona->passwordHash)) {
+        if (! Hash::check($request->password, $persona->passwordHash)) {
             $persona->intentosFallidos = ($persona->intentosFallidos ?? 0) + 1;
 
             if ($persona->intentosFallidos >= 3) {
@@ -91,7 +91,7 @@ class LoginController extends Controller
                 Log::error('Error al crear auditoría: '.$e->getMessage());
             }
         }
-        
+
         // --- REDIRECCIÓN SEGÚN ROL (CORREGIDO) ---
         if ($tipo === 'empleado') {
             $mensajesBienvenida = [
@@ -105,9 +105,13 @@ class LoginController extends Controller
 
             switch ($persona->rol) {
                 case 'Gerente':
-                    // CAMBIO: Ahora apunta a 'admin.empleados.index'
-                    return redirect()->route('admin.empleados.index')->with('success', $mensaje);
-                
+                    // CAMBIO: Ahora apunta al dashboard de gerente
+                    return redirect()->route('gerente.dashboard')->with('success', $mensaje);
+
+                case 'SuperAdmin':
+                    // CAMBIO: Apunta al dashboard de SuperAdmin
+                    return redirect()->route('admin.control')->with('success', 'Bienvenido, Super Administrador.');
+
                 case 'SupervisorOperador':
                     // CAMBIO: Apunta a 'supervisor.operadores.index'
                     return redirect()->route('supervisor.operadores.index')->with('success', $mensaje);
@@ -123,6 +127,7 @@ class LoginController extends Controller
                     $empleadoId = $persona->idEmpleado;
                     $nuevos = Reclamo::whereNull('idOperador')->where('estado', 'Nuevo')->orderBy('fechaCreacion', 'desc')->get();
                     $misCasos = Reclamo::where('idOperador', $empleadoId)->whereIn('estado', ['Asignado', 'En Proceso'])->orderBy('fechaCreacion', 'desc')->get();
+
                     return view('operador.panel', compact('nuevos', 'misCasos'))->with('success', $mensaje);
 
                 default:
@@ -138,6 +143,7 @@ class LoginController extends Controller
         Auth::logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
+
         return redirect()->route('home');
     }
 }

@@ -10,13 +10,17 @@ class Tecnico extends Model
     use HasFactory;
 
     protected $table = 'tecnicos';
+
     protected $primaryKey = 'idEmpleado';
+
     public $timestamps = false;
 
     protected $fillable = [
         'idEmpleado',
         'especialidad',
-        'estadoDisponibilidad'
+        'estadoDisponibilidad',
+        'latitud',
+        'longitud',
     ];
 
     public function empleado()

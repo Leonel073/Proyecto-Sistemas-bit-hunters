@@ -3,9 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\Reclamo;
+use App\Models\Tecnico;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use App\Models\Tecnico; // Importar el modelo Técnico
+use Illuminate\Support\Facades\Auth; // Importar el modelo Técnico
 
 class TecnicoDashboardController extends Controller
 {
@@ -15,14 +15,14 @@ class TecnicoDashboardController extends Controller
     public function index()
     {
         // 1. Obtener el objeto Empleado completo del técnico logueado. Este contiene 'primerNombre' y 'apellidoPaterno'.
-        $tecnico = Auth::user(); 
+        $tecnico = Auth::user();
         $tecnicoId = $tecnico->idEmpleado;
 
         // 2. Obtener el estado actual de disponibilidad del técnico a partir de su perfil 'Tecnico'.
         // Este registro es necesario para obtener 'estadoDisponibilidad'.
         $tecnicoProfile = Tecnico::where('idEmpleado', $tecnicoId)->first();
         $estadoActual = $tecnicoProfile ? $tecnicoProfile->estadoDisponibilidad : 'Disponible';
-        
+
         // 3. Filtrar los reclamos por el ID del técnico y por estados activos.
         $reclamos = Reclamo::where('idTecnicoAsignado', $tecnicoId)
             ->whereNotIn('estado', ['Cerrado', 'Resuelto', 'Completado']) // Añade los estados finales que uses
@@ -50,7 +50,8 @@ class TecnicoDashboardController extends Controller
         if ($tecnicoProfile) {
             $tecnicoProfile->estadoDisponibilidad = $request->estadoDisponibilidad;
             $tecnicoProfile->save();
-            return redirect()->route('tecnico.dashboard')->with('success', 'Estado de disponibilidad actualizado a ' . $tecnicoProfile->estadoDisponibilidad . '.');
+
+            return redirect()->route('tecnico.dashboard')->with('success', 'Estado de disponibilidad actualizado a '.$tecnicoProfile->estadoDisponibilidad.'.');
         }
 
         return redirect()->route('tecnico.dashboard')->with('error', 'Error: No se encontró el perfil de técnico asociado a su cuenta.');
@@ -63,10 +64,10 @@ class TecnicoDashboardController extends Controller
     {
         $tecnicoId = Auth::user()->idEmpleado;
         $reclamo = Reclamo::where('idReclamo', $idReclamo)
-                          ->where('idTecnicoAsignado', $tecnicoId)
-                          ->first();
+            ->where('idTecnicoAsignado', $tecnicoId)
+            ->first();
 
-        if (!$reclamo) {
+        if (! $reclamo) {
             return redirect()->route('tecnico.dashboard')->with('error', 'Reclamo no encontrado o no asignado a usted.');
         }
 

@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth; // Para la seguridad
-use App\Models\Reclamo; // Para buscar y actualizar el reclamo
+use App\Models\Reclamo;
+use Illuminate\Http\Request; // Para la seguridad
+use Illuminate\Support\Facades\Auth; // Para buscar y actualizar el reclamo
 
 class ReclamoResolucionController extends Controller
 {
@@ -24,10 +24,10 @@ class ReclamoResolucionController extends Controller
 
         // 2. Validamos que nos hayan enviado una solución
         $request->validate([
-            'solucionTecnica' => 'required|string|min:10'
+            'solucionTecnica' => 'required|string|min:10',
         ], [
             'solucionTecnica.required' => 'Debes registrar la solución técnica aplicada.',
-            'solucionTecnica.min' => 'La solución debe tener al menos 10 caracteres.'
+            'solucionTecnica.min' => 'La solución debe tener al menos 10 caracteres.',
         ]);
 
         // 3. Actualizamos el reclamo con los datos del formulario
@@ -41,6 +41,6 @@ class ReclamoResolucionController extends Controller
         // $reclamo->historialEstados()->create([ ... ]);
 
         // 4. Redireccionamos al dashboard con un mensaje de éxito
-        return redirect()->route('tecnico.dashboard')->with('success', 'El Reclamo R-' . $reclamo->idReclamo . ' ha sido marcado como Resuelto.');
+        return redirect()->route('tecnico.dashboard')->with('success', 'El Reclamo R-'.$reclamo->idReclamo.' ha sido marcado como Resuelto.');
     }
 }

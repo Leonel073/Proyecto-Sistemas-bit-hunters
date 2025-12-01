@@ -3,10 +3,14 @@
 namespace App\Models;
 
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use App\Traits\HasRoles; // Importa el trait HasRoles
 
 class Empleado extends Authenticatable
 {
+    use HasRoles; //tener roles
+
     protected $table = 'empleados';
+
     protected $primaryKey = 'idEmpleado';
 
     protected $fillable = [
@@ -20,7 +24,7 @@ class Empleado extends Authenticatable
         'passwordHash',
         'rol',
         'estado',
-        'fechaIngreso'
+        'fechaIngreso',
     ];
 
     // ⚠️ Esto es lo importante:
@@ -28,6 +32,7 @@ class Empleado extends Authenticatable
     {
         return $this->passwordHash;
     }
+
     /**
      * Obtiene el perfil específico de Supervisor de Operadores.
      */
@@ -36,12 +41,12 @@ class Empleado extends Authenticatable
         // Un Empleado TIENE UN perfil de SupervisorOperador
         return $this->hasOne(SupervisorOperador::class, 'idEmpleado', 'idEmpleado');
     }
-  
+
     public function operador()
     {
         return $this->hasOne(Operador::class, 'idEmpleado', 'idEmpleado');
     }
-    
+
     public function tecnico()
     {
         return $this->hasOne(Tecnico::class, 'idEmpleado', 'idEmpleado');

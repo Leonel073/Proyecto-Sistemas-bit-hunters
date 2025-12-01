@@ -4,8 +4,10 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration {
-    public function up(): void {
+return new class extends Migration
+{
+    public function up(): void
+    {
         // SOLO UNA VEZ Schema::create
         Schema::create('reclamos', function (Blueprint $table) {
             $table->id('idReclamo');
@@ -19,14 +21,16 @@ return new class extends Migration {
             $table->text('descripcionDetallada');
 
             // ✅ AQUÍ AGREGAMOS LA COLUMNA NUEVA (Dentro del mismo bloque)
-            $table->json('comentarios')->nullable(); 
+            $table->json('comentarios')->nullable();
 
             $table->text('solucionTecnica')->nullable();
             $table->enum('estado', ['Nuevo', 'Abierto', 'Asignado', 'En Proceso', 'Resuelto', 'Cerrado', 'Cancelado'])->default('Nuevo');
             $table->enum('prioridad', ['Baja', 'Media', 'Alta', 'Urgente']);
             $table->decimal('latitudIncidente', 10, 8);
             $table->decimal('longitudIncidente', 11, 8);
+            $table->text('direccion')->nullable(); // Agregado para coincidir con seeder
             $table->timestamp('fechaCreacion')->useCurrent();
+            $table->timestamp('fechaLimite')->nullable(); // Agregado para SLA
             $table->timestamp('fechaResolucion')->nullable();
             $table->timestamp('fechaCierre')->nullable();
             $table->timestamp('fechaActualizacion')->useCurrent()->useCurrentOnUpdate();
@@ -45,7 +49,8 @@ return new class extends Migration {
         });
     }
 
-    public function down(): void {
+    public function down(): void
+    {
         Schema::dropIfExists('reclamos');
     }
 };

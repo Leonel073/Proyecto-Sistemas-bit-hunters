@@ -10,12 +10,14 @@ class SupervisorOperador extends Model
     use HasFactory;
 
     protected $table = 'supervisores_operadores';
+
     protected $primaryKey = 'idEmpleado';
+
     public $timestamps = false;
 
     protected $fillable = [
         'idEmpleado',
-        'areaEnfoque'
+        'areaEnfoque',
     ];
 
     /**

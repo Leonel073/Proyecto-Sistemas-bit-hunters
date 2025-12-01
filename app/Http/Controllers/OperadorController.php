@@ -2,12 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Controllers\Controller;
 use App\Models\Operador;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use App\Models\Reclamo;
 use App\Models\Tecnico;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class OperadorController extends Controller
 {
@@ -22,10 +21,11 @@ class OperadorController extends Controller
     {
         $request->validate([
             'idEmpleado' => 'required|integer|unique:operadores,idEmpleado',
-            'turno' => 'required|string'
+            'turno' => 'required|string',
         ]);
 
         $operador = Operador::create($request->all());
+
         return response()->json(['message' => 'Operador creado', 'data' => $operador]);
     }
 
@@ -38,12 +38,14 @@ class OperadorController extends Controller
     {
         $operador = Operador::findOrFail($id);
         $operador->update($request->all());
+
         return response()->json(['message' => 'Operador actualizado', 'data' => $operador]);
     }
 
     public function destroy($id)
     {
         Operador::destroy($id);
+
         return response()->json(['message' => 'Operador eliminado']);
     }
 
@@ -68,7 +70,35 @@ class OperadorController extends Controller
             ->orderBy('fechaCreacion', 'desc')
             ->get();
 
-        return view('operador.panel', compact('nuevos', 'misCasos'));
+        // Obtener lista de técnicos disponibles para el modal
+        $tecnicos = Tecnico::join('empleados', 'tecnicos.idEmpleado', '=', 'empleados.idEmpleado')
+            ->where('empleados.estado', 'Activo')
+            ->where('tecnicos.estadoDisponibilidad', 'Disponible') // Solo disponibles
+            ->select([
+                'tecnicos.idEmpleado',
+                'empleados.primerNombre',
+                'empleados.apellidoPaterno',
+                'tecnicos.especialidad',
+                'tecnicos.estadoDisponibilidad',
+            ])
+            ->get();
+
+        // EXCEPCIÓN PARA SUPERADMIN (Testing):
+        // Si el usuario actual es SuperAdmin, agregarlo a la lista manualmente para que pueda asignarse casos.
+        if (Auth::guard('empleado')->user()->rol === 'SuperAdmin') {
+            $superAdmin = Auth::guard('empleado')->user();
+            // Creamos un objeto "fake" que cumpla con la estructura esperada
+            $fakeTecnico = (object) [
+                'idEmpleado' => $superAdmin->idEmpleado,
+                'primerNombre' => $superAdmin->primerNombre,
+                'apellidoPaterno' => $superAdmin->apellidoPaterno,
+                'especialidad' => 'SuperAdmin (Test)',
+                'estadoDisponibilidad' => 'Disponible'
+            ];
+            $tecnicos->push($fakeTecnico);
+        }
+
+        return view('operador.panel', compact('nuevos', 'misCasos', 'tecnicos'));
     }
 
     /**
@@ -76,19 +106,13 @@ class OperadorController extends Controller
      */
     public function nuevos()
     {
-        try {
-        $nuevos = Reclamo::whereNull('idOperador') // Filtra solo los casos sin asignación inicial
-            ->where('estado', 'Nuevo')            // Asegura que estén marcados como Nuevo
+        $nuevos = Reclamo::whereNull('idOperador')
+            ->where('estado', 'Nuevo')
             ->with('usuario')
             ->orderBy('fechaCreacion', 'desc')
             ->get();
-        
-        // Si el resultado sigue siendo 0, el problema es en la inserción de datos de prueba.
+
         return response()->json($nuevos);
-        
-    } catch (\Exception $e) {
-        return response()->json(['message' => 'Error al cargar casos nuevos: ' . $e->getMessage()], 500);
-    }
     }
 
     /**
@@ -102,13 +126,15 @@ class OperadorController extends Controller
             ->with(['usuario', 'tecnico']) // Asegúrate de que la relación 'tecnico' exista en el modelo Reclamo
             ->orderBy('fechaCreacion', 'desc')
             ->get()
-            ->map(function($r) {
+            ->map(function ($r) {
                 // Si hay un técnico asignado, formatear su nombre completo
-                $r->tecnicoNombre = $r->tecnico 
-                    ? $r->tecnico->primerNombre . ' ' . $r->tecnico->apellidoPaterno 
+                $r->tecnicoNombre = $r->tecnico
+                    ? $r->tecnico->primerNombre.' '.$r->tecnico->apellidoPaterno
                     : 'Sin asignar';
+
                 return $r;
             });
+
         return response()->json($misCasos);
     }
 
@@ -118,7 +144,7 @@ class OperadorController extends Controller
     public function tomar(Request $request, Reclamo $reclamo)
     {
         $empleadoId = Auth::guard('empleado')->id();
-        
+
         if ($reclamo->idOperador) {
             return response()->json(['message' => 'El reclamo ya fue asignado'], 422);
         }
@@ -127,7 +153,7 @@ class OperadorController extends Controller
         $reclamo->estado = 'Abierto'; // O el estado que corresponda al tomarlo
         $reclamo->save();
 
-        return response()->json(['message' => 'Reclamo asignado al operador']);
+        return back()->with('success', 'Reclamo asignado a su panel correctamente.');
     }
 
     /**
@@ -137,9 +163,15 @@ class OperadorController extends Controller
     {
         // 1. Validar datos
         $data = $request->validate([
-            'idTecnico' => 'required|integer', // El nombre del input en el HTML sigue siendo idTecnico
-            'prioridad' => 'required|string|in:Baja,Media,Alta,Urgente', // Prioridad asignada por el operador
-            'comentario' => 'required|string'
+            'idTecnico' => 'required|integer', 
+            'prioridad' => 'required|string|in:Baja,Media,Alta,Urgente',
+            'comentario' => 'required|string',
+        ], [
+            'idTecnico.required' => 'Debe seleccionar un técnico de la lista.',
+            'idTecnico.integer' => 'El técnico seleccionado no es válido.',
+            'prioridad.required' => 'Debe asignar una prioridad al caso.',
+            'prioridad.in' => 'La prioridad seleccionada no es válida.',
+            'comentario.required' => 'Es obligatorio agregar instrucciones o un comentario para el técnico.',
         ]);
 
         try {
@@ -151,34 +183,41 @@ class OperadorController extends Controller
             if (is_string($comentarios)) {
                 $comentarios = json_decode($comentarios, true);
             }
-            if (!is_array($comentarios)) {
+            if (! is_array($comentarios)) {
                 $comentarios = [];
             }
-            
+
             $nuevoComentario = [
                 'id' => now()->timestamp,
                 'texto' => $data['comentario'],
                 'autorId' => Auth::guard('empleado')->id(),
-                'fecha' => now()->toDateTimeString()
+                'fecha' => now()->toDateTimeString(),
             ];
 
             // Añadir el nuevo comentario al array
             $comentarios[] = $nuevoComentario;
 
             // 3. Actualizar el reclamo
-            $reclamo->comentarios = $comentarios; 
-            
+            $reclamo->comentarios = $comentarios;
+
             // ✅ CORRECCIÓN AQUÍ: Usamos el nombre real de la columna en la BD
-            $reclamo->idTecnicoAsignado = $data['idTecnico']; 
+            $reclamo->idTecnicoAsignado = $data['idTecnico'];
             $reclamo->prioridad = $data['prioridad']; // Actualizar prioridad asignada por el operador
-            $reclamo->estado = 'Asignado'; 
+            $reclamo->estado = 'Asignado';
             $reclamo->save();
 
-            return response()->json(['message' => 'Técnico asignado correctamente']);
+            // 4. Actualizar estado del técnico a 'Ocupado'
+            $tecnico = Tecnico::where('idEmpleado', $data['idTecnico'])->first();
+            if ($tecnico) {
+                $tecnico->estadoDisponibilidad = 'Ocupado';
+                $tecnico->save();
+            }
+
+            return back()->with('success', 'Técnico asignado correctamente y marcado como Ocupado.');
 
         } catch (\Exception $e) {
             // Esto te ayudará a ver el error real si algo más falla
-            return response()->json(['message' => 'Error al asignar técnico: ' . $e->getMessage()], 500);
+            return back()->withErrors(['error' => 'Error al asignar técnico: '.$e->getMessage()]);
         }
     }
 
@@ -191,14 +230,14 @@ class OperadorController extends Controller
         $tecnicos = Tecnico::join('empleados', 'tecnicos.idEmpleado', '=', 'empleados.idEmpleado')
             ->where('empleados.estado', 'Activo')
             ->select([
-                'tecnicos.idEmpleado', 
-                'empleados.primerNombre', 
+                'tecnicos.idEmpleado',
+                'empleados.primerNombre',
                 'empleados.apellidoPaterno',
-                'tecnicos.especialidad', 
-                'tecnicos.estadoDisponibilidad'
+                'tecnicos.especialidad',
+                'tecnicos.estadoDisponibilidad',
             ])
             ->get();
-        
+
         return response()->json($tecnicos);
     }
 }

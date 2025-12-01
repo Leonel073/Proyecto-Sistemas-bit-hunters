@@ -10,12 +10,14 @@ class Operador extends Model
     use HasFactory;
 
     protected $table = 'operadores';
+
     protected $primaryKey = 'idEmpleado';
+
     public $timestamps = false;
 
     protected $fillable = [
         'idEmpleado',
-        'turno'
+        'turno',
     ];
 
     public function empleado()

@@ -10,11 +10,13 @@ class CatCausaRaiz extends Model
     use HasFactory;
 
     protected $table = 'cat_causa_raiz';
+
     protected $primaryKey = 'idCausaRaiz';
+
     public $timestamps = false;
 
     protected $fillable = [
         'nombreCausa',
-        'descripcion'
+        'descripcion',
     ];
 }

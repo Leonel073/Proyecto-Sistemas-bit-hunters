@@ -1,5 +1,7 @@
 <?php
-//CREADOS POR LARAVEL
+
+// CREADOS POR LARAVEL
+
 namespace App\Http\Middleware;
 
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken as Middleware;

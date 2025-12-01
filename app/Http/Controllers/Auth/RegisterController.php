@@ -16,7 +16,7 @@ class RegisterController extends Controller
     public function show()
     {
         // Vista Blade del formulario de registro (usa tu vista actual)
-        return view('sign_up');
+        return view('auth.register');
     }
 
     /**
@@ -32,16 +32,16 @@ class RegisterController extends Controller
             'segundoNombre' => ['required', 'string', 'max:100', 'regex:/^[\pL\s\-]+$/u'],
             'apellidoPaterno' => ['required', 'string', 'max:100', 'regex:/^[\pL\s\-]+$/u'],
             'apellidoMaterno' => ['required', 'string', 'max:100', 'regex:/^[\pL\s\-]+$/u'],
-            
+
             // CI: Requerido, numérico, entre 7 y 10 dígitos, y único.
             'ci' => 'required|numeric|digits_between:7,10|unique:usuarios,ci',
-            
+
             // Celular: Requerido, numérico, y único.
             'numeroCelular' => 'required|numeric|unique:usuarios,numeroCelular',
-            
+
             // Email: Requerido, formato email, y único.
             'email' => 'required|email|max:255|unique:usuarios,email',
-            
+
             // Dirección: Requerida (eliminamos 'nullable').
             'direccionTexto' => 'required|string|max:255',
 

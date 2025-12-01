@@ -3,12 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Models\Empleado;
-use App\Models\Tecnico;
-use App\Models\SupervisorTecnico; // Lo mantenemos por si lo usas en 'show'
 use App\Models\Reclamo;
+use App\Models\SupervisorTecnico;
+use App\Models\Tecnico;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Password;
 
@@ -24,7 +24,7 @@ class SupervisorTecnicoController extends Controller
             ->where('estado', '!=', 'Eliminado')
             ->whereNull('fechaEliminacion')
             ->get();
-        
+
         return view('supervisor_tecnicos.tecnicos', compact('tecnicos'));
     }
 
@@ -37,7 +37,7 @@ class SupervisorTecnicoController extends Controller
     /** Guarda el nuevo Técnico en la BD */
     public function store(Request $request)
     {
-         $request->validate([
+        $request->validate([
             'primerNombre' => ['required', 'string', 'max:100', 'regex:/^[\pL\s\-]+$/u'],
             'segundoNombre' => ['required', 'string', 'max:100', 'regex:/^[\pL\s\-]+$/u'],
             'apellidoPaterno' => ['required', 'string', 'max:100', 'regex:/^[\pL\s\-]+$/u'],
@@ -81,7 +81,7 @@ class SupervisorTecnicoController extends Controller
 
         Tecnico::create([
             'idEmpleado' => $empleado->idEmpleado,
-            'especialidad' => $request->especialidad ?? 'General' // Asigna (si lo añades al form) o usa 'General'
+            'especialidad' => $request->especialidad ?? 'General',
         ]);
 
         return redirect()->route('supervisor.tecnicos.index')->with('success', 'Técnico registrado correctamente.');
@@ -91,6 +91,7 @@ class SupervisorTecnicoController extends Controller
     public function edit($id)
     {
         $empleado = Empleado::where('idEmpleado', $id)->where('rol', 'Tecnico')->firstOrFail();
+
         return view('supervisor_tecnicos.edit', compact('empleado'));
     }
 
@@ -106,7 +107,7 @@ class SupervisorTecnicoController extends Controller
             'apellidoMaterno' => ['required', 'string', 'max:100', 'regex:/^[\pL\s\-]+$/u'],
             'emailCorporativo' => [
                 'required', 'email', 'max:150',
-                Rule::unique('empleados')->ignore($empleado->idEmpleado, 'idEmpleado')
+                Rule::unique('empleados')->ignore($empleado->idEmpleado, 'idEmpleado'),
             ],
             'estado' => 'required|string|in:Activo,Bloqueado,Eliminado',
         ]);
@@ -127,8 +128,9 @@ class SupervisorTecnicoController extends Controller
     public function deleted()
     {
         $tecnicos = Empleado::where('rol', 'Tecnico')
-                            ->where('estado', 'Eliminado')
-                            ->get();
+            ->where('estado', 'Eliminado')
+            ->get();
+
         return view('supervisor_tecnicos.deleted', compact('tecnicos'));
     }
 
@@ -155,13 +157,12 @@ class SupervisorTecnicoController extends Controller
 
         return redirect()->route('supervisor.tecnicos.index')->with('success', 'Técnico eliminado correctamente.');
     }
-    
+
     // --- MÉTODOS DE API JSON (Si aún los necesitas) ---
-    
+
     /** Devuelve JSON de un supervisor específico (padre) */
     public function show($id)
     {
-        // Esto busca en la tabla 'supervisores_tecnicos', no en 'empleados'
         return response()->json(SupervisorTecnico::findOrFail($id));
     }
 
@@ -178,32 +179,35 @@ class SupervisorTecnicoController extends Controller
         // 1. Reclamos que tienen técnico asignado (para poder reasignarlos)
         // Usar with() con callbacks para manejar relaciones que podrían no existir
         $reclamosAsignados = Reclamo::whereNotNull('idTecnicoAsignado')
-                                ->whereIn('estado', ['Asignado', 'En Proceso', 'Abierto'])
-                                ->with([
-                                    'usuario',
-                                    'tecnico' => function($query) {
-                                        $query->where('estado', '!=', 'Eliminado');
-                                    },
-                                    'operador' => function($query) {
-                                        $query->where('estado', '!=', 'Eliminado');
-                                    }
-                                ])
-                                ->orderBy('fechaCreacion', 'desc')
-                                ->get();
+            ->whereIn('estado', ['Asignado', 'En Proceso', 'Abierto'])
+            ->with([
+                'usuario',
+                'tecnico' => function ($query) {
+                    $query->where('estado', '!=', 'Eliminado');
+                },
+                'operador' => function ($query) {
+                    $query->where('estado', '!=', 'Eliminado');
+                },
+            ])
+            ->orderBy('fechaCreacion', 'desc')
+            ->get();
 
-        // 2. Lista de Técnicos activos para el select
+        // 2. Lista de Técnicos activos y DISPONIBLES para el select
         $tecnicosActivos = Empleado::where('rol', 'Tecnico')
-                                    ->where('estado', 'Activo')
-                                    ->with('tecnico') // Cargar relación para obtener especialidad
-                                    ->orderBy('apellidoPaterno')
-                                    ->get();
+            ->where('estado', 'Activo')
+            ->whereHas('tecnico', function ($query) {
+                $query->where('estadoDisponibilidad', 'Disponible');
+            })
+            ->with('tecnico') // Cargar relación para obtener especialidad
+            ->orderBy('apellidoPaterno')
+            ->get();
 
         // 3. Devolvemos la vista con los datos
         return view('supervisor_tecnicos.dashboard_reasignar', [
             'reclamos' => $reclamosAsignados,
             'tecnicos' => $tecnicosActivos,
             // Obtenemos el usuario supervisor autenticado
-            'supervisor' => Auth::guard('empleado')->user() 
+            'supervisor' => Auth::guard('empleado')->user(),
         ]);
     }
 
@@ -211,12 +215,12 @@ class SupervisorTecnicoController extends Controller
      * Procesa la reasignación de un reclamo a un nuevo técnico.
      * (Función para la ruta supervisor.tecnicos.reasignar)
      */
-    public function reasignarTecnico(Request $request, $reclamo)
+    public function reasignarTecnico(Request $request, Reclamo $reclamo)
     {
         try {
-            // 1. Buscar el reclamo manualmente para evitar problemas con route model binding
-            $reclamo = Reclamo::findOrFail($reclamo);
-            
+            // 1. El modelo ya está inyectado automáticamente por Laravel (Route Model Binding)
+            // No es necesario buscarlo manualmente.
+
             // 2. Validación
             $data = $request->validate([
                 'idTecnico' => 'required|integer|exists:empleados,idEmpleado', // ID del nuevo técnico
@@ -227,48 +231,50 @@ class SupervisorTecnicoController extends Controller
 
             // 3. Validación de rol - Verificar que el técnico existe, es técnico y está activo
             $tecnico = Empleado::where('idEmpleado', $data['idTecnico'])
-                              ->where('rol', 'Tecnico')
-                              ->where('estado', 'Activo')
-                              ->first();
-            
-            if (!$tecnico) {
+                ->where('rol', 'Tecnico')
+                ->where('estado', 'Activo')
+                ->first();
+
+            if (! $tecnico) {
                 return back()->withErrors(['idTecnico' => 'El técnico seleccionado no existe, no es técnico o no está activo.']);
             }
 
-        // 3. Actualizar el reclamo
-        $reclamo->idTecnicoAsignado = $data['idTecnico'];
-        
-        // Actualizar prioridad si se proporciona
-        if (isset($data['prioridad'])) {
-            $reclamo->prioridad = $data['prioridad'];
-        }
-        
-        // Mantener el estado actual si no se proporciona uno nuevo
-        if (isset($data['estado'])) {
-            $reclamo->estado = $data['estado'];
-        }
-        
-        // Actualizar SLA si se proporciona
-        if (isset($data['idPoliticaSLA'])) {
-            $reclamo->idPoliticaSLA = $data['idPoliticaSLA'];
-        }
-        
+            // 3. Actualizar el reclamo
+            $reclamo->idTecnicoAsignado = $data['idTecnico'];
+
+            // Actualizar prioridad si se proporciona
+            if (isset($data['prioridad'])) {
+                $reclamo->prioridad = $data['prioridad'];
+            }
+
+            // Mantener el estado actual si no se proporciona uno nuevo, 
+            // PERO si el estado actual es 'En Proceso', lo regresamos a 'Asignado' 
+            // para que el nuevo técnico pueda aceptarlo.
+            if (isset($data['estado'])) {
+                $reclamo->estado = $data['estado'];
+            } elseif ($reclamo->estado === 'En Proceso') {
+                $reclamo->estado = 'Asignado';
+            }
+
+            // Actualizar SLA si se proporciona
+            if (isset($data['idPoliticaSLA'])) {
+                $reclamo->idPoliticaSLA = $data['idPoliticaSLA'];
+            }
+
             $reclamo->save();
 
             // 4. Redirección final
-            return redirect()->route('supervisor.tecnicos.dashboard')
-                            ->with('success', 'Reclamo #' . $reclamo->idReclamo . ' reasignado correctamente a ' . $tecnico->primerNombre . '.');
-            
+            return back()
+                ->with('success', 'Reclamo #'.$reclamo->idReclamo.' reasignado correctamente a '.$tecnico->primerNombre.'.');
+
         } catch (\Illuminate\Validation\ValidationException $e) {
             // Errores de validación
             return back()->withErrors($e->errors())->withInput();
-        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
-            // Modelo no encontrado
-            return back()->withErrors(['error' => 'No se encontró el reclamo o el técnico especificado.'])->withInput();
         } catch (\Exception $e) {
             // Cualquier otro error
-            \Log::error('Error al reasignar técnico: ' . $e->getMessage());
-            return back()->withErrors(['error' => 'Error al reasignar técnico: ' . $e->getMessage()])->withInput();
+            \Log::error('Error al reasignar técnico: '.$e->getMessage());
+
+            return back()->withErrors(['error' => 'Error al reasignar técnico: '.$e->getMessage()])->withInput();
         }
     }
 
@@ -279,24 +285,47 @@ class SupervisorTecnicoController extends Controller
     {
         // Obtener todos los reclamos con sus coordenadas y relaciones necesarias
         $reclamos = Reclamo::whereNotNull('latitudIncidente')
-                          ->whereNotNull('longitudIncidente')
-                          ->with(['usuario', 'tecnico', 'operador'])
-                          ->orderBy('fechaCreacion', 'desc')
-                          ->get();
+            ->whereNotNull('longitudIncidente')
+            ->with(['usuario', 'tecnico', 'operador'])
+            ->orderBy('fechaCreacion', 'desc')
+            ->get();
 
         // Separar reclamos resueltos/cerrados de los pendientes
-        $reclamosResueltos = $reclamos->filter(function($reclamo) {
+        $reclamosResueltos = $reclamos->filter(function ($reclamo) {
             return in_array($reclamo->estado, ['Resuelto', 'Cerrado']);
         });
 
-        $reclamosPendientes = $reclamos->filter(function($reclamo) {
-            return !in_array($reclamo->estado, ['Resuelto', 'Cerrado']);
+        $reclamosPendientes = $reclamos->filter(function ($reclamo) {
+            return ! in_array($reclamo->estado, ['Resuelto', 'Cerrado']);
         });
 
-        return view('supervisor_tecnicos.mapa_reclamos', [
-            'reclamosResueltos' => $reclamosResueltos,
-            'reclamosPendientes' => $reclamosPendientes,
-            'supervisor' => Auth::guard('empleado')->user()
-        ]);
+        // Obtener técnicos disponibles para el modal de asignación
+    $tecnicos = Empleado::with('tecnico')
+        ->where('rol', 'Tecnico')
+        ->where('estado', 'Activo')
+        ->whereHas('tecnico', function($q) {
+            $q->where('estadoDisponibilidad', 'Disponible');
+        })
+        ->get();
+
+    // Si el usuario es SuperAdmin, agregarlo a la lista de técnicos para pruebas
+    if (Auth::guard('empleado')->user()->rol === 'SuperAdmin') {
+        $superAdmin = Auth::guard('empleado')->user();
+        // Simular estructura de técnico si no la tiene
+        if (!$superAdmin->tecnico) {
+            $superAdmin->tecnico = new \App\Models\Tecnico([
+                'especialidad' => 'SuperAdmin',
+                'estadoDisponibilidad' => 'Disponible'
+            ]);
+        }
+        $tecnicos->push($superAdmin);
+    }
+
+    return view('supervisor_tecnicos.mapa_reclamos', [
+        'reclamosResueltos' => $reclamosResueltos,
+        'reclamosPendientes' => $reclamosPendientes,
+        'supervisor' => Auth::guard('empleado')->user(),
+        'tecnicos' => $tecnicos,
+    ]);
     }
 }

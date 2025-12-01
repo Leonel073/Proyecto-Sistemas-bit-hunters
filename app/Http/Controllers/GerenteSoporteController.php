@@ -15,10 +15,11 @@ class GerenteSoporteController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'idEmpleado' => 'required|integer|unique:gerentes_soporte,idEmpleado'
+            'idEmpleado' => 'required|integer|unique:gerentes_soporte,idEmpleado',
         ]);
 
         $gerente = GerenteSoporte::create($request->all());
+
         return response()->json(['message' => 'Gerente registrado', 'data' => $gerente]);
     }
 
@@ -31,12 +32,14 @@ class GerenteSoporteController extends Controller
     {
         $gerente = GerenteSoporte::findOrFail($id);
         $gerente->update($request->all());
+
         return response()->json(['message' => 'Gerente actualizado', 'data' => $gerente]);
     }
 
     public function destroy($id)
     {
         GerenteSoporte::destroy($id);
+
         return response()->json(['message' => 'Gerente eliminado']);
     }
 }

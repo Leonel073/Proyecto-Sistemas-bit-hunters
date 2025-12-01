@@ -4,10 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Models\Usuario;
 use Illuminate\Http\Request;
-use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use App\Http\Controllers\Controller; // Asegúrate de que el controlador base esté importado
+use Illuminate\Validation\Rule;
+
+// Asegúrate de que el controlador base esté importado
 
 class UsuarioController extends Controller
 {
@@ -17,13 +18,13 @@ class UsuarioController extends Controller
     public function index()
     {
         // Carga la lista de clientes/usuarios
-    $usuarios = Usuario::whereNull('fechaEliminacion')->get();
-    
-    // ✅ CORRECCIÓN: Definimos $empleados como un array vacío para evitar el error
-    $empleados = []; 
-    
-    // Devolvemos ambas variables a la vista
-    return view('usuarios', compact('usuarios', 'empleados'));
+        $usuarios = Usuario::whereNull('fechaEliminacion')->get();
+
+        // ✅ CORRECCIÓN: Definimos $empleados como un array vacío para evitar el error
+        $empleados = [];
+
+        // Devolvemos ambas variables a la vista
+        return view('gerente.usuarios.index', compact('usuarios', 'empleados'));
     }
 
     public function store(Request $request)
@@ -34,16 +35,18 @@ class UsuarioController extends Controller
             'apellidoPaterno' => 'required|string|max:100',
             'ci' => 'required|string|max:20|unique:usuarios,ci',
             'numeroCelular' => 'required|string|max:20|unique:usuarios,numeroCelular',
-            'passwordHash' => 'required|string|min:8'
+            'passwordHash' => 'required|string|min:8',
         ]);
 
         $usuario = Usuario::create($request->all());
+
         return response()->json(['message' => 'Usuario creado correctamente', 'data' => $usuario]);
     }
 
     public function show($id)
     {
         $usuario = Usuario::findOrFail($id);
+
         return response()->json($usuario);
     }
 
@@ -54,9 +57,9 @@ class UsuarioController extends Controller
     // Muestra el formulario para editar (ADMIN)
     public function edit($id)
     {
-        $usuario = Usuario::findOrFail($id);
-        // NOTA: Asegúrate de que esta vista sea donde tienes el formulario corregido
-        return view('views_usuarios.usuarios_edit', compact('usuario'));
+        // $usuario = Usuario::findOrFail($id);
+        // return view('views_usuarios.usuarios_edit', compact('usuario'));
+        abort(404); // La edición de usuarios desde admin se ha deshabilitado en favor del bloqueo
     }
 
     // Procesa la actualización (ADMIN)
@@ -85,11 +88,11 @@ class UsuarioController extends Controller
             $usuario->numeroCelular = $request->numeroCelular; // Agregado
             $usuario->estado = $request->estado;
             // CI no se actualiza por ser campo único
-            
+
             $usuario->save();
 
             // ✅ REDIRECCIÓN CORREGIDA: Va a la lista principal del admin
-            return redirect()->route('admin.usuarios.index')->with('success', 'Usuario actualizado correctamente.');
+            return redirect()->route('gerente.usuarios.index')->with('success', 'Usuario actualizado correctamente.');
         } catch (\Throwable $e) {
             return back()->withErrors(['error' => 'Error al actualizar: '.$e->getMessage()]);
         }
@@ -106,7 +109,7 @@ class UsuarioController extends Controller
         ]);
 
         // ✅ REDIRECCIÓN CORREGIDA: Va a la lista principal del admin
-        return redirect()->route('admin.usuarios.index')->with('success', 'Usuario eliminado correctamente.');
+        return redirect()->route('gerente.usuarios.index')->with('success', 'Usuario eliminado correctamente.');
     }
 
     // Restaurar usuario (ADMIN)
@@ -120,7 +123,34 @@ class UsuarioController extends Controller
         ]);
 
         // ✅ REDIRECCIÓN CORREGIDA: Va a la lista de eliminados del admin
-        return redirect()->route('admin.usuarios.deleted')->with('success', 'Usuario reactivado correctamente.');
+        return redirect()->route('gerente.usuarios.deleted')->with('success', 'Usuario reactivado correctamente.');
+    }
+
+    // Bloquear/Desbloquear usuario (ADMIN)
+    public function toggleBlock($id)
+    {
+        $usuario = Usuario::findOrFail($id);
+        
+        if ($usuario->estado == 'Bloqueado') {
+            $usuario->estado = 'Activo';
+            $message = 'Usuario desbloqueado correctamente.';
+        } else {
+            $usuario->estado = 'Bloqueado';
+            $message = 'Usuario bloqueado correctamente.';
+        }
+        
+        $usuario->save();
+
+        return redirect()->back()->with('success', $message);
+    }
+
+    // Ver usuarios eliminados (ADMIN)
+    public function deleted()
+    {
+        $usuarios = Usuario::where('estado', 'Eliminado')->get();
+        // Reutilizamos la vista de usuarios eliminados del gerente, pasando solo usuarios
+        $empleados = collect([]); // ✅ CORREGIDO: Colección vacía para evitar error isEmpty()
+        return view('gerente.usuarios.deleted', compact('usuarios', 'empleados'));
     }
 
     // =========================================================
@@ -133,7 +163,8 @@ class UsuarioController extends Controller
     public function perfil()
     {
         $usuario = Auth::user();
-        return view('views_usuarios/perfil_editar', compact('usuario'));
+
+        return view('cliente.profile', compact('usuario'));
     }
 
     /**
@@ -151,12 +182,12 @@ class UsuarioController extends Controller
             'apellidoMaterno' => 'nullable|string|max:100',
             'numeroCelular' => ['required', 'string', 'max:20', Rule::unique('usuarios')->ignore($usuario->idUsuario, 'idUsuario')],
             'email' => ['required', 'email', 'max:255', Rule::unique('usuarios')->ignore($usuario->idUsuario, 'idUsuario')],
-            'password' => 'nullable|string|min:8|confirmed', 
+            'password' => 'nullable|string|min:8|confirmed',
         ], [
             'numeroCelular.unique' => 'Este número de celular ya está en uso.',
             'email.unique' => 'Este correo electrónico ya está en uso.',
             'password.confirmed' => 'Las nuevas contraseñas no coinciden.',
-            'password.min' => 'La contraseña debe tener al menos 8 caracteres.'
+            'password.min' => 'La contraseña debe tener al menos 8 caracteres.',
         ]);
 
         // Actualizar datos básicos
@@ -175,6 +206,6 @@ class UsuarioController extends Controller
         /** @var \App\Models\Usuario $usuario */
         $usuario->save();
 
-        return redirect()->route('perfil.editar')->with('success', 'Tu información ha sido actualizada correctamente.');
+        return redirect()->route('seguimiento')->with('success', 'Tu información ha sido actualizada correctamente.');
     }
 }

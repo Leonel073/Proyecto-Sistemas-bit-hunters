@@ -10,12 +10,14 @@ class Reclamo extends Model
     use HasFactory;
 
     protected $table = 'reclamos';
+
     protected $primaryKey = 'idReclamo';
-    
+
     // Indicamos que los timestamps existen (created_at, updated_at)
     public $timestamps = true;
 
     const CREATED_AT = 'fechaCreacion';
+
     const UPDATED_AT = 'fechaActualizacion';
 
     // Los campos que se pueden llenar masivamente
@@ -32,10 +34,12 @@ class Reclamo extends Model
         'prioridad',
         'latitudIncidente',
         'longitudIncidente',
-        'comentarios', // <--- Agregamos esto para que funcione lo del chat
+        'direccion', // Agregado
+        'comentarios', 
         'fechaResolucion',
         'fechaCierre',
-        'fechaEliminacion'
+        'fechaEliminacion',
+        'fechaLimite', // Agregado
     ];
 
     // Casting para que 'comentarios' se maneje como array automáticamente
@@ -73,12 +77,20 @@ class Reclamo extends Model
     {
         return $this->belongsTo(Usuario::class, 'idUsuario', 'idUsuario');
     }
-    
+
     /**
      * Relación: Un Reclamo pertenece a una Política SLA
      */
     public function politicaSLA()
     {
         return $this->belongsTo(SlaPolitica::class, 'idPoliticaSLA', 'idPoliticaSLA');
+    }
+
+    /**
+     * Relación: Un Reclamo pertenece a un Tipo de Incidente
+     */
+    public function tipoIncidente()
+    {
+        return $this->belongsTo(CatTipoIncidente::class, 'idTipoIncidente', 'idTipoIncidente');
     }
 }

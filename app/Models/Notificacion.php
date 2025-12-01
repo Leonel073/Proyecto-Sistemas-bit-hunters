@@ -10,7 +10,9 @@ class Notificacion extends Model
     use HasFactory;
 
     protected $table = 'notificaciones';
+
     protected $primaryKey = 'idNotificacion';
+
     public $timestamps = false;
 
     protected $fillable = [
@@ -19,6 +21,6 @@ class Notificacion extends Model
         'canalEnvio',
         'mensaje',
         'fechaEnvio',
-        'estadoEnvio'
+        'estadoEnvio',
     ];
 }

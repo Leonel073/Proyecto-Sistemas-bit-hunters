@@ -12,8 +12,15 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('zonas', function (Blueprint $table) {
-            $table->id();
+            $table->id('idZona');
+            $table->string('nombreZona', 100);
+            $table->text('descripcion')->nullable();
+            $table->enum('estado', ['Activo', 'Inactivo'])->default('Activo');
             $table->timestamps();
+        });
+
+        Schema::table('usuarios', function (Blueprint $table) {
+            $table->foreign('idZona')->references('idZona')->on('zonas')->nullOnDelete();
         });
     }
 

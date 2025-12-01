@@ -10,7 +10,9 @@ class Usuario extends Authenticatable
     use Notifiable;
 
     protected $table = 'USUARIOS';
+
     protected $primaryKey = 'idUsuario';
+
     public $timestamps = false;
 
     protected $fillable = [
@@ -23,7 +25,8 @@ class Usuario extends Authenticatable
         'email',
         'passwordHash',
         'direccionTexto',
-        'estado'
+        'estado',
+        'idZona',
     ];
 
     protected $hidden = [

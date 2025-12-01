@@ -10,11 +10,13 @@ class SupervisorTecnico extends Model
     use HasFactory;
 
     protected $table = 'supervisores_tecnicos';
+
     protected $primaryKey = 'idEmpleado';
+
     public $timestamps = false;
 
     protected $fillable = [
         'idEmpleado',
-        'zonaGeograficaAsignada'
+        'zonaGeograficaAsignada',
     ];
 }

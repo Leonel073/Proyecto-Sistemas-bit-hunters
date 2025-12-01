@@ -16,10 +16,11 @@ class CatCausaRaizController extends Controller
     {
         $request->validate([
             'nombreCausa' => 'required|string|max:255|unique:cat_causa_raiz,nombreCausa',
-            'descripcion' => 'nullable|string'
+            'descripcion' => 'nullable|string',
         ]);
 
         $causa = CatCausaRaiz::create($request->all());
+
         return response()->json(['message' => 'Causa raíz registrada', 'data' => $causa]);
     }
 
@@ -32,12 +33,14 @@ class CatCausaRaizController extends Controller
     {
         $causa = CatCausaRaiz::findOrFail($id);
         $causa->update($request->all());
+
         return response()->json(['message' => 'Causa raíz actualizada', 'data' => $causa]);
     }
 
     public function destroy($id)
     {
         CatCausaRaiz::destroy($id);
+
         return response()->json(['message' => 'Causa raíz eliminada']);
     }
 }

@@ -1,13 +1,12 @@
 <?php
 
+use App\Http\Middleware\RoleMiddleware;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
-use Illuminate\Foundation\Configuration\Middleware;
-use Illuminate\Support\Facades\Auth; // ✅ Importante para verificar sesión
+use Illuminate\Foundation\Configuration\Middleware; // ✅ Importante para verificar sesión
 use Illuminate\Http\Request;
-
 // Importamos tu middleware de Roles
-use App\Http\Middleware\RoleMiddleware;
+use Illuminate\Support\Facades\Auth;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -16,7 +15,7 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
-        
+
         // Alias para los roles
         $middleware->alias([
             'role' => RoleMiddleware::class,
@@ -24,11 +23,11 @@ return Application::configure(basePath: dirname(__DIR__))
 
         // ✅ LÓGICA DE REDIRECCIÓN PERSONALIZADA
         $middleware->redirectGuestsTo(function (Request $request) {
-            
+
             // Rutas protegidas de empleados
-            $esRutaProtegida = $request->is('admin/*') || 
-                               $request->is('supervisor/*') || 
-                               $request->is('operador/*') || 
+            $esRutaProtegida = $request->is('admin/*') ||
+                               $request->is('supervisor/*') ||
+                               $request->is('operador/*') ||
                                $request->is('tecnico/*');
 
             if ($esRutaProtegida) {
@@ -36,12 +35,12 @@ return Application::configure(basePath: dirname(__DIR__))
                 if (Auth::guard('web')->check()) {
                     abort(403, 'Acceso denegado: Tu cuenta de Cliente no tiene permisos para acceder al panel interno.');
                 }
-                
+
                 // 2. Si es un EMPLEADO logueado pero se le acabó la sesión -> LOGIN
                 // (Esto permite re-loguearse)
                 return route('login');
             }
-            
+
             // Por defecto a login
             return route('login');
         });

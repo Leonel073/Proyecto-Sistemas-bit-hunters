@@ -15,18 +15,17 @@ class EmpleadoController extends Controller
     {
         $empleados = Empleado::where('estado', '!=', 'Eliminado')
             ->whereNull('fechaEliminacion')
-            ->get();
-        $usuarios = Usuario::where('estado', '!=', 'Eliminado')
-            ->whereNull('fechaEliminacion')
+            ->orderBy('apellidoPaterno')
             ->get();
 
-        return view('usuarios', compact('empleados', 'usuarios'));
+        return view('gerente.empleados', compact('empleados'));
     }
 
     public function create()
     {
         $gerenteExiste = Empleado::where('rol', 'Gerente')->exists();
-        return view('admin.empleados_create', compact('gerenteExiste'));
+
+        return view('gerente.empleados_create', compact('gerenteExiste'));
     }
 
     public function store(Request $request)
@@ -63,21 +62,27 @@ class EmpleadoController extends Controller
         ]);
 
         switch ($empleado->rol) {
-            case 'Gerente': \App\Models\GerenteSoporte::create(['idEmpleado' => $empleado->idEmpleado]); break;
-            case 'SupervisorOperador': \App\Models\SupervisorOperador::create(['idEmpleado' => $empleado->idEmpleado]); break;
-            case 'SupervisorTecnico': \App\Models\SupervisorTecnico::create(['idEmpleado' => $empleado->idEmpleado]); break;
-            case 'Operador': \App\Models\Operador::create(['idEmpleado' => $empleado->idEmpleado, 'turno' => 'Mañana']); break;
-            case 'Tecnico': \App\Models\Tecnico::create(['idEmpleado' => $empleado->idEmpleado, 'especialidad' => 'General']); break;
+            case 'Gerente': \App\Models\GerenteSoporte::create(['idEmpleado' => $empleado->idEmpleado]);
+                break;
+            case 'SupervisorOperador': \App\Models\SupervisorOperador::create(['idEmpleado' => $empleado->idEmpleado]);
+                break;
+            case 'SupervisorTecnico': \App\Models\SupervisorTecnico::create(['idEmpleado' => $empleado->idEmpleado]);
+                break;
+            case 'Operador': \App\Models\Operador::create(['idEmpleado' => $empleado->idEmpleado, 'turno' => 'Mañana']);
+                break;
+            case 'Tecnico': \App\Models\Tecnico::create(['idEmpleado' => $empleado->idEmpleado, 'especialidad' => 'General']);
+                break;
         }
 
-        // ✅ CORREGIDO: admin.empleados.index
-        return redirect()->route('admin.empleados.index')->with('success', 'Empleado registrado correctamente.');
+        // ✅ CORREGIDO: gerente.empleados.index
+        return redirect()->route('gerente.empleados.index')->with('success', 'Empleado registrado correctamente.');
     }
 
     public function edit($id)
     {
         $empleado = Empleado::findOrFail($id);
-        return view('admin.empleados_edit', compact('empleado'));
+
+        return view('gerente.empleados_edit', compact('empleado'));
     }
 
     public function update(Request $request, $id)
@@ -102,8 +107,8 @@ class EmpleadoController extends Controller
             'estado' => $request->estado,
         ]);
 
-        // ✅ CORREGIDO: admin.empleados.index
-        return redirect()->route('admin.empleados.index')->with('success', 'Empleado actualizado correctamente.');
+        // ✅ CORREGIDO: gerente.empleados.index
+        return redirect()->route('gerente.empleados.index')->with('success', 'Empleado actualizado correctamente.');
     }
 
     public function destroy($id)
@@ -111,31 +116,34 @@ class EmpleadoController extends Controller
         $empleado = Empleado::findOrFail($id);
         $empleado->update(['estado' => 'Eliminado', 'fechaEliminacion' => now()]);
 
-        // ✅ CORREGIDO: admin.empleados.index
-        return redirect()->route('admin.empleados.index')->with('success', 'Empleado eliminado correctamente.');
+        // ✅ CORREGIDO: gerente.empleados.index
+        return redirect()->route('gerente.empleados.index')->with('success', 'Empleado eliminado correctamente.');
     }
 
     public function deleted()
     {
         $empleados = Empleado::where('estado', 'Eliminado')->get();
         $usuarios = \App\Models\Usuario::where('estado', 'Eliminado')->get();
-        return view('admin.usuarios_deleted', compact('empleados', 'usuarios'));
+
+        return view('gerente.usuarios_deleted', compact('empleados', 'usuarios'));
     }
 
     public function restore($id)
     {
         $empleado = Empleado::find($id);
         if ($empleado) {
-             $empleado->update(['estado' => 'Activo', 'fechaEliminacion' => null]);
-             // ✅ CORREGIDO: admin.empleados.deleted
-             return redirect()->route('admin.empleados.deleted')->with('success', 'Empleado reactivado correctamente.');
-        } 
-        
+            $empleado->update(['estado' => 'Activo', 'fechaEliminacion' => null]);
+
+            // ✅ CORREGIDO: gerente.empleados.deleted
+            return redirect()->route('gerente.empleados.deleted')->with('success', 'Empleado reactivado correctamente.');
+        }
+
         $usuario = Usuario::find($id);
-         if ($usuario) {
+        if ($usuario) {
             $usuario->update(['estado' => 'Activo', 'fechaEliminacion' => null]);
-            // ✅ CORREGIDO: admin.empleados.deleted
-            return redirect()->route('admin.empleados.deleted')->with('success', 'Usuario reactivado correctamente.');
+
+            // ✅ CORREGIDO: gerente.empleados.deleted
+            return redirect()->route('gerente.empleados.deleted')->with('success', 'Usuario reactivado correctamente.');
         }
 
         return redirect()->route('admin.empleados.deleted')->withErrors('No se pudo encontrar el usuario o empleado.');
