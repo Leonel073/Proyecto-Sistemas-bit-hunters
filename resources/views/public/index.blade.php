@@ -22,10 +22,10 @@
         <div class="hidden md:flex space-x-8 items-center">
           <button onclick="navigateTo('inicio')" class="text-slate-300 hover:text-white font-medium transition-colors text-sm uppercase tracking-wider">Inicio</button>
           <button onclick="scrollToSection('beneficios')" class="text-slate-300 hover:text-white font-medium transition-colors text-sm uppercase tracking-wider">Beneficios</button>
-          <button onclick="navigateTo('seguimiento')" class="text-slate-300 hover:text-white font-medium transition-colors text-sm uppercase tracking-wider">Seguimiento</button>
+          <button onclick="showAuthModal('seguimiento')" class="text-slate-300 hover:text-white font-medium transition-colors text-sm uppercase tracking-wider">Seguimiento</button>
           <button onclick="navigateTo('recursos')" class="text-slate-300 hover:text-white font-medium transition-colors text-sm uppercase tracking-wider">Recursos</button>
           
-          @auth
+          @if(auth()->guard('web')->check() || auth()->guard('empleado')->check())
             <a href="{{ route('formulario') }}" class="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2 rounded-full font-bold shadow-lg shadow-indigo-500/30 transition-all transform hover:-translate-y-0.5 text-sm">
               Mi Panel
             </a>
@@ -33,7 +33,7 @@
             <a href="{{ route('login') }}" class="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2 rounded-full font-bold shadow-lg shadow-indigo-500/30 transition-all transform hover:-translate-y-0.5 text-sm">
               Acceder
             </a>
-          @endauth
+          @endif
         </div>
 
         <!-- Mobile Menu Button -->
@@ -52,7 +52,7 @@
       <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
         <button onclick="navigateTo('inicio')" class="block w-full text-left px-3 py-2 rounded-md text-base font-medium text-white hover:bg-slate-700">Inicio</button>
         <button onclick="scrollToSection('beneficios')" class="block w-full text-left px-3 py-2 rounded-md text-base font-medium text-slate-300 hover:text-white hover:bg-slate-700">Beneficios</button>
-        <button onclick="navigateTo('seguimiento')" class="block w-full text-left px-3 py-2 rounded-md text-base font-medium text-slate-300 hover:text-white hover:bg-slate-700">Seguimiento</button>
+        <button onclick="showAuthModal('seguimiento')" class="block w-full text-left px-3 py-2 rounded-md text-base font-medium text-slate-300 hover:text-white hover:bg-slate-700">Seguimiento</button>
         <button onclick="navigateTo('recursos')" class="block w-full text-left px-3 py-2 rounded-md text-base font-medium text-slate-300 hover:text-white hover:bg-slate-700">Recursos</button>
       </div>
     </div>
@@ -351,11 +351,11 @@
   <script>
     // ========== Variables Globales ==========
     let authModal = null;
-    const isAuthenticated = {{ auth()->check() ? 'true' : 'false' }};
+    const isAuthenticated = {{ (auth()->guard('web')->check() || auth()->guard('empleado')->check()) ? 'true' : 'false' }};
 
     // ========== Funciones de Navegación ==========
     function navigateTo(page) {
-      const routes = { inicio: '/', recursos: '/recursos', seguimiento: '/seguimiento' };
+      const routes = { inicio: '/', recursos: '{{ route('recursos') }}', seguimiento: '{{ route('seguimiento') }}' };
       if (routes[page]) window.location.href = routes[page];
     }
 
@@ -368,7 +368,7 @@
 
     function showAuthModal(target) {
       if (isAuthenticated) {
-        const routes = { 'formulario': '/formulario', 'seguimiento': '/seguimiento' };
+        const routes = { 'formulario': '{{ route('formulario') }}', 'seguimiento': '{{ route('seguimiento') }}' };
         if (routes[target]) {
           window.location.href = routes[target];
         }

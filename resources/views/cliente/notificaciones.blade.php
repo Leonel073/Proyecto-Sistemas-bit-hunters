@@ -45,8 +45,8 @@
                                 <div class="flex items-center justify-between mb-2">
                                     <div class="flex items-center">
                                         <div class="flex-shrink-0 mr-4">
-                                            <span class="inline-flex items-center justify-center h-10 w-10 rounded-full 
-                                                {{ $notificacion->leida ? 'bg-slate-100 text-slate-400' : 'bg-indigo-100 text-indigo-600' }}">
+                                        <span class="inline-flex items-center justify-center h-10 w-10 rounded-full 
+                                                {{ $notificacion->estadoEnvio == 'Leído' ? 'bg-slate-100 text-slate-400' : 'bg-indigo-100 text-indigo-600' }}">
                                                 <i class="fas fa-bell"></i>
                                             </span>
                                         </div>
@@ -55,8 +55,8 @@
                                         </p>
                                     </div>
                                     <div class="ml-2 flex-shrink-0 flex">
-                                        <p class="px-2.5 py-0.5 inline-flex text-xs leading-5 font-bold rounded-full uppercase tracking-wide {{ $notificacion->leida ? 'bg-slate-100 text-slate-600' : 'bg-emerald-100 text-emerald-700' }}">
-                                            {{ $notificacion->leida ? 'Leída' : 'Nueva' }}
+                                        <p class="px-2.5 py-0.5 inline-flex text-xs leading-5 font-bold rounded-full uppercase tracking-wide {{ $notificacion->estadoEnvio == 'Leído' ? 'bg-slate-100 text-slate-600' : 'bg-emerald-100 text-emerald-700' }}">
+                                            {{ $notificacion->estadoEnvio == 'Leído' ? 'Leída' : 'Nueva' }}
                                         </p>
                                     </div>
                                 </div>
@@ -67,7 +67,7 @@
                                     <div class="mt-2 flex items-center text-xs text-slate-400">
                                         <i class="far fa-clock flex-shrink-0 mr-1.5"></i>
                                         <p>
-                                            {{ $notificacion->created_at->diffForHumans() }}
+                                            {{ $notificacion->fechaEnvio->diffForHumans() }}
                                         </p>
                                     </div>
                                 </div>

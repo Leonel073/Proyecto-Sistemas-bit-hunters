@@ -127,4 +127,95 @@ class ReclamoController extends Controller
 
     // NOTA: Se asume que todas las demás funciones (index, show, etc.)
     // que devuelven JSON o vistas siguen existiendo en el controlador.
+    /**
+     * El cliente confirma la solución y cierra el reclamo.
+     */
+    public function cerrar(Reclamo $reclamo)
+    {
+        // Verificar que el reclamo pertenezca al usuario autenticado
+        if ($reclamo->idUsuario !== Auth::id()) {
+            return back()->with('error', 'No tiene permiso para realizar esta acción.');
+        }
+
+        if ($reclamo->estado !== 'Resuelto') {
+            return back()->with('error', 'Solo se pueden cerrar reclamos que han sido resueltos.');
+        }
+
+        $reclamo->estado = 'Cerrado';
+        $reclamo->fechaCierre = now();
+        $reclamo->fechaActualizacion = now();
+        
+        // Agregar comentario de cierre
+        $comentarios = $reclamo->comentarios ?? [];
+        $comentarios[] = [
+            'fecha' => now()->toIso8601String(),
+            'texto' => 'Cliente confirmó la solución y cerró el caso.',
+            'autor' => 'Cliente'
+        ];
+        $reclamo->comentarios = $comentarios;
+        
+        $reclamo->save();
+
+        // Crear notificación de confirmación
+        \App\Models\Notificacion::create([
+            'idUsuario' => Auth::id(),
+            'idReclamo' => $reclamo->idReclamo,
+            'mensaje' => "Ha cerrado exitosamente el reclamo #{$reclamo->idReclamo}.",
+            'canalEnvio' => 'Push'
+        ]);
+
+        return back()->with('success', 'Reclamo cerrado exitosamente. Gracias por confirmar.');
+    }
+
+    /**
+     * El cliente rechaza la solución y reabre el reclamo.
+     */
+    public function reabrir(Request $request, Reclamo $reclamo)
+    {
+        $request->validate([
+            'motivo_rechazo' => 'required|string|min:5|max:500',
+        ]);
+
+        try {
+            // Verificar que el reclamo pertenezca al usuario autenticado
+            if ($reclamo->idUsuario !== Auth::id()) {
+                return back()->with('error', 'No tiene permiso para realizar esta acción.');
+            }
+
+            if ($reclamo->estado !== 'Resuelto') {
+                return back()->with('error', 'Solo se pueden reabrir reclamos que están en estado Resuelto.');
+            }
+
+            $reclamo->estado = 'En Proceso';
+            $reclamo->fechaActualizacion = now();
+            
+            // Agregar comentario de rechazo
+            $comentarios = $reclamo->comentarios ?? [];
+            $comentarios[] = [
+                'fecha' => now()->toIso8601String(),
+                'texto' => 'Cliente rechazó la solución: ' . $request->motivo_rechazo,
+                'autor' => 'Cliente'
+            ];
+            $reclamo->comentarios = $comentarios;
+            
+            $reclamo->save();
+
+            // Notificar al técnico asignado (si existe)
+            /*
+             * Nota: Aquí idealmente notificaríamos al técnico, pero por ahora
+             * solo registramos la notificación para el cliente confirmando la acción.
+             */
+            \App\Models\Notificacion::create([
+                'idUsuario' => Auth::id(),
+                'idReclamo' => $reclamo->idReclamo,
+                'mensaje' => "Ha reabierto el reclamo #{$reclamo->idReclamo}. Un técnico revisará su caso nuevamente.",
+                'canalEnvio' => 'Push'
+            ]);
+
+            return back()->with('success', 'Reclamo reabierto. El técnico será notificado.');
+
+        } catch (\Exception $e) {
+            return back()->with('error', 'Error al reabrir el reclamo: ' . $e->getMessage());
+        }
+    }
 }

@@ -127,6 +127,14 @@ class TecnicoController extends Controller
                 $tecnico->save();
             }
 
+            // Notificar al cliente
+            \App\Models\Notificacion::create([
+                'idUsuario' => $reclamo->idUsuario,
+                'idReclamo' => $reclamo->idReclamo,
+                'mensaje' => "Su reclamo #{$reclamo->idReclamo} ha sido marcado como RESUELTO. Por favor ingrese al sistema para confirmar o rechazar la solución.",
+                'canalEnvio' => 'Push'
+            ]);
+
             return redirect()->route('tecnico.dashboard')->with('success', "Reclamo #{$reclamo->idReclamo} ha sido marcado como 'Resuelto' y tu estado ahora es 'Disponible'.");
 
         } catch (\Exception $e) {

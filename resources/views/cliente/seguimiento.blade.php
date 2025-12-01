@@ -148,6 +148,28 @@
                             </div>
                         </div>
 
+                        <!-- Acciones de Usuario (Confirmar / Rechazar) -->
+                        @if($reclamo->estado == 'Resuelto')
+                            <div class="mt-8 pt-6 border-t border-slate-100 bg-indigo-50/50 -mx-8 px-8 py-6">
+                                <h4 class="text-sm font-bold text-slate-900 mb-2">Acción Requerida</h4>
+                                <p class="text-sm text-slate-600 mb-4">El técnico ha marcado este reclamo como resuelto. Por favor confirme si el problema se ha solucionado.</p>
+                                
+                                <div class="flex flex-col sm:flex-row gap-3">
+                                    <form action="{{ route('reclamo.cerrar', $reclamo->idReclamo) }}" method="POST" class="inline-block">
+                                        @csrf
+                                        @method('PUT')
+                                        <button type="submit" class="w-full sm:w-auto inline-flex justify-center items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-emerald-600 hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 transition-colors">
+                                            <i class="fas fa-check mr-2"></i> Confirmar Solución
+                                        </button>
+                                    </form>
+
+                                    <button type="button" onclick="openRejectionModal(this)" data-url="{{ route('reclamo.reabrir', $reclamo->idReclamo) }}" class="w-full sm:w-auto inline-flex justify-center items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-rose-600 hover:bg-rose-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-rose-500 transition-colors">
+                                        <i class="fas fa-times mr-2"></i> Rechazar Solución
+                                    </button>
+                                </div>
+                            </div>
+                        @endif
+
                         <!-- Comentarios / Historial -->
                         @if($reclamo->comentarios)
                             <div class="mt-8 pt-6 border-t border-slate-100">
@@ -195,4 +217,65 @@
         </div>
     @endif
 </div>
+
+<!-- Modal de Rechazo -->
+<!-- Modal de Rechazo -->
+<div id="rejectionModal" class="fixed inset-0 z-50 hidden" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+    <!-- Backdrop -->
+    <div class="fixed inset-0 bg-slate-900/75 transition-opacity" aria-hidden="true" onclick="closeRejectionModal()"></div>
+
+    <!-- Modal Panel Container -->
+    <div class="fixed inset-0 z-10 overflow-y-auto">
+        <div class="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
+            
+            <!-- Modal Panel -->
+            <div class="relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg">
+                <form id="rejectionForm" method="POST">
+                    @csrf
+                    @method('PUT')
+                    <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                        <div class="sm:flex sm:items-start">
+                            <div class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-rose-100 sm:mx-0 sm:h-10 sm:w-10">
+                                <i class="fas fa-exclamation-triangle text-rose-600"></i>
+                            </div>
+                            <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left w-full">
+                                <h3 class="text-lg leading-6 font-medium text-gray-900" id="modal-title">
+                                    Rechazar Solución
+                                </h3>
+                                <div class="mt-2">
+                                    <p class="text-sm text-gray-500 mb-4">
+                                        Por favor indique el motivo por el cual rechaza la solución propuesta. El reclamo será reabierto.
+                                    </p>
+                                    <textarea name="motivo_rechazo" rows="3" class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md" placeholder="Explique por qué persiste el problema..." required></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+                        <button type="submit" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-rose-600 text-base font-medium text-white hover:bg-rose-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-rose-500 sm:ml-3 sm:w-auto sm:text-sm">
+                            Reabrir Reclamo
+                        </button>
+                        <button type="button" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm" onclick="closeRejectionModal()">
+                            Cancelar
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function openRejectionModal(button) {
+        const modal = document.getElementById('rejectionModal');
+        const form = document.getElementById('rejectionForm');
+        form.action = button.getAttribute('data-url');
+        modal.classList.remove('hidden');
+    }
+
+    function closeRejectionModal() {
+        const modal = document.getElementById('rejectionModal');
+        modal.classList.add('hidden');
+    }
+</script>
 @endsection

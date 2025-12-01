@@ -78,18 +78,27 @@ class LoginController extends Controller
 
         $request->session()->regenerate();
 
+        // --- AUDITORÍA DE INICIO DE SESIÓN ---
+        try {
+            $auditData = [
+                'accion' => 'login',
+                'detalleAccion' => 'Inicio de sesión exitoso',
+                'ipOrigen' => $request->ip(),
+            ];
+
+            if ($tipo === 'empleado') {
+                $auditData['idEmpleado'] = $persona->idEmpleado;
+            } else {
+                $auditData['idUsuario'] = $persona->idUsuario;
+            }
+
+            RegistroAuditoria::create($auditData);
+        } catch (\Exception $e) {
+            Log::error('Error al crear auditoría: '.$e->getMessage());
+        }
+
         if ($tipo === 'empleado') {
             session(['user_role' => $persona->rol]);
-            try {
-                RegistroAuditoria::create([
-                    'idEmpleado' => $persona->idEmpleado,
-                    'accion' => 'login',
-                    'detalleAccion' => 'Inicio de sesión exitoso',
-                    'ipOrigen' => $request->ip(),
-                ]);
-            } catch (\Exception $e) {
-                Log::error('Error al crear auditoría: '.$e->getMessage());
-            }
         }
 
         // --- REDIRECCIÓN SEGÚN ROL (CORREGIDO) ---

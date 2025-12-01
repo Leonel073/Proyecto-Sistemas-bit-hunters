@@ -48,7 +48,7 @@ class NotificacionController extends Controller
         
         // Obtener notificaciones del usuario, ordenadas por fecha
         $notificaciones = Notificacion::where('idUsuario', $usuario->idUsuario)
-            ->orderBy('created_at', 'desc')
+            ->orderBy('fechaEnvio', 'desc')
             ->paginate(10);
 
         return view('cliente.notificaciones', compact('notificaciones'));
@@ -62,8 +62,8 @@ class NotificacionController extends Controller
         $usuario = \Illuminate\Support\Facades\Auth::user();
         
         Notificacion::where('idUsuario', $usuario->idUsuario)
-            ->where('leida', false)
-            ->update(['leida' => true]);
+            ->where('estadoEnvio', '!=', 'Leído')
+            ->update(['estadoEnvio' => 'Leído']);
 
         return back()->with('success', 'Todas las notificaciones marcadas como leídas.');
     }

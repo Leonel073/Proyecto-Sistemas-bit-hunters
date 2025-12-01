@@ -11,6 +11,7 @@ use App\Http\Controllers\TecnicoController;
 use App\Http\Controllers\UsuarioController;
 use App\Http\Controllers\AdminController; // <--- Importación del nuevo controlador de Admin
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Auth; // Added for debug route
 
 /*
 |--------------------------------------------------------------------------
@@ -45,6 +46,10 @@ Route::middleware(['auth:web,empleado'])->group(function () {
         // Notificaciones
         Route::get('/notificaciones', [\App\Http\Controllers\NotificacionController::class, 'indexView'])->name('notificaciones.index');
         Route::post('/notificaciones/marcar-todas', [\App\Http\Controllers\NotificacionController::class, 'marcarTodas'])->name('notificaciones.marcarTodas');
+
+        // Acciones de Reclamo (Cliente)
+        Route::put('/reclamo/{reclamo}/cerrar', [ReclamoController::class, 'cerrar'])->name('reclamo.cerrar');
+        Route::put('/reclamo/{reclamo}/reabrir', [ReclamoController::class, 'reabrir'])->name('reclamo.reabrir');
     });
 });
 
@@ -177,3 +182,15 @@ Route::middleware(['auth:empleado', 'role:Tecnico,SupervisorTecnico,Gerente,Supe
         Route::put('/reclamos/{reclamo}/aceptar', [TecnicoController::class, 'aceptarReclamo'])->name('reclamos.aceptar');
         Route::put('/reclamos/{reclamo}/resolver', [TecnicoController::class, 'resolverReclamo'])->name('reclamos.resolver');
     });
+
+// DEBUG ROUTE
+Route::get('/debug-auth', function () {
+    return [
+        'web_check' => Auth::guard('web')->check(),
+        'web_user' => Auth::guard('web')->user(),
+        'empleado_check' => Auth::guard('empleado')->check(),
+        'empleado_user' => Auth::guard('empleado')->user(),
+        'default_guard' => config('auth.defaults.guard'),
+        'session_id' => session()->getId(),
+    ];
+});

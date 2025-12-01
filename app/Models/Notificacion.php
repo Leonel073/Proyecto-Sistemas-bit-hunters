@@ -23,4 +23,8 @@ class Notificacion extends Model
         'fechaEnvio',
         'estadoEnvio',
     ];
+
+    protected $casts = [
+        'fechaEnvio' => 'datetime',
+    ];
 }
